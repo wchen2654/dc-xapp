@@ -1,0 +1,76 @@
+﻿{
+     	"containers": [
+        {
+            "image": {
+		"registry": "xApp-registry.local:5008",
+                "name": "dc",
+                "tag": "0.1.0"
+            },
+            "name": "dc-xapp"
+        }
+    ],
+    "json_url": "dc",
+    "messaging": {
+        "ports": [
+            {
+                "container": "dc-xapp",
+                "description": "rmr receive data port for dc-xapp",
+                "name": "rmr-data",
+                "policies": [
+                    1
+                ],
+                "port": 4560,
+                "rxMessages": [
+                    "RIC_SUB_RESP",
+                    "RIC_SUB_FAILURE",
+                    "RIC_INDICATION",
+                    "RIC_SUB_DEL_RESP",
+                    "RIC_SUB_DEL_FAILURE",
+                    "RIC_CONTROL_ACK",
+                    "RIC_CONTROL_FAILURE"
+                ],
+                "txMessages": [
+                    "RIC_SUB_REQ",
+                    "RIC_SUB_DEL_REQ",
+                    "RIC_CONTROL_REQ"
+                ]
+            },
+            {
+                "container": "dc-xapp",
+                "description": "rmr route port for dc-xapp",
+                "name": "rmr-route",
+                "port": 4561
+            },
+            {
+                "container": "dc-xapp",
+                "description": "RESTful http northbound interface dc-xapp",
+                "name": "nbi",
+                "port": 8000
+            }
+        ]
+    },
+    "rmr": {
+        "maxSize": 2072,
+        "numWorkers": 1,
+        "policies": [
+            1
+        ],
+        "protPort": "tcp:4560",
+        "rxMessages": [
+            "RIC_SUB_RESP",
+            "RIC_SUB_FAILURE",
+            "RIC_INDICATION",
+            "RIC_SUB_DEL_RESP",
+            "RIC_SUB_DEL_FAILURE",
+            "RIC_CONTROL_ACK",
+            "RIC_CONTROL_FAILURE"
+        ],
+        "txMessages": [
+            "RIC_SUB_REQ",
+            "RIC_SUB_DEL_REQ",
+            "RIC_CONTROL_REQ"
+        ]
+    },
+    "version": "0.1.0",
+    "xapp_name": "dc"
+}
