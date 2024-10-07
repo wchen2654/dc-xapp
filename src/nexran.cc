@@ -203,7 +203,6 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
     e2sm::kpm::KpmReport *report = kind->report;
     std::string rname;
 
-	handle_appconfig_update();
 
     if (kind->parent && kind->parent->subscription_request != nullptr) {
 	rname = kind->parent->subscription_request->meid;
@@ -687,6 +686,7 @@ void App::start()
     server.init(this);
     server.start();
     running = true;
+	handle_appconfig_update();
 }
 
 void App::stop()
