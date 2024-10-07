@@ -523,7 +523,6 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 	
 	}
     }
-	}
 
     // Handle any updates; log either way.
     for (auto it = new_share_factors.begin(); it != new_share_factors.end(); ++it) {
