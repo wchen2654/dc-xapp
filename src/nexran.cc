@@ -1272,7 +1272,7 @@ bool App::handle_appconfig_update(void)
 	else {
 	    influxdb_url = std::string();
 	}
-	std::cout << influxdb_url.c_str() << std::endl;
+	std::cout << "This is the influxdb url: " << influxdb_url.c_str() << std::endl;
     }
 
     return true;
