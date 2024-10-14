@@ -197,6 +197,9 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
 /// @return 
 bool App::handle(e2sm::kpm::KpmIndication *kind)
 {
+
+	std::shared_ptr<influxdb::InfluxDB> influxdb = influxdb::InfluxDBFactory::Get("http://127.0.0.1:8086");
+
     mdclog_write(MDCLOG_INFO,"KpmIndication: %s",
 		 kind->report->to_string('\n',',').c_str());
 
