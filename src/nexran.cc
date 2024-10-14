@@ -686,7 +686,6 @@ void App::start()
     server.init(this);
     server.start();
     running = true;
-	handle_appconfig_update();
 }
 
 void App::stop()
@@ -1274,7 +1273,7 @@ bool App::handle_appconfig_update(void)
 	else {
 	    influxdb_url = std::string();
 	}
-	std::cout << "This is the influxdb url: " << influxdb_url.c_str() << std::endl;
+	mdclog_write(MDCLOG_INFO, "Influxdb url %s", app_config.influxdb_url.c_str());
     }
 
     return true;
