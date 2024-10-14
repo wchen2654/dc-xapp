@@ -197,10 +197,11 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
 /// @return 
 bool App::handle(e2sm::kpm::KpmIndication *kind)
 {
+
+	auto influxdb = influxdb::InfluxDBFactory::Get("http://127.0.0.1:8086");
+
     mdclog_write(MDCLOG_INFO,"KpmIndication: %s",
 		 kind->report->to_string('\n',',').c_str());
-
-	mdclog_write(MDCLOG_INFO, "Influxdb url %s", app_config.influxdb_url.c_str());
 
     e2sm::kpm::KpmReport *report = kind->report;
     std::string rname;
@@ -1275,7 +1276,6 @@ bool App::handle_appconfig_update(void)
 	else {
 	    influxdb_url = std::string();
 	}
-	mdclog_write(MDCLOG_INFO, "Influxdb url %s", app_config.influxdb_url.c_str());
     }
 
     return true;
