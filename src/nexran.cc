@@ -199,7 +199,7 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
 bool App::handle(e2sm::kpm::KpmIndication *kind)
 {
 
-	auto influxdb = influxdb::InfluxDBFactory::Get("http://10.97.189.80:8086");
+	auto influxdb = influxdb::InfluxDBFactory::Get("http://10.97.189.80:8086?db=Data_Collector");
 	// influxdb->createDatabaseIfNotExists();
 
     mdclog_write(MDCLOG_INFO,"KpmIndication: %s",
