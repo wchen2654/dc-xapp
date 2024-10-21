@@ -200,7 +200,7 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 {
 
 	auto influxdb = influxdb::InfluxDBFactory::Get("http://10.97.189.80:8086?db=_internal");
-	influxdb->createDatabaseIfNotExists();
+	// influxdb->createDatabaseIfNotExists();
 
     mdclog_write(MDCLOG_INFO,"KpmIndication: %s",
 		 kind->report->to_string('\n',',').c_str());
