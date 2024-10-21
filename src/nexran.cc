@@ -19,6 +19,7 @@
 //#include "restserver.cc"
 
 #include <curl/curl.h>
+#include <InfluxDBFactory.h>
 using namespace std;
 
 int ue_counter = 0; // Counter used to iterate through each UE the report
