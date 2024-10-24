@@ -198,12 +198,12 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
 bool App::handle(e2sm::kpm::KpmIndication *kind)
 {
 
-	auto influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
+	// auto influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
 
-	if (influxdb)
-	{
-		std::cout << "Connection Successful" << std::endl;
-	}
+	// if (influxdb)
+	// {
+	// 	std::cout << "Connection Successful" << std::endl;
+	// }
 
 	// influxdb->createDatabaseIfNotExists();
 
@@ -689,7 +689,12 @@ void App::start()
     rmr_thread = new std::thread(&App::Listen,this);
     response_thread = new std::thread(&App::response_handler,this);
 
-	mdclog_write(MDCLOG_INFO, "XAPP HAS OFFICIAL STARTED");
+	auto influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
+
+	if (influxdb)
+	{
+		mdclog_write(MDCLOG_INFO,"Connection Successful");
+	}
 
     /*
      * Init and start the northbound interface.
