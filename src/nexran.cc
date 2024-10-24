@@ -689,11 +689,20 @@ void App::start()
     rmr_thread = new std::thread(&App::Listen,this);
     response_thread = new std::thread(&App::response_handler,this);
 
-	auto influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collecto");
+	auto influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
 
-	if (influxdb)
-	{
-		mdclog_write(MDCLOG_INFO,"Connection Successful");
+	try {
+		// Example query to test connection
+		auto result = influxdb->query("SHOW DATABASES");
+		
+		// Check if the result is valid
+		if (!result.empty()) {
+			std::cout << "InfluxDB connection succeeded, data fetched." << std::endl;
+		} else {
+			std::cout << "InfluxDB connection succeeded, but no data found." << std::endl;
+		}
+	} catch (const std::exception& e) {
+		std::cerr << "InfluxDB connection failed: " << e.what() << std::endl;
 	}
 
     /*
