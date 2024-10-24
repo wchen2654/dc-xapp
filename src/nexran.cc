@@ -19,7 +19,6 @@
 //#include "restserver.cc"
 
 #include <curl/curl.h>
-#include <InfluxDBFactory.h>
 using namespace std;
 
 int ue_counter = 0; // Counter used to iterate through each UE the report
@@ -199,7 +198,13 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
 bool App::handle(e2sm::kpm::KpmIndication *kind)
 {
 
-	auto influxdb = influxdb::InfluxDBFactory::Get("http://10.97.189.80:8086?db=Data_Collector");
+	auto influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
+
+	if (influxdb)
+	{
+		std::cout << "Connection Successful" << std::endl;
+	}
+
 	// influxdb->createDatabaseIfNotExists();
 
     mdclog_write(MDCLOG_INFO,"KpmIndication: %s",
