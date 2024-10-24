@@ -693,14 +693,8 @@ void App::start()
 
 	try {
 		// Example query to test connection
-		auto result = influxdb->query("SHOW DATABASES");
+		influxdb->write(influxdb::Point{"ue"}.addField("Test", 101));
 		
-		// Check if the result is valid
-		if (!result.empty()) {
-			std::cout << "InfluxDB connection succeeded, data fetched." << std::endl;
-		} else {
-			std::cout << "InfluxDB connection succeeded, but no data found." << std::endl;
-		}
 	} catch (const std::exception& e) {
 		std::cerr << "InfluxDB connection failed: " << e.what() << std::endl;
 	}
