@@ -689,6 +689,8 @@ void App::start()
     rmr_thread = new std::thread(&App::Listen,this);
     response_thread = new std::thread(&App::response_handler,this);
 
+	mdclog_write(MDCLOG_INFO, "XAPP HAS OFFICIAL STARTED");
+
     /*
      * Init and start the northbound interface.
      * NB: the RMR Messenger superclass is already running at this point.
