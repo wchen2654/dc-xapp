@@ -197,16 +197,6 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
 /// @return 
 bool App::handle(e2sm::kpm::KpmIndication *kind)
 {
-
-	// auto influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
-
-	// if (influxdb)
-	// {
-	// 	std::cout << "Connection Successful" << std::endl;
-	// }
-
-	// influxdb->createDatabaseIfNotExists();
-
     mdclog_write(MDCLOG_INFO,"KpmIndication: %s",
 		 kind->report->to_string('\n',',').c_str());
 
@@ -700,7 +690,8 @@ void App::start()
 			std::cout << "InfluxDB connection succeeded, data fetched." << std::endl;
 			for (auto& point: result)
 			{
-					mdclog_write(MDCLOG_INFO, "%s", point.getFields());
+				for (auto& field: point.getFields)
+					mdclog_write(MDCLOG_INFO, "%s", field);
 			}
 		} else {
 				std::cout << "InfluxDB connection succeeded, but no data found." << std::endl;
