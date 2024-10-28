@@ -700,7 +700,11 @@ void App::start()
 			std::cout << "InfluxDB connection succeeded, data fetched." << std::endl;
 			for (auto& point: result)
 			{
-				std::cout << point << std::endl;
+				std::cout << "Time: " << point.getTimestamp() << std::endl;
+                for (const auto& field : point.getFields()) {
+                    std::cout << field.first << ": " << field.second << std::endl;
+                }
+                std::cout << "-----------------" << std::endl; // Separator for clarity
 			}
 		} else {
 			std::cout << "InfluxDB connection succeeded, but no data found." << std::endl;
