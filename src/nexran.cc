@@ -690,7 +690,7 @@ void App::start()
 			std::cout << "InfluxDB connection succeeded, data fetched." << std::endl;
 			for (auto& point: result)
 			{
-				for (auto& field: point.getFields)
+				for (auto& field: point.getFields())
 					mdclog_write(MDCLOG_INFO, "%s", field);
 			}
 		} else {
