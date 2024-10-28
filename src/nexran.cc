@@ -46,7 +46,7 @@ std::string ue1imsi = "NULL";
 std::string ue2imsi = "NULL";
 std::string ue3imsi = "NULL";
 
-influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
+std::shared_ptr<influxdb::InfluxDB> influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
 
 namespace nexran {
 
