@@ -700,7 +700,7 @@ void App::start()
 			std::cout << "InfluxDB connection succeeded, data fetched." << std::endl;
 			for (auto& point: result)
 			{
-				std::cout << "- " << point.getFields().begin()->second << std::endl;
+				std::cout << "- " << point << std::endl;
 			}
 		} else {
 			std::cout << "InfluxDB connection succeeded, but no data found." << std::endl;
