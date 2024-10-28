@@ -18,6 +18,8 @@ endif()
 
 option(ENABLE_BUILD_TIMESTAMP "Enable build timestamp" OFF)
 
+find_package(Boost REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
 find_package(Threads REQUIRED)
 find_package(Pistache 0.0.2 REQUIRED)
 find_package(InfluxDB REQUIRED)
