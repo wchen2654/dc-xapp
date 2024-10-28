@@ -678,22 +678,6 @@ void App::start()
     rmr_thread = new std::thread(&App::Listen,this);
     response_thread = new std::thread(&App::response_handler,this);
 
-	// std::shared_ptr<influxdb::InfluxDB> influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
-
-	// try {
-	// 	// Example query to test connection
-	// 	auto result = influxdb->query("SHOW DATABASES");
-		
-	// 	// Check if the result is valid
-	// 	if (!result.empty()) {
-	// 		std::cout << "InfluxDB connection succeeded, data fetched." << std::endl;
-	// 	} else {
-	// 			std::cout << "InfluxDB connection succeeded, but no data found." << std::endl;
-	// 	}
-	// } catch (const std::exception& e) {
-	// 	std::cerr << "InfluxDB connection failed: " << e.what() << std::endl;
-	// }
-
     /*
      * Init and start the northbound interface.
      * NB: the RMR Messenger superclass is already running at this point.
