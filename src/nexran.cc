@@ -700,7 +700,7 @@ void App::start()
 			std::cout << "InfluxDB connection succeeded, data fetched." << std::endl;
 			for (auto& point: result)
 			{
-					mdclog_write(MDCLOG_INFO, "%x", point.getFields());
+					mdclog_write(MDCLOG_INFO, "%s", point.getFields());
 			}
 		} else {
 				std::cout << "InfluxDB connection succeeded, but no data found." << std::endl;
