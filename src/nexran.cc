@@ -698,11 +698,10 @@ void App::start()
 		// Check if the result is valid
 		if (!result.empty()) {
 			std::cout << "InfluxDB connection succeeded, data fetched." << std::endl;
-			std::cout << "- " << result[0] << std::endl;
-			// for (auto point: result)
-			// {
-			// 	std::cout << "- " << result << std::endl;
-			// }
+			for (int i = 0; i < result.size(); i++)
+			{
+				std::cout << result[i] << std::endl;
+			}
 		} else {
 			std::cout << "InfluxDB connection succeeded, but no data found." << std::endl;
 		}
