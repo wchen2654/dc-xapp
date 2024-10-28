@@ -46,6 +46,8 @@ std::string ue1imsi = "NULL";
 std::string ue2imsi = "NULL";
 std::string ue3imsi = "NULL";
 
+auto influxdb;
+
 namespace nexran {
 
 static void rmr_callback(
