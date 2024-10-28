@@ -46,8 +46,6 @@ std::string ue1imsi = "NULL";
 std::string ue2imsi = "NULL";
 std::string ue3imsi = "NULL";
 
-std::shared_ptr<influxdb::InfluxDB> influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
-
 namespace nexran {
 
 static void rmr_callback(
@@ -681,6 +679,8 @@ void App::start()
     rmr_thread = new std::thread(&App::Listen,this);
     response_thread = new std::thread(&App::response_handler,this);
 
+	std::shared_ptr<influxdb::InfluxDB> influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
+
 	try {
 		// Example query to test connection
 		auto result = influxdb->query("SHOW DATABASES");
@@ -691,7 +691,7 @@ void App::start()
 			for (auto& point: result)
 			{
 				for (auto& field: point.getFields())
-					mdclog_write(MDCLOG_INFO, "%s", field);
+					mdclog_write(MDCLOG_INFO, "%d", field);
 			}
 		} else {
 				std::cout << "InfluxDB connection succeeded, but no data found." << std::endl;
