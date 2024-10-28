@@ -689,7 +689,7 @@ void App::start()
     rmr_thread = new std::thread(&App::Listen,this);
     response_thread = new std::thread(&App::response_handler,this);
 
-	auto influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
+	auto influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086);
 
 	try {
 		// Example query to test connection
@@ -700,11 +700,7 @@ void App::start()
 			std::cout << "InfluxDB connection succeeded, data fetched." << std::endl;
 			for (auto& point: result)
 			{
-				std::cout << "Time: " << point.getTimestamp() << std::endl;
-                for (const auto& field : point.getFields()) {
-                    std::cout << field.first << ": " << field.second << std::endl;
-                }
-                std::cout << "-----------------" << std::endl; // Separator for clarity
+				std::cout << "- " << point.getFields().begin()->second << std::endl;
 			}
 		} else {
 			std::cout << "InfluxDB connection succeeded, but no data found." << std::endl;
