@@ -201,6 +201,10 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 	{
 		mdclog_write(MDCLOG_INFO, "DATABASE CONNECTED");
 	}
+	else
+	{
+		mdclog_write(MDCLOG_INFO, "DATABASE NOT CONNECTED");
+	}
     mdclog_write(MDCLOG_INFO,"KpmIndication: %s",
 		 kind->report->to_string('\n',',').c_str());
 
