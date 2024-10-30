@@ -692,13 +692,6 @@ void App::start()
 				std::cout << "InfluxDB connection succeeded, but no data found." << std::endl;
 		}
 
-		influxdb->write(influxdb::Point{"slice"}
-		.addField("dl_bytes", (long long int)10));
-
-		// influxdb->query("CREATE DATABASE Data_Collector IF NOT EXISTS");
-		// mdclog_write(MDCLOG_INFO,"Database Created");
-		// influxdb->query("Use Data_Collector");
-
 	} catch (const std::exception& e) {
 		std::cerr << "InfluxDB connection failed: " << e.what() << std::endl;
 	}
