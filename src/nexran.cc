@@ -693,7 +693,7 @@ void App::start()
 		}
 
 		influxdb->query("CREATE DATABASE Data_Collector IF NOT EXISTS");
-		std::cout << "Database Created" << std::endl;
+		mdclog_write(MDCLOG_INFO,"Database Created");
 		influxdb->query("Use Data_Collector");
 
 	} catch (const std::exception& e) {
