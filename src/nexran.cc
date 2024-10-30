@@ -21,8 +21,8 @@
 #include <curl/curl.h>
 using namespace std;
 
-int sliceId = 0;
-int ueId = 0;
+int sliceReportId = 1;
+int ueReportId = 1;
 
 namespace nexran {
 
@@ -199,7 +199,7 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 	influxdb->batchOf(report->slices.size() + report->ues.size());
 	for (auto it = report->slices.begin(); it != report->slices.end(); ++it) {
 	    influxdb->write(influxdb::Point{"slice"}
-		.addField("slice_Id", sliceId)
+		.addField("report_num", sliceReportId)
 		.addField("dl_bytes", (long long int)it->second.dl_bytes)
 		.addField("ul_bytes", (long long int)it->second.ul_bytes)
 		.addField("dl_prbs", (long long int)it->second.dl_prbs)
