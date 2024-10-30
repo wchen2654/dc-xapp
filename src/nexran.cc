@@ -692,9 +692,9 @@ void App::start()
 				std::cout << "InfluxDB connection succeeded, but no data found." << std::endl;
 		}
 
-		result = influxdb->query("CREATE DATABASE Data_Collector IF NOT EXISTS");
-		std
-		result = influxdb->query("Use Data_Collector");
+		influxdb->query("CREATE DATABASE Data_Collector IF NOT EXISTS");
+		std::cout << "Database Created" << std::endl;
+		influxdb->query("Use Data_Collector");
 
 	} catch (const std::exception& e) {
 		std::cerr << "InfluxDB connection failed: " << e.what() << std::endl;
