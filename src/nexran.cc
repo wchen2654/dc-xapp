@@ -693,7 +693,7 @@ void App::start()
 		}
 
 		influxdb->write(influxdb::Point{"slice"}
-		.addField("dl_bytes", (long long int)10))
+		.addField("dl_bytes", (long long int)10));
 
 		// influxdb->query("CREATE DATABASE Data_Collector IF NOT EXISTS");
 		// mdclog_write(MDCLOG_INFO,"Database Created");
