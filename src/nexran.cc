@@ -210,6 +210,9 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		} else {
 				std::cout << "InfluxDB connection succeeded, but no data found." << std::endl;
 		}
+	} catch (const std::exception& e) {
+		std::cerr << "InfluxDB connection failed: " << e.what() << std::endl;
+	}
 
 	if (influxdb)
 	{
@@ -699,10 +702,6 @@ void App::start()
 
     rmr_thread = new std::thread(&App::Listen,this);
     response_thread = new std::thread(&App::response_handler,this);
-
-	} catch (const std::exception& e) {
-		std::cerr << "InfluxDB connection failed: " << e.what() << std::endl;
-	}
 
     /*
      * Init and start the northbound interface.
