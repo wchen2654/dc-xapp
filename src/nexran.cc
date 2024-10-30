@@ -21,30 +21,8 @@
 #include <curl/curl.h>
 using namespace std;
 
-int ue_counter = 0; // Counter used to iterate through each UE the report
-
-long long int TOTAL_TX[3] = {0}; // Stores the Total number of tx_pkts for each UE
-int COUNTER[3] = {0}; // Counter used to show the number of reports for each UE
-
-int activeUes = 0;
-
-bool thirdUeOverThreshold; // Condition used if there is a third UE (Avg threshold)
-bool counterCondition; // Condition used if there is a third UE (COUNTER)
-
-bool maliciousUE = false;
-bool slicecheck=0;
-
-int tx_threshold = 105;
-
-
-char url[1024];
-
-std::string slice1 = "fast";
-std::string slice2 = "secure_slice";
-
-std::string ue1imsi = "NULL";
-std::string ue2imsi = "NULL";
-std::string ue3imsi = "NULL";
+int sliceId = 0;
+int ueId = 0;
 
 namespace nexran {
 
@@ -242,6 +220,9 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		.addField("dl_samples", (long long int)it->second.dl_samples)
 		.addTag("slice", it->first.c_str())
 		.addTag("nodeb", rname.c_str()));
+
+		sliceId++;
+
 	}
 	for (auto it = report->ues.begin(); it != report->ues.end(); ++it) {
 	    influxdb->write(influxdb::Point{"ue"}
@@ -266,6 +247,9 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		.addField("dl_samples", (long long int)it->second.dl_samples)
 		.addTag("ue", std::to_string(it->first).c_str())
 		.addTag("nodeb", rname.c_str()));
+
+		ueId++;
+
 	}
 	try {
 	    influxdb->flushBatch();
