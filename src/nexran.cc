@@ -197,12 +197,15 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
 /// @return 
 bool App::handle(e2sm::kpm::KpmIndication *kind)
 {
+	if (influxdb)
+	{
+		mdclog_write(MDCLOG_INFO, "DATABASE CONNECTED");
+	}
     mdclog_write(MDCLOG_INFO,"KpmIndication: %s",
 		 kind->report->to_string('\n',',').c_str());
 
     e2sm::kpm::KpmReport *report = kind->report;
     std::string rname;
-
 
     if (kind->parent && kind->parent->subscription_request != nullptr) {
 	rname = kind->parent->subscription_request->meid;
