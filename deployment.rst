@@ -15,24 +15,27 @@ Data Collector xApp Deployment
 
 Paste the following in the ss-xapp-onboard.url file located in the ss-xapp directory. Substitute the <machine_ip_addr> with the IP address of your machine. You can find this by pasting the command hostname -I | cut -f1 -d' ' in the terminal.
 
-.. code-block::bash
+.. code-block:: bash
 
     vim dc-xapp-onboard.url
 
 Paste the following in url file. **Remember to change Ip address**
 
-.. code-block::bash
+
+.. code-block:: bash
 
     {"config-file.json_url":"http://<machine_ip_addr>:5010/config_files/dc-config-file.json"}
+
 
 Deploying the xApp
 ==================
 
-.. code-block::bash
+
+.. code-block:: bash
 
     cd ~/oaic/dc-xapp
 
-.. code-block::bash
+.. code-block:: bash
 
     export KONG_PROXY=`sudo kubectl get svc -n ricplt -l app.kubernetes.io/name=kong -o jsonpath='{.items[0].spec.clusterIP}'`
     export E2MGR_HTTP=`sudo kubectl get svc -n ricplt --field-selector metadata.name=service-ricplt-e2mgr-http -o jsonpath='{.items[0].spec.clusterIP}'`
@@ -40,6 +43,12 @@ Deploying the xApp
     export E2TERM_SCTP=`sudo kubectl get svc -n ricplt --field-selector metadata.name=service-ricplt-e2term-sctp-alpha -o jsonpath='{.items[0].spec.clusterIP}'`
     export ONBOARDER_HTTP=`sudo kubectl get svc -n ricplt --field-selector metadata.name=service-ricplt-xapp-onboarder-http -o jsonpath='{.items[0].spec.clusterIP}'`
     export RTMGR_HTTP=`sudo kubectl get svc -n ricplt --field-selector metadata.name=service-ricplt-rtmgr-http -o jsonpath='{.items[0].spec.clusterIP}'`
+
+.. code-block:: bash
+
+    curl -L -X POST "http://$KONG_PROXY:32080/onboard/api/v1/onboard/download" --header 'Content-Type: application/json' --data-binary "@dc-xapp-onboard.url"
+    curl -L -X GET "http://$KONG_PROXY:32080/onboard/api/v1/charts"
+    curl -L -X POST "http://$KONG_PROXY:32080/appmgr/ric/v1/xapps" --header 'Content-Type: application/json' --data-raw '{"xappName": "dc"}'
 
 .. warning::
 
