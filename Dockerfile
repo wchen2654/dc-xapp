@@ -27,7 +27,7 @@ RUN apt-get update \
 
 RUN apt-get update \
   && apt-get install -y python3-dev python3-pip \
-  && python3 -m pip install mdclogpy \
+  && python3 -m pip3 install mdclogpy \
   && update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
 RUN cd /tmp \
@@ -78,8 +78,7 @@ RUN cd /nexran \
        && echo "RIC_GENERATED_E2SM_KPM_BINDING_DIR:STRING=/nexran/lib/e2sm/messages/generated/E2SM-KPM" >> CMakeCache.txt ) \
      || true \
   && cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../ \
-  && make install && ldconfig \
-  && cp /nexran/src/main.py /
+  && make install && ldconfig 
 
 ENV RMR_RTG_SVC="9999" \
     RMR_SEED_RT="/nexran/etc/routes.txt" \
