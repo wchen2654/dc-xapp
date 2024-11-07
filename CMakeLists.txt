@@ -18,6 +18,9 @@ endif()
 
 option(ENABLE_BUILD_TIMESTAMP "Enable build timestamp" OFF)
 
+find_package(PythonInterp REQUIRED)
+find_package(PythonLibs REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIRS})
 find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 find_package(Threads REQUIRED)
