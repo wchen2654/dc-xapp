@@ -690,8 +690,8 @@ void App::start()
 	PyObject* pName = PyUnicode_DecodeFSDefault("mdclogpy");
     PyObject* pModule = PyImport_Import(pName);
 
-	PyObject *pName = PyUnicode_DecodeFSDefault("main");  // Module name (example.py)
-    PyObject *pModule = PyImport_Import(pName);
+	*pName = PyUnicode_DecodeFSDefault("main");  // Module name (example.py)
+    *pModule = PyImport_Import(pName);
     Py_DECREF(pName);
 
 	if (pModule != nullptr) {
