@@ -687,6 +687,9 @@ void App::start()
 
 	PySys_SetPath(pythonPath);
 
+	PyRun_SimpleString("import sys");
+    PyRun_SimpleString("sys.path.append('/root/.local/lib/python3.6/site-packages')"); // Set to the path of mdclogpy
+
 	PyObject* pName1 = PyUnicode_DecodeFSDefault("mdclogpy");
     PyObject* pModule1 = PyImport_Import(pName1);
     Py_DECREF(pName1);
