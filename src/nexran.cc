@@ -690,18 +690,6 @@ void App::start()
 	PyRun_SimpleString("import sys");
     PyRun_SimpleString("sys.path.append('/root/.local/lib/python3.6/site-packages')"); // Set to the path of mdclogpy
 
-	PyObject* pName1 = PyUnicode_DecodeFSDefault("mdclogpy");
-    PyObject* pModule1 = PyImport_Import(pName1);
-    Py_DECREF(pName1);
-
-	if (pModule1 != nullptr) {
-        std::cout << "mdclogpy loaded successfully!" << std::endl;
-        Py_DECREF(pModule1);
-    } else {
-        PyErr_Print();
-        std::cerr << "Failed to load mdclogpy module." << std::endl;
-    }
-
 	PyObject *pName = PyUnicode_DecodeFSDefault("main");  // Module name (example.py)
     PyObject *pModule = PyImport_Import(pName);
     Py_DECREF(pName);
