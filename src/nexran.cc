@@ -683,26 +683,7 @@ void App::start()
 
 	Py_Initialize();
 
-	char cwd[PATH_MAX];
-    if (getcwd(cwd, sizeof(cwd)) != nullptr) {
-        std::cout << "Current working directory: " << cwd << std::endl;
-    } else {
-        std::perror("getcwd failed");
-    }
-
-	DIR* dir = opendir(cwd);
-    
-    if (dir) {
-        struct dirent* entry;
-        while ((entry = readdir(dir)) != nullptr) {
-            std::cout << entry->d_name << std::endl;
-        }
-        closedir(dir);
-    } else {
-        std::cerr << "Failed to open directory: " << strerror(errno) << std::endl;
-    }
-
-	const wchar_t* pythonPath = L"/";
+	const wchar_t* pythonPath = L"/nexran/src/";
 
 	PySys_SetPath(pythonPath);
 
