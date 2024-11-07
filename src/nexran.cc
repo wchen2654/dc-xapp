@@ -702,7 +702,7 @@ void App::start()
         std::cerr << "Failed to open directory: " << strerror(errno) << std::endl;
     }
 
-	PyObject *pName = PyString_FromString((char*)"main");
+	PyObject *pName = PyUnicode_FromString((char*)"main");
 
 	// PyObject *pName = PyUnicode_DecodeFSDefault("main");  // Module name (example.py)
     PyObject *pModule = PyImport_Import(pName);
