@@ -678,7 +678,7 @@ void App::start()
 
 	Py_Initialize();
 
-	PyObject *pName = PyUnicode_DecodeFSDefault("main");  // Module name (example.py)
+	PyObject *pName = PyUnicode_DecodeFSDefault("example");  // Module name (example.py)
     PyObject *pModule = PyImport_Import(pName);
     Py_DECREF(pName);
 
