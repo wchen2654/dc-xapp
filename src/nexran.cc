@@ -20,6 +20,8 @@
 
 #include <Python.h>
 #include <unistd.h>
+#include <dirent.h>
+#include <cstring>
 
 using namespace std;
 
