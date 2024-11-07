@@ -688,12 +688,12 @@ void App::start()
 	PySys_SetPath(pythonPath);
 
 	PyObject* pName1 = PyUnicode_DecodeFSDefault("mdclogpy");
-    PyObject* pModule1 = PyImport_Import(pName);
+    PyObject* pModule1 = PyImport_Import(pName1);
     Py_DECREF(pName1);
 
 	if (pModule1 != nullptr) {
         std::cout << "mdclogpy loaded successfully!" << std::endl;
-        Py_DECREF(pModule);
+        Py_DECREF(pModule1);
     } else {
         PyErr_Print();
         std::cerr << "Failed to load mdclogpy module." << std::endl;
