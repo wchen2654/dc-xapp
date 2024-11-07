@@ -11,7 +11,7 @@ ARG MDCLOG_VERSION=0.1.1-1
 ARG RMR_VERSION=4.4.6
 
 RUN apt-get update \
-  && apt-get install -y cmake g++ libssl-dev rapidjson-dev git \
+  && apt-get install -y cmake g++ libssl-dev rapidjson-dev git libboost-all-dev \
     ca-certificates curl gnupg apt-transport-https apt-utils \
     pkg-config autoconf libtool libcurl4-openssl-dev \
   && curl -s https://packagecloud.io/install/repositories/o-ran-sc/${ORAN_REPO}/script.deb.sh | os=debian dist=stretch bash  \
@@ -24,6 +24,11 @@ RUN apt-get update \
 	     rmr rmr-dev \
      ) \
   && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update \
+  && apt-get install -y python3-dev python3-pip \
+  && python3 -m pip install mdclogpy \
+  && update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
 RUN cd /tmp \
   && git clone https://gitlab.flux.utah.edu/powderrenewpublic/xapp-frame-cpp \
@@ -74,6 +79,7 @@ RUN cd /nexran \
      || true \
   && cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../ \
   && make install && ldconfig
+  # && cp /nexran/src/main.py /
 
 ENV RMR_RTG_SVC="9999" \
     RMR_SEED_RT="/nexran/etc/routes.txt" \
