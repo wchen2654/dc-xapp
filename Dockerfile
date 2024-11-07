@@ -27,7 +27,9 @@ RUN apt-get update \
 
 RUN apt-get update \
   && apt-get install -y python3-dev python3-pip \
-  && python3 -m pip install mdclogpy
+  && python3 -m pip install mdclogpy \
+  && python --version \
+  && python3 --version
 
 RUN cd /tmp \
   && git clone https://gitlab.flux.utah.edu/powderrenewpublic/xapp-frame-cpp \
