@@ -19,7 +19,7 @@
 //#include "restserver.cc"
 
 #include <Python.h>
-#include <filesystem>
+#include <unistd.h>
 
 using namespace std;
 
@@ -681,8 +681,12 @@ void App::start()
 
 	Py_Initialize();
 
-	std::filesystem::path cwd = std::filesystem::current_path();
-    std::cout << "Current working directory: " << cwd << std::endl;
+	char cwd[PATH_MAX];
+    if (getcwd(cwd, sizeof(cwd)) != nullptr) {
+        std::cout << "Current working directory: " << cwd << std::endl;
+    } else {
+        std::perror("getcwd failed");
+    }
 
 	PyObject *pName = PyUnicode_DecodeFSDefault("main");  // Module name (example.py)
     PyObject *pModule = PyImport_Import(pName);
