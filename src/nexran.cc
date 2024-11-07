@@ -688,6 +688,18 @@ void App::start()
         std::perror("getcwd failed");
     }
 
+	DIR* dir = opendir(cwd);
+    
+    if (dir) {
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != nullptr) {
+            std::cout << entry->d_name << std::endl;
+        }
+        closedir(dir);
+    } else {
+        std::cerr << "Failed to open directory: " << strerror(errno) << std::endl;
+    }
+
 	PyObject *pName = PyUnicode_DecodeFSDefault("main");  // Module name (example.py)
     PyObject *pModule = PyImport_Import(pName);
     Py_DECREF(pName);
