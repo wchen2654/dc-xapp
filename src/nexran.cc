@@ -19,6 +19,7 @@
 //#include "restserver.cc"
 
 #include <Python.h>
+#include <filesystem>
 
 using namespace std;
 
@@ -676,7 +677,12 @@ void App::start()
     server.start();
     running = true;
 
+	// Initialization of ML model in python
+
 	Py_Initialize();
+
+	std::filesystem::path cwd = std::filesystem::current_path();
+    std::cout << "Current working directory: " << cwd << std::endl;
 
 	PyObject *pName = PyUnicode_DecodeFSDefault("main");  // Module name (example.py)
     PyObject *pModule = PyImport_Import(pName);
