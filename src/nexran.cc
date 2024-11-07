@@ -702,7 +702,7 @@ void App::start()
         std::cerr << "Failed to open directory: " << strerror(errno) << std::endl;
     }
 
-	PyObject *pName = PyUnicode_DecodeFSDefault("main.py");  // Module name (example.py)
+	PyObject *pName = PyUnicode_DecodeFSDefault("/nexran/src/main.py");  // Module name (example.py)
     PyObject *pModule = PyImport_Import(pName);
     Py_DECREF(pName);
 
