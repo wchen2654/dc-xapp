@@ -18,7 +18,8 @@
 #include "restserver.h"
 //#include "restserver.cc"
 
-#include <curl/curl.h>
+#include <Python.h>
+
 using namespace std;
 
 int sliceReportId = 1;
@@ -674,6 +675,48 @@ void App::start()
     server.init(this);
     server.start();
     running = true;
+
+	Py_Initialize();
+
+	PyObject *pName = PyUnicode_DecodeFSDefault("main");  // Module name (example.py)
+    PyObject *pModule = PyImport_Import(pName);
+    Py_DECREF(pName);
+
+	if (pModule != nullptr) {
+		// Get the function from the module
+		PyObject *pFunc = PyObject_GetAttrString(pModule, "add");
+
+		// Check if the function is callable
+		if (pFunc && PyCallable_Check(pFunc)) {
+			// Prepare arguments for the function call
+			PyObject *pArgs = PyTuple_Pack(2, PyLong_FromLong(3), PyLong_FromLong(5));  // Passing 3 and 5 as arguments
+
+			// Call the function
+			PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
+			// PyObject *pValue = PyObject_CallObject(pFunc);
+			// Py_DECREF(pArgs);
+
+			if (pValue != nullptr) {
+				std::cout << "Result of add: " << PyLong_AsLong(pValue) << std::endl;
+				Py_DECREF(pValue);
+			} else {
+				PyErr_Print();
+				std::cerr << "Function call failed" << std::endl;
+			}
+			Py_DECREF(pFunc);
+		} else {
+			PyErr_Print();
+			std::cerr << "Cannot find function 'add'" << std::endl;
+		}
+		Py_DECREF(pModule);
+	} else {
+		PyErr_Print();
+		std::cerr << "Failed to load module 'example'" << std::endl;
+	}
+
+	// Finalize the Python Interpreter
+	Py_Finalize();
+
 }
 
 void App::stop()
