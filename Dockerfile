@@ -78,15 +78,14 @@ RUN cd /nexran \
        && echo "RIC_GENERATED_E2SM_KPM_BINDING_DIR:STRING=/nexran/lib/e2sm/messages/generated/E2SM-KPM" >> CMakeCache.txt ) \
      || true \
   && cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../ \
-  && make install && ldconfig
+  && make install && ldconfig \
+  && cp /nexran/src/main.py /
 
 ENV RMR_RTG_SVC="9999" \
     RMR_SEED_RT="/nexran/etc/routes.txt" \
     DEBUG=1 \
     XAPP_NAME="nexran" \
     XAPP_ID="1"
-
-COPY /nexran/src/main.py /
 
 CMD [ "/usr/local/bin/nexran" ]
 
