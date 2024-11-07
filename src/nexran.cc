@@ -678,7 +678,7 @@ void App::start()
 
 	Py_Initialize();
 
-	PyObject *pName = PyUnicode_DecodeFSDefault("example");  // Module name (example.py)
+	PyObject *pName = PyUnicode_DecodeFSDefault("main");  // Module name (example.py)
     PyObject *pModule = PyImport_Import(pName);
     Py_DECREF(pName);
 
@@ -711,7 +711,7 @@ void App::start()
 		Py_DECREF(pModule);
 	} else {
 		PyErr_Print();
-		std::cerr << "Failed to load module 'example'" << std::endl;
+		std::cerr << "Failed to load module 'main'" << std::endl;
 	}
 
 	// Finalize the Python Interpreter
