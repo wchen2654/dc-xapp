@@ -6,7 +6,7 @@ import signal
 def main():
 
     global myLogger
-    myLogger = mdclogpy.Logger()
+    myLogger = mdclogpy.MDCLogger()
 
     i = 0
 
