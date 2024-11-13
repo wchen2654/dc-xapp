@@ -11,12 +11,9 @@ def main():
     global running
     running = True
     myLogger.mdclog_format_init(configmap_monitor=True)
-    myLogger.error("This is an info log")
-    myLogger.error("This is an error log")
 
     while(running):
-        myLogger.error("HEALTHCHECK")
-        print("HI")
+        myLogger.info("HEALTHCHECK")
         time.sleep(10)
 
     return 0
