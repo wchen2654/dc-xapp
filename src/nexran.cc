@@ -681,8 +681,8 @@ void App::start()
 
 	// Initialization of ML model in python
 
-	wchar_t *pythonHome = Py_DecodeLocale("/usr/local/lib/python3.6", nullptr);
-    Py_SetPythonHome(pythonHome);
+	// wchar_t *pythonHome = Py_DecodeLocale("/usr/local/lib/python3.6", nullptr);
+    // Py_SetPythonHome(pythonHome);
 
 	Py_Initialize();
 
