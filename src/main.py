@@ -15,6 +15,7 @@ def main():
     myLogger.error("This is an error log")
 
     while(running):
+        myLogger.error("HEALTHCHECK")
         myLogger.info("HEALTHCHECK")
         print("hi")
         time.sleep(10)
