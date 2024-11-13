@@ -1,4 +1,4 @@
-from mdclogpy import Logger
+import mdclogpy
 import sys
 import time
 import signal
@@ -6,13 +6,14 @@ import signal
 def main():
 
     global myLogger
-    myLogger = Logger()
+    myLogger = mdclogpy.Logger()
 
     i = 0
 
     global running
     running = True
     myLogger.mdclog_format_init(configmap_monitor=True)
+    myLogger.setLogLevel(mdclogpy.MDCLOG_INFO)
     myLogger.debug("This is an info log")
     myLogger.error("This is an error log")
 
