@@ -8,16 +8,20 @@ def main():
     global myLogger
     myLogger = Logger()
 
+    i = 0
+
     global running
     running = True
     myLogger.mdclog_format_init(configmap_monitor=True)
     myLogger.info("This is an info log")
     myLogger.error("This is an error log")
 
-    # while(running):
-    #     myLogger.error("HEALTHCHECK")
-    #     myLogger.info("HEALTHCHECK")
-    #     print("hi")
-    #     time.sleep(5)
+    while(i < 5):
+        myLogger.error("HEALTHCHECK")
+        myLogger.info("HEALTHCHECK")
+        print("hi")
+        time.sleep(5)
+
+        i += 1
 
     return 0
