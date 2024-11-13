@@ -16,6 +16,7 @@ def main():
 
     while(running):
         myLogger.info("HEALTHCHECK")
+        print("hi")
         time.sleep(10)
 
     return 0
