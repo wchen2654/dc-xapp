@@ -20,3 +20,5 @@ def main(num1, num2):
     myLogger.error("This is an error log")
 
     add(num1, num2)
+
+    return 0
