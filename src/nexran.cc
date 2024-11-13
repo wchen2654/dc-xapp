@@ -681,14 +681,16 @@ void App::start()
 
 	// Initialization of ML model in python
 
+	wchar_t *pythonHome = Py_DecodeLocale("/root/.local/lib/python3.6", nullptr);
+    Py_SetPythonHome(pythonHome);
+
 	Py_Initialize();
 
 	const wchar_t* pythonPath = L"/nexran/src/";
-
 	PySys_SetPath(pythonPath);
 
 	PyRun_SimpleString("import sys");
-	PyRun_SimpleString("import sys; print(sys.path)");
+	PyRun_SimpleString("print(sys.path)");
     // PyRun_SimpleString("sys.path.append('/root/.local/lib/python3.6/site-packages')"); // Set to the path of mdclogpy
 
 	PyObject *pName = PyUnicode_DecodeFSDefault("main");  // Module name (example.py)
