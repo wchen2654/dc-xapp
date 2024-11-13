@@ -3,15 +3,6 @@ import sys
 import time
 import signal
 
-def add(num1, num2):
-
-    myLogger.info("Result is: " + str(num1 + num2))
-
-    myLogger.info("Python version:", sys.version)
-    myLogger.info(sys.executable)
-
-    return num1 + num2
-
 def main():
 
     global myLogger
