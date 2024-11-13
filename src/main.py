@@ -1,24 +1,29 @@
 from mdclogpy import Logger
 import sys
+import time
+import signal
 
 def add(num1, num2):
 
     myLogger.info("Result is: " + str(num1 + num2))
 
-    print("Python version", sys.version)
-    print(sys.executable)
+    myLogger.info("Python version:", sys.version)
+    myLogger.info(sys.executable)
 
     return num1 + num2
 
-def main(num1, num2):
+def main():
 
     global myLogger
-
     myLogger = Logger()
-    myLogger.mdclog_format_init(configmap_monitor=True)
+
+    global running
+    running = true
+    myLogger.mdclog_format_init(configmap_monitor=False)
     myLogger.info("This is an info log")
-    myLogger.error("This is an error log")
 
-    num = add(num1, num2)
+    while(running):
+        myLogger.info("HEALTHCHECK")
+        time.sleep(10)
 
-    return num 
+    return 0
