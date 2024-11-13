@@ -1,8 +1,6 @@
 from mdclogpy import Logger
 import sys
 
-global myLogger
-
 def add(num1, num2):
 
     myLogger.info("Result is: " + str(num1 + num2))
@@ -13,6 +11,8 @@ def add(num1, num2):
     return num1 + num2
 
 def main(num1, num2):
+
+    global myLogger
 
     myLogger = Logger()
     myLogger.mdclog_format_init(configmap_monitor=True)
