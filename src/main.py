@@ -1,9 +1,9 @@
-# from mdclogpy import Logger
+from mdclogpy import Logger
 import sys
 
 def add(num1, num2):
 
-    # myLogger.info("Result is: " + str(num1 + num2))
+    myLogger.info("Result is: " + str(num1 + num2))
 
     print("Python version", sys.version)
     print(sys.executable)
