@@ -691,7 +691,7 @@ void App::start()
 
 	PyRun_SimpleString("import sys");
 	PyRun_SimpleString("print(sys.path)");
-    // PyRun_SimpleString("sys.path.append('/root/.local/lib/python3.6/site-packages')"); // Set to the path of mdclogpy
+    PyRun_SimpleString("sys.path.append('/nexran/src/')");
 
 	PyObject *pName = PyUnicode_DecodeFSDefault("main");  // Module name (example.py)
     PyObject *pModule = PyImport_Import(pName);
