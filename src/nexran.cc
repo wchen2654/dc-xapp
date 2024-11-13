@@ -705,6 +705,7 @@ void App::start()
 			PyObject *pArgs = PyTuple_New(0);
 			// Call the function
 			PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
+			std::cout << "Ran" << std::endl;
 			Py_DECREF(pArgs);
 
 			if (pValue != nullptr) {

@@ -14,10 +14,10 @@ def main():
     myLogger.error("This is an info log")
     myLogger.error("This is an error log")
 
-    while(running):
-        myLogger.error("HEALTHCHECK")
-        myLogger.info("HEALTHCHECK")
-        print("hi")
-        time.sleep(10)
+    # while(running):
+    #     myLogger.error("HEALTHCHECK")
+    #     myLogger.info("HEALTHCHECK")
+    #     print("hi")
+    #     time.sleep(5)
 
     return 0
