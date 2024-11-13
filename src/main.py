@@ -9,7 +9,7 @@ def main():
     myLogger = Logger()
 
     global running
-    running = true
+    running = True
     myLogger.mdclog_format_init(configmap_monitor=False)
     myLogger.info("This is an info log")
 
