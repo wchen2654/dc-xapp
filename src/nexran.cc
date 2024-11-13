@@ -702,17 +702,19 @@ void App::start()
 		if (pFunc && PyCallable_Check(pFunc)) {
 			// // Prepare arguments for the function call
 			// PyObject *pArgs = PyTuple_Pack(2, PyLong_FromLong(3), PyLong_FromLong(5));  // Passing 3 and 5 as arguments
-
+			PyObject *pArgs = PyTuple_New(0);
 			// Call the function
-			// PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
-			PyObject *pValue = PyObject_CallObject(pFunc);
-			// Py_DECREF(pArgs);
+			PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
+			Py_DECREF(pArgs);
 
-			if (pValue == nullptr) {
+			if (pValue != nullptr) {
+				Py_DECREF(pValue);
+			}
+			else
+			{
 				PyErr_Print();
 				std::cerr << "Function call failed" << std::endl;
 			}
-			Py_DECREF(pValue);
 			Py_DECREF(pFunc);
 		} else {
 			PyErr_Print();
