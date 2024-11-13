@@ -686,10 +686,7 @@ void App::start()
 
 	Py_Initialize();
 
-	// const wchar_t* pythonPath = L"/nexran/src/";
-	// PySys_SetPath(pythonPath);
-
-	PyRun_SimpleString("import sys");
+ 	PyRun_SimpleString("import sys; sys.argv = ['']");
 	PyRun_SimpleString("print(sys.path)");
     PyRun_SimpleString("sys.path.append('/nexran/src/')");
 
