@@ -11,10 +11,10 @@ def main():
     global running
     running = True
     myLogger.mdclog_format_init(configmap_monitor=False)
-    myLogger.info("This is an info log")
+    myLogger.error("This is an info log")
 
     while(running):
-        myLogger.info("HEALTHCHECK")
+        myLogger.error("HEALTHCHECK")
         time.sleep(10)
 
     return 0
