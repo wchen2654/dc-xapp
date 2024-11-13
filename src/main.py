@@ -19,6 +19,6 @@ def main(num1, num2):
     myLogger.info("This is an info log")
     myLogger.error("This is an error log")
 
-    add(num1, num2)
+    num = add(num1, num2)
 
-    return 0
+    return num 
