@@ -4,7 +4,7 @@ import time
 import signal
 import os
 
-def sigUsr():
+def sigUsr(sigNum, stack):
     print("SIGNAL HANDLER")
 
     global running
