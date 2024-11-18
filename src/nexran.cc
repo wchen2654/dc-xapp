@@ -193,7 +193,7 @@ bool App::intrusion_detection()
 
 		pid_t pid = processId;
 
-		kill(pid, SIGUSR1);
+		kill(1, SIGUSR1);
 
 	}
 	catch(...)
