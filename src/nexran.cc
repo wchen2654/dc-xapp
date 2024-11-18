@@ -196,7 +196,7 @@ bool App::intrusion_detection()
 	}
 	catch(...)
 	{
-		std::cout << "Error occured while Intrusion detection" << std:endl;
+		std::cout << "Error occured while Intrusion detection" << std::endl;
 	}
 
 }
