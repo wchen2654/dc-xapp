@@ -6,9 +6,6 @@ import signal
 def sigUsr(sigNum, stack):
     print("SIGNAL HANDLER")
 
-    global running
-    running = False
-
 def main():
 
     global myLogger
