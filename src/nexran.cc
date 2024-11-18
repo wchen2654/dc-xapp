@@ -22,9 +22,11 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <cstring>
+#include <signal.h>
 
 using namespace std;
 
+int processId = 0;
 int sliceReportId = 1;
 int ueReportId = 1;
 
@@ -172,6 +174,28 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
 	}
 	mutex.unlock();
     }
+}
+
+bool App:intrusion_detection()
+{
+	try
+	{
+		if (!processId)
+		{
+			std::ifstream myFile ("process.txt");
+			myFile >> processId;
+		}
+
+		pid_t pid = processId;
+
+		kill(pid, SIGUSR1)
+
+	}
+	catch
+	{
+		std::cout << "Error occured while Intrusion detection" << std:endl;
+	}
+
 }
 
 /// @brief 
@@ -573,6 +597,9 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
     }
 
     mutex.unlock();
+
+	intrusion_detection();
+
     return true;
 }
 
@@ -705,7 +732,6 @@ void App::start()
 			PyObject *pArgs = PyTuple_New(0);
 			// Call the function
 			PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
-			std::cout << "Ran" << std::endl;
 			Py_DECREF(pArgs);
 
 			if (pValue != nullptr) {
