@@ -176,7 +176,7 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
     }
 }
 
-bool App:intrusion_detection()
+bool App::intrusion_detection()
 {
 	try
 	{
