@@ -191,10 +191,10 @@ bool App::intrusion_detection()
 
 		pid_t pid = processId;
 
-		kill(pid, SIGUSR1)
+		kill(pid, SIGUSR1);
 
 	}
-	catch
+	catch(...)
 	{
 		std::cout << "Error occured while Intrusion detection" << std:endl;
 	}
