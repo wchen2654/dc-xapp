@@ -30,6 +30,8 @@ using namespace std;
 int sliceReportId = 1;
 int ueReportId = 1;
 
+pid_t childPid;
+
 namespace nexran {
 
 static void rmr_callback(
@@ -180,15 +182,12 @@ bool App::intrusion_detection()
 {
 	try
 	{
-
-		kill(1, SIGUSR1);
-
+		kill(childPid, SIGUSR1);
 	}
 	catch(...)
 	{
 		std::cout << "Error occured while Intrusion detection" << std::endl;
 	}
-
 }
 
 /// @brief 
@@ -703,51 +702,61 @@ void App::start()
 
 	// wchar_t *pythonHome = Py_DecodeLocale("/usr/local/lib/python3.6", nullptr);
     // Py_SetPythonHome(pythonHome);
+	pid_t pid;
 
-	Py_Initialize();	// Initialize Python Interpreter
+	pid = fork();
 
- 	PyRun_SimpleString("import sys; sys.argv = ['']");
-	PyRun_SimpleString("print(sys.path)");
-    PyRun_SimpleString("sys.path.append('/nexran/src/')");
+	if (!pid)
+	{
 
-	PyObject *pName = PyUnicode_DecodeFSDefault("main");  // Module name you want to run
-    PyObject *pModule = PyImport_Import(pName);
-    Py_DECREF(pName);  // Deallocate memory
+		childPid = getpid();
 
-	if (pModule != nullptr) {
-		// Get the function from the module
-		PyObject *pFunc = PyObject_GetAttrString(pModule, "main");
+		Py_Initialize();	// Initialize Python Interpreter
 
-		// Check if the function is callable
-		if (pFunc && PyCallable_Check(pFunc)) {
-			// // Prepare arguments for the function call
-			// PyObject *pArgs = PyTuple_Pack(2, PyLong_FromLong(3), PyLong_FromLong(5));  // Passing 3 and 5 as arguments
-			PyObject *pArgs = PyTuple_New(0);
-			// Call the function
-			PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
-			Py_DECREF(pArgs);
+		PyRun_SimpleString("import sys; sys.argv = ['']");
+		PyRun_SimpleString("print(sys.path)");
+		PyRun_SimpleString("sys.path.append('/nexran/src/')");
 
-			if (pValue != nullptr) {
-				Py_DECREF(pValue);
-			}
-			else
-			{
+		PyObject *pName = PyUnicode_DecodeFSDefault("main");  // Module name you want to run
+		PyObject *pModule = PyImport_Import(pName);
+		Py_DECREF(pName);  // Deallocate memory
+
+		if (pModule != nullptr) {
+			// Get the function from the module
+			PyObject *pFunc = PyObject_GetAttrString(pModule, "main");
+
+			// Check if the function is callable
+			if (pFunc && PyCallable_Check(pFunc)) {
+				// // Prepare arguments for the function call
+				// PyObject *pArgs = PyTuple_Pack(2, PyLong_FromLong(3), PyLong_FromLong(5));  // Passing 3 and 5 as arguments
+				PyObject *pArgs = PyTuple_New(0);
+				// Call the function
+				PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
+				Py_DECREF(pArgs);
+
+				if (pValue != nullptr) {
+					Py_DECREF(pValue);
+				}
+				else
+				{
+					PyErr_Print();
+					std::cerr << "Function call failed" << std::endl;
+				}
+				Py_DECREF(pFunc);
+			} else {
 				PyErr_Print();
-				std::cerr << "Function call failed" << std::endl;
+				std::cerr << "Cannot find function 'main'" << std::endl;
 			}
-			Py_DECREF(pFunc);
+			Py_DECREF(pModule);
 		} else {
 			PyErr_Print();
-			std::cerr << "Cannot find function 'main'" << std::endl;
+			std::cerr << "Failed to load module 'main'" << std::endl;
 		}
-		Py_DECREF(pModule);
-	} else {
-		PyErr_Print();
-		std::cerr << "Failed to load module 'main'" << std::endl;
-	}
 
-	// Finalize the Python Interpreter
-	Py_Finalize();
+		// Finalize the Python Interpreter
+		Py_Finalize();
+
+	}
 
 }
 
