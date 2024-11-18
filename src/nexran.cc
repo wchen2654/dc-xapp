@@ -185,7 +185,9 @@ bool App::intrusion_detection()
 		{
 			std::ifstream myFile;
 			myFile.open("process.txt");
-			myFile >> processId;
+			std::string payload;
+			myFile >> payload;
+			processId = payload.stoi()
 			myFile.close();
 		}
 

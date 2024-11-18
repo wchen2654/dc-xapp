@@ -25,7 +25,7 @@ def main():
     signal.signal(signal.SIGUSR1, sigUsr)
 
     with open("process.txt", "w") as f:
-        f.write(os.getpid())
+        f.write(str(os.getpid()))
 
     while(running):
         time.sleep(1)
