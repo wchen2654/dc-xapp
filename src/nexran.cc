@@ -27,7 +27,6 @@
 
 using namespace std;
 
-int processId = 0;
 int sliceReportId = 1;
 int ueReportId = 1;
 
@@ -181,17 +180,6 @@ bool App::intrusion_detection()
 {
 	try
 	{
-		if (!processId)
-		{
-			std::ifstream myFile;
-			myFile.open("process.txt");
-			std::string payload;
-			myFile >> payload;
-			processId = std::stoi(payload);
-			myFile.close();
-		}
-
-		pid_t pid = processId;
 
 		kill(1, SIGUSR1);
 
