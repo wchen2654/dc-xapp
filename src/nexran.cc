@@ -182,8 +182,10 @@ bool App::intrusion_detection()
 	{
 		if (!processId)
 		{
-			std::ifstream myFile ("process.txt");
+			std::ifstream myFile;
+			myFile.open("process.txt");
 			myFile >> processId;
+			myFile.close();
 		}
 
 		pid_t pid = processId;
