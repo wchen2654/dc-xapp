@@ -3,6 +3,12 @@ import sys
 import time
 import signal
 
+def sigUsr():
+    print("SIGNAL HANDLER")
+
+    global running
+    running = False
+
 def main():
 
     global myLogger
@@ -13,15 +19,11 @@ def main():
     global running
     running = True
     myLogger.mdclog_format_init(configmap_monitor=True)
-    myLogger.debug("This is an info log")
     myLogger.error("This is an error log")
 
-    while(i < 5):
-        myLogger.debug("HEALTHCHECK")
-        myLogger.info("HEALTHCHECK")
-        print("hi")
-        time.sleep(5)
+    signal.signal(signal.SIGUSR1, sigUsr)
 
-        i += 1
+    while(running):
+        time.sleep(1)
 
     return 0
