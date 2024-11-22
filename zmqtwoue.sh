@@ -11,6 +11,10 @@ if [ -z "$DC_XAPP" ]; then
     exit 1
 fi
 
+kubectl exec ricplt-influxdb-meta-0 -n ricplt -- influx -database 'metrics' -execute 'DROP DATABASE Data_Collector'
+kubectl exec ricplt-influxdb-meta-0 -n ricplt -- influx -database 'metrics' -execute 'CREATE DATABASE Data_Collector'
+
+
 echo DC_XAPP=$DC_XAPP ; echo
 
 echo Listing NodeBs: ; echo
