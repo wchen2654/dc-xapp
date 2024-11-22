@@ -742,7 +742,7 @@ void App::start()
 
 	// Initialization of ML model in python
 
-	intrusion_detection()
+	intrusion_detection();
 
 }
 
