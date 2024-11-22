@@ -192,7 +192,7 @@ bool App::intrusion_detection()
 
 		if (pModule != nullptr) {
 			// Get the function from the module
-			PyObject *pFunc = PyObject_GetAttrString(pModule, "incrementCounter");
+			PyObject *pFunc = PyObject_GetAttrString(pModule, "start");
 
 			// Check if the function is callable
 			if (pFunc && PyCallable_Check(pFunc)) {
@@ -204,7 +204,6 @@ bool App::intrusion_detection()
 				Py_DECREF(pArgs);
 
 				if (pValue != nullptr) {
-					std::cout << "Global Counter Value is now: " << PyLong_AsLong(pValue) << std::endl; 
 					Py_DECREF(pValue);
 				}
 				else
