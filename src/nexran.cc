@@ -742,6 +742,8 @@ void App::start()
 
 	// Initialization of ML model in python
 
+	intrusion_detection()
+
 }
 
 void App::stop()
