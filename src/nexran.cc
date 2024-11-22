@@ -30,6 +30,8 @@ using namespace std;
 int sliceReportId = 1;
 int ueReportId = 1;
 
+PyObject *pModule = nullptr;
+
 namespace nexran {
 
 static void rmr_callback(
