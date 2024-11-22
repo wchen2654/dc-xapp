@@ -180,15 +180,6 @@ bool App::intrusion_detection()
 {
 	try
 	{
-		Py_Initialize();	// Initialize Python Interpreter
-
-		PyRun_SimpleString("import sys; sys.argv = ['']");
-		PyRun_SimpleString("print(sys.path)");
-		PyRun_SimpleString("sys.path.append('/nexran/src/')");
-
-		PyObject *pName = PyUnicode_DecodeFSDefault("intrusionDetection");  // Module name you want to run
-		PyObject *pModule = PyImport_Import(pName);
-		Py_DECREF(pName);  // Deallocate memory
 
 		if (pModule != nullptr) {
 			// Get the function from the module
@@ -204,7 +195,6 @@ bool App::intrusion_detection()
 				Py_DECREF(pArgs);
 
 				if (pValue != nullptr) {
-					std::cout << "Global value counter: " << PyLong_AsLong(pValue) << std::endl;
 					Py_DECREF(pValue);
 				}
 				else
@@ -213,14 +203,18 @@ bool App::intrusion_detection()
 					std::cerr << "Function call failed" << std::endl;
 				}
 				Py_DECREF(pFunc);
+
+				PyObject *pCounter = PyObject_GetAttrString(pModule, "counter");
+				std::cout << "Global value counter: " << PyLong_AsLong(pCounter) << std::endl;
+
 			} else {
 				PyErr_Print();
-				std::cerr << "Cannot find function 'main'" << std::endl;
+				std::cerr << "Cannot find function 'eventTrigger'" << std::endl;
 			}
 			Py_DECREF(pModule);
 		} else {
 			PyErr_Print();
-			std::cerr << "Failed to load module 'main'" << std::endl;
+			std::cerr << "Failed to load module 'intrusionDetection'" << std::endl;
 		}
 
 		// Finalize the Python Interpreter
@@ -747,7 +741,6 @@ void App::start()
 		Py_Initialize();	// Initialize Python Interpreter
 
 		PyRun_SimpleString("import sys; sys.argv = ['']");
-		PyRun_SimpleString("print(sys.path)");
 		PyRun_SimpleString("sys.path.append('/nexran/src/')");
 
 		PyObject *pName = PyUnicode_DecodeFSDefault("intrusionDetection");  // Module name you want to run
@@ -783,15 +776,12 @@ void App::start()
 			Py_DECREF(pModule);
 		} else {
 			PyErr_Print();
-			std::cerr << "Failed to load module 'start'" << std::endl;
+			std::cerr << "Failed to load module 'intrusionDetection'" << std::endl;
 		}
-
-		// Finalize the Python Interpreter
-		Py_Finalize();
 	}
 	catch(...)
 	{
-		std::cout << "Error occured while Intrusion detection" << std::endl;
+		std::cout << "Error occured while trying to load Intrusion detection" << std::endl;
 	}
 
 }
@@ -810,6 +800,10 @@ void App::stop()
     delete response_thread;
     response_thread = NULL;
     running = false;
+
+	// Finalize the Python Interpreter
+	Py_Finalize();
+
 }
 
 void App::serialize(ResourceType rt,
