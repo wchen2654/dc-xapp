@@ -11,4 +11,5 @@ def fetchData():
 def incrementCounter():
     global counter
     counter += 1
+    print(counter)
     return counter
