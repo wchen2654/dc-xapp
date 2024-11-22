@@ -204,6 +204,7 @@ bool App::intrusion_detection()
 				Py_DECREF(pArgs);
 
 				if (pValue != nullptr) {
+					std::cout << "Global value counter: " << PyLong_FromLong(pValue) << std::endl;
 					Py_DECREF(pValue);
 				}
 				else
@@ -777,12 +778,12 @@ void App::start()
 				Py_DECREF(pFunc);
 			} else {
 				PyErr_Print();
-				std::cerr << "Cannot find function 'main'" << std::endl;
+				std::cerr << "Cannot find function 'start'" << std::endl;
 			}
 			Py_DECREF(pModule);
 		} else {
 			PyErr_Print();
-			std::cerr << "Failed to load module 'main'" << std::endl;
+			std::cerr << "Failed to load module 'start'" << std::endl;
 		}
 
 		// Finalize the Python Interpreter
