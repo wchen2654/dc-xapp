@@ -204,7 +204,7 @@ bool App::intrusion_detection()
 				Py_DECREF(pArgs);
 
 				if (pValue != nullptr) {
-					std::cout << "Global value counter: " << PyLong_FromLong(pValue) << std::endl;
+					std::cout << "Global value counter: " << PyLong_AsLong(pValue) << std::endl;
 					Py_DECREF(pValue);
 				}
 				else
