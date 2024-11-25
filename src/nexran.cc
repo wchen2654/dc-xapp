@@ -31,6 +31,7 @@ int sliceReportId = 1;
 int ueReportId = 1;
 
 PyObject* pModule = nullptr;  // Global variable to store the Python module
+int COUNT = 0;
 
 namespace nexran {
 
@@ -642,7 +643,13 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 
     mutex.unlock();
 
-	// intrusion_detection();
+	mdclog_write(MDCLOG_INFO, "COUNT: %d", COUNT);
+
+	if (COUNT == 10)
+	{
+		intrusion_detection();
+	}
+
 
     return true;
 }

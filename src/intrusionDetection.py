@@ -27,7 +27,7 @@ def fetchData():
 def incrementCounter():
     global counter
     counter += 1
-    print(counter)
+    print("Python Function Counter: ", str(counter))
     return counter
 
 def start():
