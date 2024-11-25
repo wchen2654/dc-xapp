@@ -293,8 +293,6 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		.addTag("nodeb", rname.c_str()));
 	}
 
-	sliceReportId++;
-
 	for (auto it = report->ues.begin(); it != report->ues.end(); ++it) {
 	    influxdb->write(influxdb::Point{"ue"}
 		.addField("dl_bytes", (long long int)it->second.dl_bytes)
@@ -322,9 +320,6 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 
 
 	}
-
-	ueReportId++;
-
 
 	try {
 	    influxdb->flushBatch();
@@ -586,6 +581,19 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 	}
     }
 
+	// Intrusion Detection Code
+
+	mdclog_write(MDCLOG_INFO, "# of UE Reports: %d", ueReportId);
+	mdclog_write(MDCLOG_INFO, "# of Slice Reports: %d", sliceReportId);
+
+	if (ueReportId % 10 == 0)	// This will proc for every 10 UE reports
+	{
+		intrusion_detection();
+	}
+
+	ueReportId++;
+	sliceReportId++;
+
     // Handle any updates; log either way.
     for (auto it = new_share_factors.begin(); it != new_share_factors.end(); ++it) {
 	std::string slice_name = it->first;
@@ -642,16 +650,6 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
     }
 
     mutex.unlock();
-	COUNT++;
-	mdclog_write(MDCLOG_INFO, "COUNT: %d", COUNT);
-
-	if (COUNT == 10)
-	{
-		intrusion_detection();
-		COUNT = 0;
-	}
-
-
     return true;
 }
 
