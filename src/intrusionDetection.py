@@ -10,7 +10,9 @@ def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
 
     global client
+    global counter
 
+    # Connecting to database
     try:
         if client == None:
             client = InfluxDBClient(
@@ -22,10 +24,21 @@ def fetchData():
             )
             client.switch_database('Data_Collector')
     except Exception as e:
-        print(e)
+        print("IntrusionDetection: Error connecting to InfluxDB")
+        print("Error Message:", e)
 
-
-    global counter
-    counter += 1
     print("Python Function Counter: ", str(counter), flush=True)
+
+    # Query for metrics
+    try:
+        query = f"SELECT * FROM ue WHERE report_num >= {(counter - 1) * 10 + 1} and report_num <= {counter * 10}"
+        result = client.query(query)
+
+        print("Results:", list(result.get_points()))
+
+    except Exception as e:
+        print("Intrusion Detection: Error occured when trying to obtain metrics")
+        print("Error Message:", e)
+
+    counter += 1
     return counter
