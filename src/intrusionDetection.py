@@ -6,13 +6,13 @@ import os
 counter = 0
 running = True
 
-def eventTrigger():
-    try:
-        os.kill(1, signal.SIGUSR1)  # Send SIGTERM signal to terminate the process gracefully
-    except ProcessLookupError:
-        print("No process found with PID:", 1, flush=True)
-    except PermissionError:
-        print("Insufficient permissions to kill the process with PID:", 1, flush=True)
+# def eventTrigger():
+#     try:
+#         os.kill(1, signal.SIGUSR1)  # Send SIGTERM signal to terminate the process gracefully
+#     except ProcessLookupError:
+#         print("No process found with PID:", 1, flush=True)
+#     except PermissionError:
+#         print("Insufficient permissions to kill the process with PID:", 1, flush=True)
 
 
 def sigUsrHandler(signum, frame):
@@ -38,6 +38,5 @@ def start():
 
     while running:
         print("HEALTHCHECK", flush=True)
-        time.sleep(1)
-
+        time.sleep(10)
     return 0

@@ -30,7 +30,7 @@ using namespace std;
 int sliceReportId = 1;
 int ueReportId = 1;
 
-PyObject *pModule = nullptr;
+PyObject* pModule = nullptr;  // Global variable to store the Python module
 
 namespace nexran {
 
@@ -185,7 +185,7 @@ bool App::intrusion_detection()
 
 		if (pModule != nullptr) {
 			// Get the function from the module
-			PyObject *pFunc = PyObject_GetAttrString(pModule, "eventTrigger");
+			PyObject *pFunc = PyObject_GetAttrString(pModule, "incrementCounter");
 
 			// Check if the function is callable
 			if (pFunc && PyCallable_Check(pFunc)) {
@@ -207,12 +207,26 @@ bool App::intrusion_detection()
 				Py_DECREF(pFunc);
 
 				PyObject *pCounter = PyObject_GetAttrString(pModule, "counter");
-				std::cout << "Global value counter: " << PyLong_AsLong(pCounter) << std::endl;
+				std::cout << "IncrementCounter Global value counter: " << PyLong_AsLong(pCounter) << std::endl;
 
 			} else {
 				PyErr_Print();
-				std::cerr << "Cannot find function 'eventTrigger'" << std::endl;
+				std::cerr << "Cannot find function 'incrementCounter'" << std::endl;
 			}
+
+			 // Access the global variable 'counter' directly
+			PyObject* pCounter = PyObject_GetAttrString(pModule, "counter");
+			if (pCounter != nullptr)
+			{
+				std::cout << "Accessing Global counter value: " << PyLong_AsLong(pCounter) << std::endl;
+				Py_DECREF(pCounter);
+			} 
+			else 
+			{
+				PyErr_Print();
+				std::cerr << "Failed to access 'counter'\n";
+			}
+
 			Py_DECREF(pModule);
 		} else {
 			PyErr_Print();
@@ -746,7 +760,7 @@ void App::start()
 		PyRun_SimpleString("sys.path.append('/nexran/src/')");
 
 		PyObject *pName = PyUnicode_DecodeFSDefault("intrusionDetection");  // Module name you want to run
-		PyObject *pModule = PyImport_Import(pName);
+		pModule = PyImport_Import(pName);
 		Py_DECREF(pName);  // Deallocate memory
 
 		if (pModule != nullptr) {
@@ -780,6 +794,7 @@ void App::start()
 			PyErr_Print();
 			std::cerr << "Failed to load module 'intrusionDetection'" << std::endl;
 		}
+		
 	}
 	catch(...)
 	{
