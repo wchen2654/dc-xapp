@@ -9,6 +9,8 @@ client = None
 def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
 
+    global client
+
     try:
         if client == None:
             client = InfluxDBClient(
