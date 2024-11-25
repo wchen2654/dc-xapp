@@ -291,10 +291,10 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		.addField("report_num", std::to_string(sliceReportId))
 		.addTag("slice", it->first.c_str())
 		.addTag("nodeb", rname.c_str()));
-
-		sliceReportId++;
-
 	}
+
+	sliceReportId++;
+
 	for (auto it = report->ues.begin(); it != report->ues.end(); ++it) {
 	    influxdb->write(influxdb::Point{"ue"}
 		.addField("dl_bytes", (long long int)it->second.dl_bytes)
@@ -316,13 +316,16 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		.addField("ul_samples", (long long int)it->second.ul_samples)
 		.addField("dl_mcs", it->second.dl_mcs)
 		.addField("dl_samples", (long long int)it->second.dl_samples)
-		.addTag("report_num", std::to_string(ueReportId))
+		.addField("report_num", std::to_string(ueReportId))
 		.addTag("ue", std::to_string(it->first).c_str())
 		.addTag("nodeb", rname.c_str()));
 
-		ueReportId++;
 
 	}
+
+	ueReportId++;
+
+
 	try {
 	    influxdb->flushBatch();
 	}
