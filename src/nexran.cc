@@ -640,7 +640,7 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
     }
 
     mutex.unlock();
-
+	COUNT++;
 	mdclog_write(MDCLOG_INFO, "COUNT: %d", COUNT);
 
 	if (COUNT == 10)
