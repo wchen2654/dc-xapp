@@ -34,7 +34,7 @@ def fetchData():
         query = f"SELECT * FROM ue WHERE report_num >= {(counter - 1) * 10 + 1} and report_num <= {counter * 10}"
         result = client.query(query)
 
-        for point in result.get_points:
+        for point in result.get_points():
             print(f"Time: {point['time']}, Report Number: {point['report_num']}, UE: {point['ue']}", flush=True)
         # print("Results:", list(result.get_points()), flush=True)
 
