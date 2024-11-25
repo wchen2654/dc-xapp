@@ -35,17 +35,18 @@ def fetchData():
         for point in result.get_points():
 
             if point['ue'] not in ues.keys():
-                ues[point['ue']] = point['tx_pkts']
+                ues[point['ue']] = [point['tx_pkts'], 1]
             else:
-                ues[point['ue']] += point['tx_pkts']
+                ues[point['ue']][0] += point['tx_pkts']
+                ues[point['ue']][1] += 1
 
             print(f"Time: {point['time']}, Report Number: {point['report_num']}, UE: {point['ue']}, Tx Pkts: {point['tx_pkts']}", flush=True)
         
         print("Dictionary: ", ues, flush=True)
 
         for ue in ues:
-            if ues[ue] % 10 == 130: # If the UE is malicious
-                print(str(ue), "is MALICIOUS")
+            if ues[ue] % ues[ue][1] == 130: # If the UE is malicious
+                print("UE", str(ue), "is MALICIOUS")
 
     except Exception as e:
         print("Intrusion Detection: Error occured when trying to obtain metrics", flush=True)
