@@ -9,15 +9,18 @@ client = None
 def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
 
-    if client == None:
-        client = InfluxDBClient(
-            host='http://ricplt-influxdb.ricplt.svc.cluster.local',
-            port=8086
-        )
-        print("Databases:", client.get_list_database()
-        , flush=True
-        )
-        client.switch_database('Data_Collector')
+    try:
+        if client == None:
+            client = InfluxDBClient(
+                host='http://ricplt-influxdb.ricplt.svc.cluster.local',
+                port=8086
+            )
+            print("Databases:", client.get_list_database()
+            , flush=True
+            )
+            client.switch_database('Data_Collector')
+    except Exception as e:
+        print(e)
 
 
     global counter
