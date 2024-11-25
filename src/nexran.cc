@@ -186,7 +186,7 @@ bool App::intrusion_detection()
 
 		if (pModule != nullptr) {
 			// Get the function from the module
-			PyObject *pFunc = PyObject_GetAttrString(pModule, "incrementCounter");
+			PyObject *pFunc = PyObject_GetAttrString(pModule, "fetchData");
 
 			// Check if the function is callable
 			if (pFunc && PyCallable_Check(pFunc)) {
@@ -212,7 +212,7 @@ bool App::intrusion_detection()
 
 			} else {
 				PyErr_Print();
-				std::cerr << "Cannot find function 'incrementCounter'" << std::endl;
+				std::cerr << "Cannot find function 'fetchData'" << std::endl;
 			}
 
 			 // Access the global variable 'counter' directly
