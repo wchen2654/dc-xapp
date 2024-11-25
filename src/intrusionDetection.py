@@ -14,7 +14,7 @@ def fetchData():
     try:
         if client == None:
             client = InfluxDBClient(
-                host='http://ricplt-influxdb.ricplt.svc.cluster.local',
+                host='ricplt-influxdb.ricplt.svc.cluster.local',
                 port=8086
             )
             print("Databases:", client.get_list_database()
