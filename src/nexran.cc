@@ -228,7 +228,6 @@ bool App::intrusion_detection()
 				std::cerr << "Failed to access 'counter'\n";
 			}
 
-			Py_DECREF(pModule);
 		} else {
 			PyErr_Print();
 			std::cerr << "Failed to load module 'intrusionDetection'" << std::endl;
@@ -794,7 +793,7 @@ void App::start()
 				PyErr_Print();
 				std::cerr << "Cannot find function 'start'" << std::endl;
 			}
-			Py_DECREF(pModule);
+			
 		} else {
 			PyErr_Print();
 			std::cerr << "Failed to load module 'intrusionDetection'" << std::endl;
@@ -824,6 +823,8 @@ void App::stop()
     running = false;
 
 	// Finalize the Python Interpreter
+
+	Py_DECREF(pModule);
 	Py_Finalize();
 
 }
