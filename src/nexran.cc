@@ -642,7 +642,7 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 
     mutex.unlock();
 
-	intrusion_detection();
+	// intrusion_detection();
 
     return true;
 }
