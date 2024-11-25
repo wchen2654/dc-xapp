@@ -645,6 +645,7 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 	if (COUNT == 10)
 	{
 		intrusion_detection();
+		COUNT = 0;
 	}
 
 
@@ -768,32 +769,32 @@ void App::start()
 		Py_DECREF(pName);  // Deallocate memory
 
 		if (pModule != nullptr) {
-			// Get the function from the module
-			PyObject *pFunc = PyObject_GetAttrString(pModule, "start");
+			// // Get the function from the module
+			// PyObject *pFunc = PyObject_GetAttrString(pModule, "start");
 
-			// Check if the function is callable
-			if (pFunc && PyCallable_Check(pFunc)) {
-				// // Prepare arguments for the function call
-				// PyObject *pArgs = PyTuple_Pack(2, PyLong_FromLong(3), PyLong_FromLong(5));  // Passing 3 and 5 as arguments
-				PyObject *pArgs = PyTuple_New(0);
-				// Call the function
-				PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
-				Py_DECREF(pArgs);
+			// // Check if the function is callable
+			// if (pFunc && PyCallable_Check(pFunc)) {
+			// 	// // Prepare arguments for the function call
+			// 	// PyObject *pArgs = PyTuple_Pack(2, PyLong_FromLong(3), PyLong_FromLong(5));  // Passing 3 and 5 as arguments
+			// 	PyObject *pArgs = PyTuple_New(0);
+			// 	// Call the function
+			// 	PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
+			// 	Py_DECREF(pArgs);
 
-				if (pValue != nullptr) {
-					Py_DECREF(pValue);
-				}
-				else
-				{
-					PyErr_Print();
-					std::cerr << "Function call failed" << std::endl;
-				}
-				Py_DECREF(pFunc);
-			} else {
-				PyErr_Print();
-				std::cerr << "Cannot find function 'start'" << std::endl;
-			}
-			
+			// 	if (pValue != nullptr) {
+			// 		Py_DECREF(pValue);
+			// 	}
+			// 	else
+			// 	{
+			// 		PyErr_Print();
+			// 		std::cerr << "Function call failed" << std::endl;
+			// 	}
+			// 	Py_DECREF(pFunc);
+			// } else {
+			// 	PyErr_Print();
+			// 	std::cerr << "Cannot find function 'start'" << std::endl;
+			// }
+			std::cout << "Module loaded" << std::endl;
 		} else {
 			PyErr_Print();
 			std::cerr << "Failed to load module 'intrusionDetection'" << std::endl;

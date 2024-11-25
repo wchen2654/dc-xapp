@@ -30,13 +30,13 @@ def incrementCounter():
     print("Python Function Counter: ", str(counter))
     return counter
 
-def start():
+# def start():
 
-    global running
+#     global running
 
-    signal.signal(signal.SIGUSR1, incrementCounter)
+#     signal.signal(signal.SIGUSR1, incrementCounter)
 
-    while running:
-        print("HEALTHCHECK", flush=True)
-        time.sleep(10)
-    return 0
+#     while running:
+#         print("HEALTHCHECK", flush=True)
+#         time.sleep(10)
+#     return 0
