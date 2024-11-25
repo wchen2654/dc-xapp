@@ -288,7 +288,7 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		.addField("ul_samples", (long long int)it->second.ul_samples)
 		.addField("dl_mcs", it->second.dl_mcs)
 		.addField("dl_samples", (long long int)it->second.dl_samples)
-		.addField("report_num", std::to_string(sliceReportId))
+		.addField("report_num", sliceReportId)
 		.addTag("slice", it->first.c_str())
 		.addTag("nodeb", rname.c_str()));
 	}
@@ -316,7 +316,7 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		.addField("ul_samples", (long long int)it->second.ul_samples)
 		.addField("dl_mcs", it->second.dl_mcs)
 		.addField("dl_samples", (long long int)it->second.dl_samples)
-		.addField("report_num", std::to_string(ueReportId))
+		.addField("report_num", ueReportId)
 		.addTag("ue", std::to_string(it->first).c_str())
 		.addTag("nodeb", rname.c_str()));
 
