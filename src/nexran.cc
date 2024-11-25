@@ -585,8 +585,8 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 
 	// Intrusion Detection Code
 
-	mdclog_write(MDCLOG_INFO, "# of UE Reports: %d", ueReportId);
-	mdclog_write(MDCLOG_INFO, "# of Slice Reports: %d", sliceReportId);
+	mdclog_write(MDCLOG_INFO, "# of UE Reports: %d", ueReportId - 1);
+	mdclog_write(MDCLOG_INFO, "# of Slice Reports: %d", sliceReportId - 1);
 
 	if ((ueReportId - 1) % 10 == 0)	// This will proc for every 10 UE reports
 	{
