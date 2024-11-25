@@ -234,8 +234,6 @@ bool App::intrusion_detection()
 			std::cerr << "Failed to load module 'intrusionDetection'" << std::endl;
 		}
 
-		// Finalize the Python Interpreter
-		Py_Finalize();
 	}
 	catch(...)
 	{
