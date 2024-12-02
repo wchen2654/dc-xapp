@@ -24,7 +24,6 @@ def fetchData():
         print("IntrusionDetection: Error connecting to InfluxDB", flush=True)
         print("Error Message:", e, flush=True)
 
-    print("Python Function Counter: ", str(counter), flush=True)
 
     # Query for metrics
     try:
@@ -45,8 +44,8 @@ def fetchData():
         print("Dictionary: ", ues, flush=True)
 
         for ue in ues:
-            if ues[ue] % ues[ue][1] == 130: # If the UE is malicious
-                print("UE", str(ue), "is MALICIOUS")
+            if ues[ue][0] % ues[ue][1] == 130: # If the UE is malicious
+                print("UE", str(ue), "is MALICIOUS", flush=True)
 
     except Exception as e:
         print("Intrusion Detection: Error occured when trying to obtain metrics", flush=True)

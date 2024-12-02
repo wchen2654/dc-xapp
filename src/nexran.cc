@@ -208,7 +208,7 @@ bool App::intrusion_detection()
 				Py_DECREF(pFunc);
 
 				PyObject *pCounter = PyObject_GetAttrString(pModule, "counter");
-				std::cout << "IncrementCounter Global value counter: " << PyLong_AsLong(pCounter) << std::endl;
+				// std::cout << "IncrementCounter Global value counter: " << PyLong_AsLong(pCounter) << std::endl;
 
 			} else {
 				PyErr_Print();
