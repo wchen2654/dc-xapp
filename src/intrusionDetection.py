@@ -44,7 +44,7 @@ def fetchData():
         print("Dictionary: ", ues, flush=True)
 
         for ue in ues:
-            if ues[ue][0] % ues[ue][1] == 130: # If the UE is malicious
+            if ues[ue][0] / ues[ue][1] >= 130: # If the UE is malicious
                 print("UE", str(ue), "is MALICIOUS", flush=True)
 
     except Exception as e:
