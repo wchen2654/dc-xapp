@@ -256,7 +256,7 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		
 		for (const auto& j: i.second)
 		{
-			std::cout << "ISMI" << j.first << "HELP" << db[j.first] << std::endl;
+			std::cout << "ISMI" << j.first << "HELP" << db[App::ResourceType::UeResource] << std::endl;
 		}
 
 	}
