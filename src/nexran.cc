@@ -265,7 +265,7 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 	for (const auto& i: db[App::ResourceType::UeResource])
 	{
 		std::cout << "First " << i.first << std::endl;
-		std::cout << "Second " << i.second->value << std::endl;
+		std::cout << "Second " << *i.second << std::endl;
 	}
 
 
