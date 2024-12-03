@@ -46,6 +46,7 @@ def fetchData():
         for ue in ues:
             if ues[ue][0] / ues[ue][1] >= 130: # If the UE is malicious
                 print("UE", str(ue), "is MALICIOUS", flush=True)
+                return True
 
     except Exception as e:
         print("Intrusion Detection: Error occured when trying to obtain metrics", flush=True)
