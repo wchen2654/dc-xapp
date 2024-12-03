@@ -194,6 +194,8 @@ bool App::secure_slicing()
 {
 	ue1imsi = "001010123456789";
 
+	AppError *ae = nullptr;
+
 	mdclog_write(MDCLOG_DEBUG,"UNBINDING START");	// Unbind MaliciousUE from Fast Slice
 	mutex.unlock();
 	unbind_ue_slice(ue1imsi,slice1,&ae);
