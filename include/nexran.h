@@ -650,6 +650,10 @@ class App
 			 AppError **ae);
     bool handle_appconfig_update(void);
 
+    // Intrusion Detection Code
+
+    bool intrusion_detection();
+
     Config &config;
     AppConfig app_config;
 

@@ -18,11 +18,20 @@
 #include "restserver.h"
 //#include "restserver.cc"
 
-#include <curl/curl.h>
+#include <Python.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <cstring>
+#include <signal.h>
+#include <fstream>
+
 using namespace std;
 
 int sliceReportId = 1;
 int ueReportId = 1;
+
+PyObject* pModule = nullptr;  // Global variable to store the Python module
+int COUNT = 0;
 
 namespace nexran {
 
@@ -170,6 +179,64 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
     }
 }
 
+bool App::intrusion_detection()
+{
+	try
+	{
+
+		if (pModule != nullptr) {
+			// Get the function from the module
+			PyObject *pFunc = PyObject_GetAttrString(pModule, "fetchData");
+
+			// Check if the function is callable
+			if (pFunc && PyCallable_Check(pFunc)) {
+				// // Prepare arguments for the function call
+				// PyObject *pArgs = PyTuple_Pack(2, PyLong_FromLong(3), PyLong_FromLong(5));  // Passing 3 and 5 as arguments
+				PyObject *pArgs = PyTuple_New(0);
+				// Call the function
+				PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
+				Py_DECREF(pArgs);
+
+				if (pValue != nullptr) {
+					Py_DECREF(pValue);
+				}
+				else
+				{
+					PyErr_Print();
+					std::cerr << "Function call failed" << std::endl;
+				}
+				Py_DECREF(pFunc);
+
+			} else {
+				PyErr_Print();
+				std::cerr << "Cannot find function 'fetchData'" << std::endl;
+			}
+
+			 // Access the global variable 'counter' directly
+			// PyObject* pCounter = PyObject_GetAttrString(pModule, "counter");
+			// if (pCounter != nullptr)
+			// {
+			// 	std::cout << "Accessing Global counter value: " << PyLong_AsLong(pCounter) << std::endl;
+			// 	Py_DECREF(pCounter);
+			// } 
+			// else 
+			// {
+			// 	PyErr_Print();
+			// 	std::cerr << "Failed to access 'counter'\n";
+			// }
+
+		} else {
+			PyErr_Print();
+			std::cerr << "Failed to load module 'intrusionDetection'" << std::endl;
+		}
+
+	}
+	catch(...)
+	{
+		std::cout << "Error occured while Intrusion detection" << std::endl;
+	}
+}
+
 /// @brief 
 /// @param kind 
 /// @return 
@@ -218,13 +285,13 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		.addField("ul_samples", (long long int)it->second.ul_samples)
 		.addField("dl_mcs", it->second.dl_mcs)
 		.addField("dl_samples", (long long int)it->second.dl_samples)
-		.addField("report_num", std::to_string(sliceReportId))
+		.addField("report_num", sliceReportId)
 		.addTag("slice", it->first.c_str())
 		.addTag("nodeb", rname.c_str()));
-
-		sliceReportId++;
-
 	}
+
+	sliceReportId++;
+
 	for (auto it = report->ues.begin(); it != report->ues.end(); ++it) {
 	    influxdb->write(influxdb::Point{"ue"}
 		.addField("dl_bytes", (long long int)it->second.dl_bytes)
@@ -246,13 +313,13 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		.addField("ul_samples", (long long int)it->second.ul_samples)
 		.addField("dl_mcs", it->second.dl_mcs)
 		.addField("dl_samples", (long long int)it->second.dl_samples)
-		.addTag("report_num", std::to_string(ueReportId))
+		.addField("report_num", ueReportId)
 		.addTag("ue", std::to_string(it->first).c_str())
 		.addTag("nodeb", rname.c_str()));
-
-		ueReportId++;
-
 	}
+
+	ueReportId++;
+
 	try {
 	    influxdb->flushBatch();
 	}
@@ -513,6 +580,16 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 	}
     }
 
+	// Intrusion Detection Code
+
+	mdclog_write(MDCLOG_INFO, "# of UE Reports: %d", ueReportId - 1);
+	mdclog_write(MDCLOG_INFO, "# of Slice Reports: %d", sliceReportId - 1);
+
+	if ((ueReportId - 1) % 10 == 0)	// This will proc for every 10 UE reports
+	{
+		intrusion_detection();
+	}
+
     // Handle any updates; log either way.
     for (auto it = new_share_factors.begin(); it != new_share_factors.end(); ++it) {
 	std::string slice_name = it->first;
@@ -674,6 +751,58 @@ void App::start()
     server.init(this);
     server.start();
     running = true;
+
+	// Initialization of ML model in python
+
+	try
+	{
+		Py_Initialize();	// Initialize Python Interpreter
+
+		PyRun_SimpleString("import sys; sys.argv = ['']");
+		PyRun_SimpleString("sys.path.append('/nexran/src/')");
+
+		PyObject *pName = PyUnicode_DecodeFSDefault("intrusionDetection");  // Module name you want to run
+		pModule = PyImport_Import(pName);
+		Py_DECREF(pName);  // Deallocate memory
+
+		if (pModule != nullptr) {
+			// // Get the function from the module
+			// PyObject *pFunc = PyObject_GetAttrString(pModule, "start");
+
+			// // Check if the function is callable
+			// if (pFunc && PyCallable_Check(pFunc)) {
+			// 	// // Prepare arguments for the function call
+			// 	// PyObject *pArgs = PyTuple_Pack(2, PyLong_FromLong(3), PyLong_FromLong(5));  // Passing 3 and 5 as arguments
+			// 	PyObject *pArgs = PyTuple_New(0);
+			// 	// Call the function
+			// 	PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
+			// 	Py_DECREF(pArgs);
+
+			// 	if (pValue != nullptr) {
+			// 		Py_DECREF(pValue);
+			// 	}
+			// 	else
+			// 	{
+			// 		PyErr_Print();
+			// 		std::cerr << "Function call failed" << std::endl;
+			// 	}
+			// 	Py_DECREF(pFunc);
+			// } else {
+			// 	PyErr_Print();
+			// 	std::cerr << "Cannot find function 'start'" << std::endl;
+			// }
+			std::cout << "Module loaded" << std::endl;
+		} else {
+			PyErr_Print();
+			std::cerr << "Failed to load module 'intrusionDetection'" << std::endl;
+		}
+		
+	}
+	catch(...)
+	{
+		std::cout << "Error occured while trying to load Intrusion detection" << std::endl;
+	}
+
 }
 
 void App::stop()
@@ -690,6 +819,12 @@ void App::stop()
     delete response_thread;
     response_thread = NULL;
     running = false;
+
+	// Finalize the Python Interpreter
+
+	Py_DECREF(pModule);
+	Py_Finalize();
+
 }
 
 void App::serialize(ResourceType rt,

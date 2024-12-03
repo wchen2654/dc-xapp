@@ -7,9 +7,13 @@ if [ -z "$DC_XAPP" ]; then
     export DC_XAPP=`kubectl get svc -n ricxapp --field-selector metadata.name=service-ricxapp-dc-rmr -o jsonpath='{.items[0].spec.clusterIP}'`
 fi
 if [ -z "$DC_XAPP" ]; then
-    echo "ERROR: failed to find ss-xapp nbi service; aborting!"
+    echo "ERROR: failed to find dc-xapp nbi service; aborting!"
     exit 1
 fi
+
+kubectl exec ricplt-influxdb-meta-0 -n ricplt -- influx -database 'metrics' -execute 'DROP DATABASE Data_Collector'
+kubectl exec ricplt-influxdb-meta-0 -n ricplt -- influx -database 'metrics' -execute 'CREATE DATABASE Data_Collector'
+
 
 echo DC_XAPP=$DC_XAPP ; echo
 

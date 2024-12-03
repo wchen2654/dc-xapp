@@ -25,6 +25,11 @@ RUN apt-get update \
      ) \
   && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update \
+  && apt-get install -y python3-dev python3-pip \
+  && python3 -m pip install influxdb \
+  && update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+
 RUN cd /tmp \
   && git clone https://gitlab.flux.utah.edu/powderrenewpublic/xapp-frame-cpp \
   && cd xapp-frame-cpp \
@@ -73,7 +78,7 @@ RUN cd /nexran \
        && echo "RIC_GENERATED_E2SM_KPM_BINDING_DIR:STRING=/nexran/lib/e2sm/messages/generated/E2SM-KPM" >> CMakeCache.txt ) \
      || true \
   && cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../ \
-  && make install && ldconfig
+  && make install && ldconfig 
 
 ENV RMR_RTG_SVC="9999" \
     RMR_SEED_RT="/nexran/etc/routes.txt" \
