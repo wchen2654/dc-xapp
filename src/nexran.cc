@@ -207,26 +207,23 @@ bool App::intrusion_detection()
 				}
 				Py_DECREF(pFunc);
 
-				PyObject *pCounter = PyObject_GetAttrString(pModule, "counter");
-				// std::cout << "IncrementCounter Global value counter: " << PyLong_AsLong(pCounter) << std::endl;
-
 			} else {
 				PyErr_Print();
 				std::cerr << "Cannot find function 'fetchData'" << std::endl;
 			}
 
 			 // Access the global variable 'counter' directly
-			PyObject* pCounter = PyObject_GetAttrString(pModule, "counter");
-			if (pCounter != nullptr)
-			{
-				std::cout << "Accessing Global counter value: " << PyLong_AsLong(pCounter) << std::endl;
-				Py_DECREF(pCounter);
-			} 
-			else 
-			{
-				PyErr_Print();
-				std::cerr << "Failed to access 'counter'\n";
-			}
+			// PyObject* pCounter = PyObject_GetAttrString(pModule, "counter");
+			// if (pCounter != nullptr)
+			// {
+			// 	std::cout << "Accessing Global counter value: " << PyLong_AsLong(pCounter) << std::endl;
+			// 	Py_DECREF(pCounter);
+			// } 
+			// else 
+			// {
+			// 	PyErr_Print();
+			// 	std::cerr << "Failed to access 'counter'\n";
+			// }
 
 		} else {
 			PyErr_Print();
