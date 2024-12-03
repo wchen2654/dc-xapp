@@ -252,9 +252,16 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 {
 	for (const auto& i: db)
 	{
-		std::cout << i << std::endl;
+		std::cout << i.first << std::endl;
+		
+		for (const auto& j: i.second)
+		{
+			std::cout << "ISMI" << j.first << "HELP" << j.second << std::endl;
+		}
+
 	}
-	
+
+
 	std::shared_ptr<influxdb::InfluxDB> influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
 
     mdclog_write(MDCLOG_INFO,"KpmIndication: %s",
