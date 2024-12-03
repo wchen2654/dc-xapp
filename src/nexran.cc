@@ -31,7 +31,10 @@ int sliceReportId = 1;
 int ueReportId = 1;
 
 PyObject* pModule = nullptr;  // Global variable to store the Python module
-int COUNT = 0;
+
+std::string ue1imsi = "NULL";
+std::string ue2imsi = "NULL";
+std::string ue3imsi = "NULL";
 
 namespace nexran {
 
@@ -179,6 +182,11 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
     }
 }
 
+bool App::secure_slicing()
+{
+	std::cout << "Test" << std::endl;
+}
+
 bool App::intrusion_detection()
 {
 	try
@@ -242,7 +250,11 @@ bool App::intrusion_detection()
 /// @return 
 bool App::handle(e2sm::kpm::KpmIndication *kind)
 {
-
+	for (const auto& i: db)
+	{
+		std::cout << i << std::endl;
+	}
+	
 	std::shared_ptr<influxdb::InfluxDB> influxdb = influxdb::InfluxDBFactory::Get("http://ricplt-influxdb.ricplt.svc.cluster.local:8086?db=Data_Collector");
 
     mdclog_write(MDCLOG_INFO,"KpmIndication: %s",
