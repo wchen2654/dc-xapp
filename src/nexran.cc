@@ -234,7 +234,7 @@ bool App::secure_slicing()
 	sprintf(url, "http://127.0.0.1:8000/v1/slices/secure_slice/ues/%s", ue1imsi.c_str());
 
 	curl_easy_setopt(curl, CURLOPT_URL, url);
-	// curl_easy_setopt(curl, CURLOPT_POST, 1L);
+	curl_easy_setopt(curl, CURLOPT_POST, 1L);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
 	curl_easy_setopt(curl, CURLOPT_HEADER, 1L);
 	
