@@ -39,11 +39,6 @@ std::string ue1imsi = "NULL";
 std::string ue2imsi = "NULL";
 std::string ue3imsi = "NULL";
 
-char url[1024];
-
-std::string slice1 = "fast";
-std::string slice2 = "secure_slice";
-
 namespace nexran {
 
 static void rmr_callback(
@@ -192,24 +187,22 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
 
 bool App::secure_slicing()
 {
+	char url[1024];
+
 	ue1imsi = "001010123456789";
+
+	std::string slice1 = "fast";
+	std::string slice2 = "secure_slice";
 
 	AppError *ae = nullptr;
 
+	// UNBINDING THE UE FROM FAST SLICE //
 	mdclog_write(MDCLOG_DEBUG,"UNBINDING START");	// Unbind MaliciousUE from Fast Slice
 	mutex.unlock();
 	unbind_ue_slice(ue1imsi,slice1,&ae);
 	mutex.lock();
-	mdclog_write(MDCLOG_DEBUG,"UNBINDING SUCCESS");
 
-
-	mdclog_write(MDCLOG_DEBUG,"BINDING START");		// Bind Malicious UE to Secure Slice
-	mutex.unlock();
-	bind_ue_slice(ue1imsi,slice2,&ae);
-	mutex.lock();
-	mdclog_write(MDCLOG_DEBUG,"BINDING SUCCESS");
-
-	sprintf(url, "http://127.0.0.1:8000/v1/ues/%s", ue1imsi.c_str());
+	sprintf(url, "http://127.0.0.1:8000/v1/slices/fast/ues/%s", ue1imsi.c_str());
 
 	mdclog_write(MDCLOG_INFO, "Deleting url: %s", url);
 	curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -229,11 +222,24 @@ bool App::secure_slicing()
 		std::cout << "Response body:\n" << readBuffer << std::endl;
 	}
 
-	mdclog_write(MDCLOG_DEBUG, "Deleted Ue");
+	mdclog_write(MDCLOG_DEBUG,"UNBINDING SUCCESS");
 
-	curl_easy_setopt(curl, CURLOPT_URL, "http://127.0.0.1:8000/v1/slices/secure_slice");
+	// BINDING UE TO SECURE SLICE //
+	mdclog_write(MDCLOG_DEBUG,"BINDING START");		// Bind Malicious UE to Secure Slice
+	mutex.unlock();
+	bind_ue_slice(ue1imsi,slice2,&ae);
+	mutex.lock();
+
+	std::memset(url, 0, sizeof(url));
+	sprintf(url, "http://127.0.0.1:8000/v1/slices/secure_slice/ues/%s", ue1imsi.c_str());
+
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+	curl_easy_setopt(curl, CURLOPT_POST, 1L);
+	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L); 
+	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+	
 	ret = curl_easy_perform(curl);	
-
 	
 	if(ret != CURLE_OK) {
 		std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(ret) << std::endl;
@@ -244,7 +250,8 @@ bool App::secure_slicing()
 
 	curl_easy_cleanup(curl);
 	curl_global_cleanup();
-	mdclog_write(MDCLOG_DEBUG, "Deleted Secure Slice");
+	mdclog_write(MDCLOG_DEBUG,"BINDING SUCCESS");
+
 }
 
 bool App::intrusion_detection()
