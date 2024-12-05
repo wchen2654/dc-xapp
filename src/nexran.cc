@@ -230,14 +230,13 @@ bool App::secure_slicing()
 	bind_ue_slice(ue1imsi,slice2,&ae);
 	mutex.lock();
 
-	std::memset(url, 0, sizeof(url));
+	// std::memset(url, 0, sizeof(url));
 	sprintf(url, "http://127.0.0.1:8000/v1/slices/secure_slice/ues/%s", ue1imsi.c_str());
 
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_POST, 1L);
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L); 
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+	curl_easy_setopt(curl, CURLOPT_HEADER, 1L);
 	
 	ret = curl_easy_perform(curl);	
 	
