@@ -56,4 +56,4 @@ def fetchData():
         print("Error Message:", e, flush=True)
 
     counter += 1
-    return counter
+    return False
