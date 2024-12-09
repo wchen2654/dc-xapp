@@ -395,7 +395,7 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		.addTag("ue", std::to_string(it->first).c_str())
 		.addTag("nodeb", rname.c_str()));
 
-		flag = false;
+		bool flag = false;
 
 		for (int i = 0 ; i < counter; i++)
 		{
