@@ -58,7 +58,7 @@ Ue *Ue::create(rapidjson::Document& d,AppError **ae)
     if (obj.HasMember("tmsi"))
 	ue = new Ue(std::string(obj["imsi"].GetString()),
 		    std::string(obj["tmsi"].GetString()),
-		    std::string());
+		    std::string("70"));
     else
 	ue = new Ue(std::string(obj["imsi"].GetString()));
 
