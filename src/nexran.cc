@@ -319,6 +319,8 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
     mdclog_write(MDCLOG_INFO,"KpmIndication: %s",
 		 kind->report->to_string('\n',',').c_str());
 
+	return true;
+
     e2sm::kpm::KpmReport *report = kind->report;
     std::string rname;
 
@@ -1018,6 +1020,22 @@ bool App::add(ResourceType rt,AbstractResource *resource,
 	    2,mcreq,e2ap::CONTROL_REQUEST_ACK);
 	mccreq->set_meid(rname);
 	e2ap.send_control_request(mccreq,rname);
+    }
+
+	else if (rt == App::ResourceType::UeResource) {
+	Ue *ue = (Ue *)resource;
+
+	e2sm::kpm::EventTrigger *trigger = \
+	    new e2sm::kpm::EventTrigger(kpm,app_config.kpm_interval_index);
+	std::list<e2ap::Action *> actions;
+	actions.push_back(new e2ap::Action(1,e2ap::ACTION_REPORT,NULL,-1));
+	std::shared_ptr<e2ap::SubscriptionRequest> req = \
+	    std::make_shared<e2ap::SubscriptionRequest>(
+		e2ap.get_requestor_id(),e2ap.get_next_instance_id(),
+		0,trigger,actions);
+	req->set_meid(rname);
+	e2ap.send_subscription_request(req,rname);
+
     }
 
     mdclog_write(MDCLOG_DEBUG,"added %s %s",
