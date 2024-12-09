@@ -60,7 +60,10 @@ Ue *Ue::create(rapidjson::Document& d,AppError **ae)
 		    std::string(obj["tmsi"].GetString()),
 		    std::string("70"));
     else
-	ue = new Ue(std::string(obj["imsi"].GetString()));
+	// ue = new Ue(std::string(obj["imsi"].GetString()));
+    ue = new Ue(std::string(obj["imsi"].GetString()),
+		    std::string(),
+		    std::string("70"));
 
     return ue;
 }
