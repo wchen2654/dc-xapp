@@ -33,12 +33,6 @@ int ueReportId = 1;
 
 PyObject* pModule = nullptr;  // Global variable to store the Python module
 
-bool newUE = false;
-
-std::string IMSI[3] = {"0"};
-int CRNTI[3] = {0};
-
-int counter = 0;
 
 // Secure Slicing
 std::string ue1imsi = "NULL";
