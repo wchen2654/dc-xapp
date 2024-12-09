@@ -284,6 +284,13 @@ bool App::intrusion_detection()
 					bool result = PyObject_IsTrue(pValue);  // Extract the boolean value
 					if (result)	// If there is a malicious UE
 					{
+
+						for(int i = 0; i < counter; i++)
+						{
+							std::cout << "IMSI " << i + 1 << ": " << IMSI[counter] << std::endl;
+							std::cout << "CRNTI " << i + 1 << ": " << CRNTI[counter] << std::endl;
+						}
+
 						secure_slicing();
 					}
 					} else {
