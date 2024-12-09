@@ -1057,7 +1057,7 @@ bool App::add(ResourceType rt,AbstractResource *resource,
 		 rtype_to_label[rt],resource->getName().c_str());
 
 	IMSI[counter] = rname;
-	newUe = true;
+	newUE = true;
 
     return true;
 }
