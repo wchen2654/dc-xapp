@@ -25,6 +25,7 @@
 #include <cstring>
 #include <signal.h>
 #include <fstream>
+#include <thread>
 
 using namespace std;
 
@@ -33,6 +34,12 @@ int ueReportId = 1;
 
 PyObject* pModule = nullptr;  // Global variable to store the Python module
 
+bool newUE = false;
+
+std::string IMSI[3] = {"0"};
+int CRNTI[3] = {0}
+
+int counter = 0;
 
 // Secure Slicing
 std::string ue1imsi = "NULL";
@@ -387,6 +394,25 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		.addField("report_num", ueReportId)
 		.addTag("ue", std::to_string(it->first).c_str())
 		.addTag("nodeb", rname.c_str()));
+
+		flag = false;
+
+		for (int i = 0 ; i < counter; i++)
+		{
+			if (CRNTI[i] == it->first) // If CRNTI has already been assigned
+			{
+				flag = true;
+				break;
+			}
+		}
+
+		if (!flag)
+		{
+			CRNTI[counter] = it->first;
+			counter++;
+
+			newUE = false;
+		}
 	}
 
 	ueReportId++;
@@ -973,6 +999,13 @@ bool App::add(ResourceType rt,AbstractResource *resource,
 	e2ap.send_subscription_request(req,rname);
 	*/
 
+	// Sleeping until UE been assigned with C-rnti
+	while (newUE)
+	{
+		mdclog_write(MDCLOG_INFO, "Sleeping until Ue been assigned with C-rnti")
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+
 	e2sm::nexran::SliceStatusRequest *sreq = \
 	    new e2sm::nexran::SliceStatusRequest(nexran);
 	std::shared_ptr<e2ap::ControlRequest> creq = std::make_shared<e2ap::ControlRequest>(
@@ -1022,6 +1055,9 @@ bool App::add(ResourceType rt,AbstractResource *resource,
 
     mdclog_write(MDCLOG_DEBUG,"added %s %s",
 		 rtype_to_label[rt],resource->getName().c_str());
+
+	IMSI[counter] = rname;
+	newUe = true;
 
     return true;
 }
