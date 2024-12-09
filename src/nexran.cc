@@ -25,7 +25,6 @@
 #include <cstring>
 #include <signal.h>
 #include <fstream>
-#include <thread>
 
 using namespace std;
 
@@ -284,13 +283,6 @@ bool App::intrusion_detection()
 					bool result = PyObject_IsTrue(pValue);  // Extract the boolean value
 					if (result)	// If there is a malicious UE
 					{
-
-						for(int i = 0; i < counter; i++)
-						{
-							std::cout << "IMSI " << i + 1 << ": " << IMSI[counter] << std::endl;
-							std::cout << "CRNTI " << i + 1 << ": " << CRNTI[counter] << std::endl;
-						}
-
 						secure_slicing();
 					}
 					} else {
@@ -401,25 +393,6 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 		.addField("report_num", ueReportId)
 		.addTag("ue", std::to_string(it->first).c_str())
 		.addTag("nodeb", rname.c_str()));
-
-		bool flag = false;
-
-		for (int i = 0 ; i < counter; i++)
-		{
-			if (CRNTI[i] == it->first) // If CRNTI has already been assigned
-			{
-				flag = true;
-				break;
-			}
-		}
-
-		if (!flag)
-		{
-			CRNTI[counter] = it->first;
-			counter++;
-
-			newUE = false;
-		}
 	}
 
 	ueReportId++;
@@ -1006,13 +979,6 @@ bool App::add(ResourceType rt,AbstractResource *resource,
 	e2ap.send_subscription_request(req,rname);
 	*/
 
-	// Sleeping until UE been assigned with C-rnti
-	while (newUE)
-	{
-		mdclog_write(MDCLOG_INFO, "Sleeping until Ue been assigned with C-rnti");
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
-
 	e2sm::nexran::SliceStatusRequest *sreq = \
 	    new e2sm::nexran::SliceStatusRequest(nexran);
 	std::shared_ptr<e2ap::ControlRequest> creq = std::make_shared<e2ap::ControlRequest>(
@@ -1062,9 +1028,6 @@ bool App::add(ResourceType rt,AbstractResource *resource,
 
     mdclog_write(MDCLOG_DEBUG,"added %s %s",
 		 rtype_to_label[rt],resource->getName().c_str());
-
-	IMSI[counter] = rname;
-	newUE = true;
 
     return true;
 }
