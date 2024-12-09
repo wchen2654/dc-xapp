@@ -1002,7 +1002,7 @@ bool App::add(ResourceType rt,AbstractResource *resource,
 	// Sleeping until UE been assigned with C-rnti
 	while (newUE)
 	{
-		mdclog_write(MDCLOG_INFO, "Sleeping until Ue been assigned with C-rnti")
+		mdclog_write(MDCLOG_INFO, "Sleeping until Ue been assigned with C-rnti");
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 
