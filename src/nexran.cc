@@ -1023,6 +1023,9 @@ bool App::add(ResourceType rt,AbstractResource *resource,
     }
 
 	else if (rt == App::ResourceType::UeResource) {
+	
+	mdclog_write(MDCLOG_DEBUG, "UE RESOURCE ADD PROC");
+
 	Ue *ue = (Ue *)resource;
 
 	e2sm::kpm::EventTrigger *trigger = \
