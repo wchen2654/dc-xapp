@@ -2,6 +2,7 @@ from influxdb import InfluxDBClient
 import time
 import signal
 import os
+import numpy
 
 counter = 1
 client = None
@@ -34,22 +35,23 @@ def fetchData():
         result = client.query(query)
 
         for point in result.get_points():
-
+            
             if point['ue'] not in ues.keys():
-                ues[point['ue']] = [point['tx_pkts'], 1]
+                ues[point['ue']] = [[point['tx_pkts']],
+                1] # Index 0: tx_pkts ; Last Index: Num_of_reports
             else:
-                ues[point['ue']][0] += point['tx_pkts']
-                ues[point['ue']][1] += 1
+                ues[point['ue']][0].append(point['tx_pkts'])
+                ues[point['ue']][-1] += 1
 
             print(f"Time: {point['time']}, Report Number: {point['report_num']}, UE: {point['ue']}, Tx Pkts: {point['tx_pkts']}", flush=True)
         
         print("Dictionary: ", ues, flush=True)
 
-        for ue in ues:
-            if ues[ue][0] / ues[ue][1] >= 130 and ue not in malicious: # If the UE is malicious
-                print("UE", str(ue), "is MALICIOUS", flush=True)
-                malicious.append(ue)
-                return True
+        # for ue in ues:
+        #     if ues[ue][0] / ues[ue][1] >= 130 and ue not in malicious: # If the UE is malicious
+        #         print("UE", str(ue), "is MALICIOUS", flush=True)
+        #         malicious.append(ue)
+        #         return True
 
     except Exception as e:
         print("Intrusion Detection: Error occured when trying to obtain metrics", flush=True)
