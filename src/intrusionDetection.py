@@ -47,11 +47,17 @@ def fetchData():
         
         print("Dictionary: ", ues, flush=True)
 
-        # for ue in ues:
-        #     if ues[ue][0] / ues[ue][1] >= 130 and ue not in malicious: # If the UE is malicious
-        #         print("UE", str(ue), "is MALICIOUS", flush=True)
-        #         malicious.append(ue)
-        #         return True
+        for ue in ues:
+            Total_tx_pkts = 0
+
+            # Add all the tx_pkts together
+            for i in range(ues[ue[-1]]):
+                Total_tx_pkts += ues[ue][0][i]
+
+            if Total_tx_pkts / ues[ue][-1] >= 130 and ue not in malicious: # If the UE is malicious
+                print("UE", str(ue), "is MALICIOUS", flush=True)
+                malicious.append(ue)
+                return True
 
     except Exception as e:
         print("Intrusion Detection: Error occured when trying to obtain metrics", flush=True)
