@@ -121,7 +121,7 @@ class EventTrigger : public e2sm::EventTrigger
     EventTrigger(e2sm::Model *model_,KpmPeriod_t period_)
 	: period(period_),e2sm::EventTrigger(model_) {};
     EventTrigger(e2sm::Model *model_)
-	: period(KpmPeriod::MS5120),e2sm::EventTrigger(model_) {};
+	: period(KpmPeriod::MS10),e2sm::EventTrigger(model_) {};
     virtual ~EventTrigger() = default;
 
     virtual bool encode();
