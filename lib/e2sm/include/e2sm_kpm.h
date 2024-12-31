@@ -19,6 +19,7 @@ namespace kpm
 typedef struct entity_metrics
 {
   time_t time;
+  uint64_t imsi;
   uint64_t dl_bytes;
   uint64_t ul_bytes;
   uint64_t dl_prbs;
