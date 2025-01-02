@@ -281,15 +281,15 @@ asn_TYPE_member_t asn_MBR_E2SM_KPM_PerUEReportListItem_1[] = {
 		0, 0, /* No default value */
 		"dl-samples"
 		},
-	{ ATF_NOFLAGS, 0, offsetof(struct E2SM_KPM_PerUEReportListItem, dl_samples),
-		(ASN_TAG_CLASS_CONTEXT | (18 << 2)),
-				                -1,     /* IMPLICIT tag at current level */
-						                &asn_DEF_NativeInteger,
-								                0,
-										                { 0, 0, 0 },
-												                0, 0, /* No default value */
-														                "dl-samples"
-																	                },
+	{ ATF_NOFLAGS, 0, offsetof(struct E2SM_KPM_PerUEReportListItem, imsi),
+		(ASN_TAG_CLASS_CONTEXT | (19 << 2)),
+		-1,	/* IMPLICIT tag at current level */
+		&asn_DEF_NativeInteger,
+		0,
+		{ 0, 0, 0 },
+		0, 0, /* No default value */
+		"imsi"
+		},
 };
 static const ber_tlv_tag_t asn_DEF_E2SM_KPM_PerUEReportListItem_tags_1[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
@@ -313,15 +313,16 @@ static const asn_TYPE_tag2member_t asn_MAP_E2SM_KPM_PerUEReportListItem_tag2el_1
     { (ASN_TAG_CLASS_CONTEXT | (15 << 2)), 15, 0, 0 }, /* ul-mcs */
     { (ASN_TAG_CLASS_CONTEXT | (16 << 2)), 16, 0, 0 }, /* ul-samples */
     { (ASN_TAG_CLASS_CONTEXT | (17 << 2)), 17, 0, 0 }, /* dl-mcs */
-    { (ASN_TAG_CLASS_CONTEXT | (18 << 2)), 18, 0, 0 } /* dl-samples */
+    { (ASN_TAG_CLASS_CONTEXT | (18 << 2)), 18, 0, 0 }, /* dl-samples */
+    { (ASN_TAG_CLASS_CONTEXT | (19 << 2)), 19, 0, 0 } /* imsi */
 };
 asn_SEQUENCE_specifics_t asn_SPC_E2SM_KPM_PerUEReportListItem_specs_1 = {
 	sizeof(struct E2SM_KPM_PerUEReportListItem),
 	offsetof(struct E2SM_KPM_PerUEReportListItem, _asn_ctx),
 	asn_MAP_E2SM_KPM_PerUEReportListItem_tag2el_1,
-	19,	/* Count of tags in the map */
+	20,	/* Count of tags in the map */
 	0, 0, 0,	/* Optional elements (not needed) */
-	19,	/* First extension addition */
+	20,	/* First extension addition */
 };
 asn_TYPE_descriptor_t asn_DEF_E2SM_KPM_PerUEReportListItem = {
 	"PerUEReportListItem",
@@ -335,7 +336,7 @@ asn_TYPE_descriptor_t asn_DEF_E2SM_KPM_PerUEReportListItem = {
 		/sizeof(asn_DEF_E2SM_KPM_PerUEReportListItem_tags_1[0]), /* 1 */
 	{ 0, 0, SEQUENCE_constraint },
 	asn_MBR_E2SM_KPM_PerUEReportListItem_1,
-	19,	/* Elements count */
+	20,	/* Elements count */
 	&asn_SPC_E2SM_KPM_PerUEReportListItem_specs_1	/* Additional specs */
 };
 

@@ -24,7 +24,6 @@ extern "C" {
 /* E2SM_KPM_PerUEReportListItem */
 typedef struct E2SM_KPM_PerUEReportListItem {
 	long	 rnti;
-	INTEGER_t    imsi;
 	INTEGER_t	 dl_PRBUsage;
 	INTEGER_t	 ul_PRBUsage;
 	long	 tx_pkts;
@@ -43,6 +42,7 @@ typedef struct E2SM_KPM_PerUEReportListItem {
 	long	 ul_samples;
 	double	 dl_mcs;
 	long	 dl_samples;
+	unsigned long long    imsi;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.
