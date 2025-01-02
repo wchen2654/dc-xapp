@@ -289,7 +289,7 @@ asn_TYPE_member_t asn_MBR_E2SM_KPM_PerUEReportListItem_1[] = {
 		{ 0, 0, 0 },
 		0, 0, /* No default value */
 		"imsi"
-		},
+		}
 };
 static const ber_tlv_tag_t asn_DEF_E2SM_KPM_PerUEReportListItem_tags_1[] = {
 	(ASN_TAG_CLASS_UNIVERSAL | (16 << 2))
