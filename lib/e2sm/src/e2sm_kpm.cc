@@ -157,7 +157,7 @@ static KpmReport *decode_kpm_indication(
 				report->ues[pui->rnti].dl_prbs = dl_prbs;
 				report->ues[pui->rnti].ul_prbs = ul_prbs;
 			    }
-				unsinged long imsi = 0
+				unsigned long imsi = 0
 				asn_INTEGER2ulong(&pui->imsi,&imsi);
 				report->ues[pui->rnti].imsi = imsi;
 			    report->ues[pui->rnti].tx_pkts = pui->tx_pkts;
