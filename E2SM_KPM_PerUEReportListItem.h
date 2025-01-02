@@ -42,7 +42,7 @@ typedef struct E2SM_KPM_PerUEReportListItem {
 	long	 ul_samples;
 	double	 dl_mcs;
 	long	 dl_samples;
-	unsigned long long    imsi;
+	long    imsi;
 	/*
 	 * This type is extensible,
 	 * possible extensions are below.
