@@ -76,6 +76,7 @@ RUN cd /nexran \
        && mkdir -p /nexran/lib/e2sm/messages/generated \
        && curl https://www.emulab.net/downloads/johnsond/profile-oai-oran/E2SM-KPM-ext-generated-bindings.tar.gz | tar -xzv -C /nexran/lib/e2sm/messages/generated \
        && cp /nexran/E2SM_KPM_PerUEReportListItem.h /nexran/lib/e2sm/messages/generated/E2SM-KPM/E2SM_KPM_PerUEReportListItem.h \
+       && cp /nexran/E2SM_KPM_PerUEReportListItem.c /nexran/lib/e2sm/messages/generated/E2SM-KPM/E2SM_KPM_PerUEReportListItem.c \
        && echo "RIC_GENERATED_E2SM_KPM_BINDING_DIR:STRING=/nexran/lib/e2sm/messages/generated/E2SM-KPM" >> CMakeCache.txt ) \
      || true \
   && cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo ../ \
