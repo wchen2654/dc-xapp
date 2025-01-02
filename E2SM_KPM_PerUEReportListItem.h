@@ -55,7 +55,7 @@ typedef struct E2SM_KPM_PerUEReportListItem {
 /* Implementation */
 extern asn_TYPE_descriptor_t asn_DEF_E2SM_KPM_PerUEReportListItem;
 extern asn_SEQUENCE_specifics_t asn_SPC_E2SM_KPM_PerUEReportListItem_specs_1;
-extern asn_TYPE_member_t asn_MBR_E2SM_KPM_PerUEReportListItem_1[19];
+extern asn_TYPE_member_t asn_MBR_E2SM_KPM_PerUEReportListItem_1[20];
 
 #ifdef __cplusplus
 }
