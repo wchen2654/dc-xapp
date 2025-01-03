@@ -198,7 +198,7 @@ bool App::secure_slicing(int rnti)
 	unbind_ue_slice(crnti_to_imsi[std::to_string(rnti)],slice1,&ae);
 	mutex.lock();
 
-	sprintf(url, "http://127.0.0.1:8000/v1/slices/fast/ues/%s", crnti_to_imsi[std::to_string(rnti)]);
+	sprintf(url, "http://127.0.0.1:8000/v1/slices/fast/ues/%s", crnti_to_imsi[std::to_string(rnti)].c_str());
 
 	mdclog_write(MDCLOG_INFO, "Deleting url: %s", url);
 	curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -227,7 +227,7 @@ bool App::secure_slicing(int rnti)
 	mutex.lock();
 
 	// std::memset(url, 0, sizeof(url));p
-	sprintf(url, "http://127.0.0.1:8000/v1/slices/secure_slice/ues/%s", crnti_to_imsi[std::to_string(rnti)]);
+	sprintf(url, "http://127.0.0.1:8000/v1/slices/secure_slice/ues/%s", crnti_to_imsi[std::to_string(rnti)].c_str());
 
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
