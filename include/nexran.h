@@ -652,7 +652,7 @@ class App
 
     // Intrusion Detection Code
 
-    bool secure_slicing();
+    bool secure_slicing(int rnti);
     bool intrusion_detection();
 
     Config &config;
