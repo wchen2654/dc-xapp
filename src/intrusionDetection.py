@@ -88,7 +88,7 @@ def fetchData():
             if Total_tx_pkts / ues[ue][-1] >= 130 and ue not in malicious: # If the UE is malicious
                 print("UE", str(ue), "is MALICIOUS", flush=True)
                 malicious.append(ue)
-                return ue
+                return int(ue)
 
     except Exception as e:
         print("Intrusion Detection: Error occured when trying to obtain metrics", flush=True)
