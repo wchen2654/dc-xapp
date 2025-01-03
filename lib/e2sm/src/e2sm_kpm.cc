@@ -157,7 +157,6 @@ static KpmReport *decode_kpm_indication(
 				report->ues[pui->rnti].dl_prbs = dl_prbs;
 				report->ues[pui->rnti].ul_prbs = ul_prbs;
 			    }
-				report->ues[pui->rnti].imsi = pui->imsi;
 			    report->ues[pui->rnti].tx_pkts = pui->tx_pkts;
 			    report->ues[pui->rnti].tx_errors = pui->tx_errors;
 			    report->ues[pui->rnti].tx_brate = pui->tx_brate;
@@ -173,6 +172,7 @@ static KpmReport *decode_kpm_indication(
 			    report->ues[pui->rnti].ul_samples = pui->ul_samples;
 			    report->ues[pui->rnti].dl_mcs = pui->dl_mcs;
 			    report->ues[pui->rnti].dl_samples = pui->dl_samples;
+				report->ues[pui->rnti].imsi = pui->imsi;
 			}
 		    }
 		    if (plmn_cell_item->du_PM_EPC->perSliceReportList) {

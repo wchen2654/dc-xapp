@@ -19,7 +19,6 @@ namespace kpm
 typedef struct entity_metrics
 {
   time_t time;
-  uint64_t imsi;
   uint64_t dl_bytes;
   uint64_t ul_bytes;
   uint64_t dl_prbs;
@@ -39,6 +38,7 @@ typedef struct entity_metrics
   int64_t  ul_samples;
   double   dl_mcs;
   int64_t  dl_samples;
+  int64_t  imsi;
 } entity_metrics_t;
 
 class MetricsIndex
