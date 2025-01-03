@@ -276,7 +276,7 @@ bool App::intrusion_detection()
 							secure_slicing(result);
 						}
 					} else {
-						std::cerr << "Returned value is not a boolean." << std::endl;
+						std::cerr << "Returned value is not a integer." << std::endl;
 					}
 					Py_DECREF(pValue);
 				}
