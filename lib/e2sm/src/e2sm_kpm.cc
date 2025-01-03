@@ -308,6 +308,7 @@ std::string KpmReport::to_string(char group_delim,char item_delim)
 	   << "ul_samples=" << it->second.ul_samples << item_delim
 	   << "dl_mcs=" << it->second.dl_mcs << item_delim
 	   << "dl_samples=" << it->second.dl_samples << item_delim
+	   << "imsi=" << it->second.imsi << item_delim
 	   << "}" << group_delim;
     for (auto it = slices.begin(); it != slices.end(); ++it)
 	ss << "slice[" << it->first << "]={"
