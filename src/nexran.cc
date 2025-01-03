@@ -361,9 +361,9 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 
 	for (auto it = report->ues.begin(); it != report->ues.end(); ++it) {
 
-		if (!crnti_to_imsi.contains(std::to_string(it->first).c_str()))
+		if (!crnti_to_imsi.count(std::to_string(it->first)))
 		{
-			crnti_to_imsi[std::to_string(it->first).c_str()] = "00" + std::to_string(it->second.imsi).c_str();
+			crnti_to_imsi[std::to_string(it->first)] = "00" + std::to_string(it->second.imsi);
 		}
 
 	    influxdb->write(influxdb::Point{"ue"}
