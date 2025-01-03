@@ -33,11 +33,9 @@ int ueReportId = 1;
 
 PyObject* pModule = nullptr;  // Global variable to store the Python module
 
-
 // Secure Slicing
-std::string ue1imsi = "NULL";
-std::string ue2imsi = "NULL";
-std::string ue3imsi = "NULL";
+
+std::map<string, string> rnti_to_imsi;
 
 namespace nexran {
 
@@ -185,11 +183,9 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
     }
 }
 
-bool App::secure_slicing()
+bool App::secure_slicing(int rnti)
 {
 	char url[1024];
-
-	ue1imsi = "001010123456789";
 
 	std::string slice1 = "fast";
 	std::string slice2 = "secure_slice";
@@ -199,10 +195,10 @@ bool App::secure_slicing()
 	// UNBINDING THE UE FROM FAST SLICE //
 	mdclog_write(MDCLOG_DEBUG,"UNBINDING START");	// Unbind MaliciousUE from Fast Slice
 	mutex.unlock();
-	unbind_ue_slice(ue1imsi,slice1,&ae);
+	unbind_ue_slice(crnti_to_imsi[std::to_string(rnti).c_str()],slice1,&ae);
 	mutex.lock();
 
-	sprintf(url, "http://127.0.0.1:8000/v1/slices/fast/ues/%s", ue1imsi.c_str());
+	sprintf(url, "http://127.0.0.1:8000/v1/slices/fast/ues/%s", crnti_to_imsi[std::to_string(rnti).c_str()]);
 
 	mdclog_write(MDCLOG_INFO, "Deleting url: %s", url);
 	curl_global_init(CURL_GLOBAL_DEFAULT);
@@ -227,11 +223,11 @@ bool App::secure_slicing()
 	// BINDING UE TO SECURE SLICE //
 	mdclog_write(MDCLOG_DEBUG,"BINDING START");		// Bind Malicious UE to Secure Slice
 	mutex.unlock();
-	bind_ue_slice(ue1imsi,slice2,&ae);
+	bind_ue_slice(crnti_to_imsi[std::to_string(rnti).c_str()],slice2,&ae);
 	mutex.lock();
 
 	// std::memset(url, 0, sizeof(url));p
-	sprintf(url, "http://127.0.0.1:8000/v1/slices/secure_slice/ues/%s", ue1imsi.c_str());
+	sprintf(url, "http://127.0.0.1:8000/v1/slices/secure_slice/ues/%s", crnti_to_imsi[std::to_string(rnti).c_str()]);
 
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
@@ -273,12 +269,12 @@ bool App::intrusion_detection()
 
 				// If there's a return value
 				if (pValue != nullptr) {
-					if (PyBool_Check(pValue)) {  // Check if pValue is a bool
-					bool result = PyObject_IsTrue(pValue);  // Extract the boolean value
-					if (result)	// If there is a malicious UE
-					{
-						secure_slicing();
-					}
+					if (PyLong_Check(pValue)) {  // Check if pValue is a integer
+						int result = PyLong_AsLong(pValue);  // Extract the integer value
+						if (result != -1)	// If there is a malicious UE
+						{
+							secure_slicing(result);
+						}
 					} else {
 						std::cerr << "Returned value is not a boolean." << std::endl;
 					}
@@ -364,6 +360,12 @@ bool App::handle(e2sm::kpm::KpmIndication *kind)
 	sliceReportId++;
 
 	for (auto it = report->ues.begin(); it != report->ues.end(); ++it) {
+
+		if (!crnti_to_imsi.contains(std::to_string(it->first).c_str()))
+		{
+			crnti_to_imsi[std::to_string(it->first).c_str()] = "00" + std::to_string(it->second.imsi).c_str();
+		}
+
 	    influxdb->write(influxdb::Point{"ue"}
 		.addField("dl_bytes", (long long int)it->second.dl_bytes)
 		.addField("ul_bytes", (long long int)it->second.ul_bytes)

@@ -83,20 +83,16 @@ def fetchData():
 
         # Malicious UE Detection Code
         for ue in ues:
-            Total_tx_pkts = 0
-
-            # Add all the tx_pkts together
-            for i in range(ues[ue[-1]]):
-                Total_tx_pkts += ues[ue][0][i]
+            Total_tx_pkts = sum(ues[ue][0]) # Add all the Tx_pkts together
 
             if Total_tx_pkts / ues[ue][-1] >= 130 and ue not in malicious: # If the UE is malicious
                 print("UE", str(ue), "is MALICIOUS", flush=True)
                 malicious.append(ue)
-                return True
+                return ue
 
     except Exception as e:
         print("Intrusion Detection: Error occured when trying to obtain metrics", flush=True)
         print("Error Message:", e, flush=True)
 
     counter += 1
-    return False
+    return -1
