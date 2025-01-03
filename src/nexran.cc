@@ -35,7 +35,7 @@ PyObject* pModule = nullptr;  // Global variable to store the Python module
 
 // Secure Slicing
 
-std::map<string, string> rnti_to_imsi;
+std::map<string, string> crnti_to_imsi;
 
 namespace nexran {
 
