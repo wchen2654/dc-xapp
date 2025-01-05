@@ -259,7 +259,6 @@ bool App::secure_slicing(int rnti)
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L); 
 	CURLcode ret = curl_easy_perform(curl);	
-	std::string readBuffer;
 
 	if(ret != CURLE_OK) {
 		std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(ret) << std::endl;
