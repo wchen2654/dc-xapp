@@ -243,9 +243,47 @@ bool App::secure_slicing(int rnti)
 		std::cout << "Response body:\n" << readBuffer << std::endl;
 	}
 
+	sprintf(url, "http://127.0.0.1:8000/v1/ues/%s", crnti_to_imsi[std::to_string(rnti)].c_str());
+
 	curl_easy_cleanup(curl);
 	curl_global_cleanup();
 	mdclog_write(MDCLOG_DEBUG,"BINDING SUCCESS");
+
+
+	mdclog_write(MDCLOG_INFO, "Deleting url: %s", url);
+	curl_global_init(CURL_GLOBAL_DEFAULT);
+	CURL *curl = curl_easy_init();
+
+	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L); 
+	CURLcode ret = curl_easy_perform(curl);	
+	std::string readBuffer;
+
+	if(ret != CURLE_OK) {
+		std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(ret) << std::endl;
+	} else {
+		// Print the response body
+		std::cout << "Response body:\n" << readBuffer << std::endl;
+	}
+
+	mdclog_write(MDCLOG_DEBUG, "Deleted Ue");
+
+	curl_easy_setopt(curl, CURLOPT_URL, "http://127.0.0.1:8000/v1/slices/secure_slice");
+	ret = curl_easy_perform(curl);	
+
+	
+	if(ret != CURLE_OK) {
+		std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(ret) << std::endl;
+	} else {
+		// Print the response body
+		std::cout << "Response body:\n" << readBuffer << std::endl;
+	}
+
+	curl_easy_cleanup(curl);
+	curl_global_cleanup();
+	mdclog_write(MDCLOG_DEBUG, "Deleted Secure Slice");
 
 }
 
