@@ -196,7 +196,6 @@ bool App::secure_slicing(int rnti)
 	mdclog_write(MDCLOG_DEBUG,"UNBINDING START");	// Unbind MaliciousUE from Fast Slice
 	mutex.unlock();
 	unbind_ue_slice(crnti_to_imsi[std::to_string(rnti)],slice1,&ae);
-	mutex.lock();
 
 	sprintf(url, "http://127.0.0.1:8000/v1/slices/fast/ues/%s", crnti_to_imsi[std::to_string(rnti)].c_str());
 
@@ -207,7 +206,7 @@ bool App::secure_slicing(int rnti)
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
 	curl_easy_setopt(curl, CURLOPT_URL, url);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L); 
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 100L); 
 	CURLcode ret = curl_easy_perform(curl);	
 	std::string readBuffer;
 
@@ -220,32 +219,34 @@ bool App::secure_slicing(int rnti)
 
 	mdclog_write(MDCLOG_DEBUG,"UNBINDING SUCCESS");
 
-	// // BINDING UE TO SECURE SLICE //
-	// mdclog_write(MDCLOG_DEBUG,"BINDING START");		// Bind Malicious UE to Secure Slice
-	// mutex.unlock();
-	// bind_ue_slice(crnti_to_imsi[std::to_string(rnti)],slice2,&ae);
-	// mutex.lock();
+	// BINDING UE TO SECURE SLICE //
+	mdclog_write(MDCLOG_DEBUG,"BINDING START");		// Bind Malicious UE to Secure Slice
+	mutex.unlock();
+	bind_ue_slice(crnti_to_imsi[std::to_string(rnti)],slice2,&ae);
+	mutex.lock();
 
-	// // std::memset(url, 0, sizeof(url));p
-	// sprintf(url, "http://127.0.0.1:8000/v1/slices/secure_slice/ues/%s", crnti_to_imsi[std::to_string(rnti)].c_str());
+	// std::memset(url, 0, sizeof(url));p
+	sprintf(url, "http://127.0.0.1:8000/v1/slices/secure_slice/ues/%s", crnti_to_imsi[std::to_string(rnti)].c_str());
 
-	// curl_easy_setopt(curl, CURLOPT_URL, url);
-	// curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
-	// curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
-	// curl_easy_setopt(curl, CURLOPT_HEADER, 1L);
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
+	curl_easy_setopt(curl, CURLOPT_HEADER, 1L);
 	
-	// ret = curl_easy_perform(curl);	
+	ret = curl_easy_perform(curl);	
 	
-	// if(ret != CURLE_OK) {
-	// 	std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(ret) << std::endl;
-	// } else {
-	// 	// Print the response body
-	// 	std::cout << "Response body:\n" << readBuffer << std::endl;
-	// }
+	if(ret != CURLE_OK) {
+		std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(ret) << std::endl;
+	} else {
+		// Print the response body
+		std::cout << "Response body:\n" << readBuffer << std::endl;
+	}
 
-	// curl_easy_cleanup(curl);
-	// curl_global_cleanup();
-	// mdclog_write(MDCLOG_DEBUG,"BINDING SUCCESS");
+	curl_easy_cleanup(curl);
+	curl_global_cleanup();
+	mdclog_write(MDCLOG_DEBUG,"BINDING SUCCESS");
+
+	mutex.lock();
 
 	// sprintf(url, "http://127.0.0.1:8000/v1/ues/%s", crnti_to_imsi[std::to_string(rnti)].c_str());
 
