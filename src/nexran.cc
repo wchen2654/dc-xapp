@@ -252,13 +252,11 @@ bool App::secure_slicing(int rnti)
 
 	mdclog_write(MDCLOG_INFO, "Deleting url: %s", url);
 	curl_global_init(CURL_GLOBAL_DEFAULT);
-	CURL *curl = curl_easy_init();
 
 	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
 	curl_easy_setopt(curl, CURLOPT_URL, url);
 	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L); 
-	CURLcode ret = curl_easy_perform(curl);	
 
 	if(ret != CURLE_OK) {
 		std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(ret) << std::endl;
