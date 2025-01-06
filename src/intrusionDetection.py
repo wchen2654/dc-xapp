@@ -85,6 +85,8 @@ def fetchData():
         for ue in ues:
             Total_tx_pkts = sum(ues[ue][0]) # Add all the Tx_pkts together
 
+            print("Total TX PKTS for UE", str(ue), "is", str(Total_tx_pkts))
+
             if Total_tx_pkts / ues[ue][-1] >= 130 and ue not in malicious: # If the UE is malicious
                 print("UE", str(ue), "is MALICIOUS", flush=True)
                 malicious.append(ue)

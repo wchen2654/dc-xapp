@@ -18,7 +18,6 @@
 #include "restserver.h"
 //#include "restserver.cc"
 
-// #include <curl/curl.h>
 #include <Python.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -185,10 +184,9 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
 
 bool App::secure_slicing(int rnti)
 {
-	// char url[1024];
 
-	std::string slice1 = "fast";
-	std::string slice2 = "secure_slice";
+	std::string slice1 = "fast"; 					// Slice to unbind from
+	std::string slice2 = "secure_slice";			// Slice to bind to
 
 	AppError *ae = nullptr;
 
@@ -196,30 +194,6 @@ bool App::secure_slicing(int rnti)
 	mdclog_write(MDCLOG_DEBUG,"UNBINDING START");	// Unbind MaliciousUE from Fast Slice
 	mutex.unlock();
 	unbind_ue_slice(crnti_to_imsi[std::to_string(rnti)],slice1,&ae);
-
-	// sprintf(url, "http://127.0.0.1:8000/v1/slices/fast/ues/%s", crnti_to_imsi[std::to_string(rnti)].c_str());
-
-	// mdclog_write(MDCLOG_INFO, "Deleting url: %s", url);
-	// curl_global_init(CURL_GLOBAL_DEFAULT);
-	// CURL *curl = curl_easy_init();
-
-	// curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-	// curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-	// curl_easy_setopt(curl, CURLOPT_URL, url);
-	// curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L); 
-	// curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 10L); // Minimum speed in bytes/sec
-	// curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 30L);  // Time to allow low-speed connections
-
-	// CURLcode ret = curl_easy_perform(curl);	
-	// std::string readBuffer;
-
-	// if(ret != CURLE_OK) {
-	// 	std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(ret) << std::endl;
-	// } else {
-	// 	// Print the response body
-	// 	std::cout << "Response body:\n" << readBuffer << std::endl;
-	// }
-
 	mutex.lock();
 
 	mdclog_write(MDCLOG_DEBUG,"UNBINDING SUCCESS");
@@ -228,36 +202,16 @@ bool App::secure_slicing(int rnti)
 	mdclog_write(MDCLOG_DEBUG,"BINDING START");		// Bind Malicious UE to Secure Slice
 	mutex.unlock();
 	bind_ue_slice(crnti_to_imsi[std::to_string(rnti)],slice2,&ae);
+	mutex.lock();
 
-	// std::memset(url, 0, sizeof(url));p
-	// sprintf(url, "http://127.0.0.1:8000/v1/slices/secure_slice/ues/%s", crnti_to_imsi[std::to_string(rnti)].c_str());
-
-	// curl_easy_setopt(curl, CURLOPT_URL, url);
-	// curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
-	// curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
-	// curl_easy_setopt(curl, CURLOPT_HEADER, 1L);
-	
-	// ret = curl_easy_perform(curl);	
-	
-	// if(ret != CURLE_OK) {
-	// 	std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(ret) << std::endl;
-	// } else {
-	// 	// Print the response body
-	// 	std::cout << "Response body:\n" << readBuffer << std::endl;
-	// }
-
-	// curl_easy_cleanup(curl);
-	// curl_global_cleanup();
 	mdclog_write(MDCLOG_DEBUG,"BINDING SUCCESS");
 
-	mutex.lock();
 }
 
 bool App::intrusion_detection()
 {
 	try
 	{
-
 		if (pModule != nullptr) {
 			// Get the function from the module
 			PyObject *pFunc = PyObject_GetAttrString(pModule, "fetchData");
