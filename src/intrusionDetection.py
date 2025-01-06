@@ -83,7 +83,7 @@ def fetchData():
 
         # Malicious UE Detection Code
         for ue in ues:
-            Total_tx_pkts = sum(ues[ue][0]) # Add all the Tx_pkts together
+            Total_tx_pkts = sum(ues[ue][4]) # Add all the Tx_pkts together
 
             print("Total TX PKTS for UE", str(ue), "is", str(Total_tx_pkts))
 
