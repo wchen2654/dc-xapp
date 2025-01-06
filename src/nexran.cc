@@ -210,15 +210,15 @@ bool App::secure_slicing(int rnti)
 	curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 10L); // Minimum speed in bytes/sec
 	curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 30L);  // Time to allow low-speed connections
 
-	CURLcode ret = curl_easy_perform(curl);	
-	std::string readBuffer;
+	// CURLcode ret = curl_easy_perform(curl);	
+	// std::string readBuffer;
 
-	if(ret != CURLE_OK) {
-		std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(ret) << std::endl;
-	} else {
-		// Print the response body
-		std::cout << "Response body:\n" << readBuffer << std::endl;
-	}
+	// if(ret != CURLE_OK) {
+	// 	std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(ret) << std::endl;
+	// } else {
+	// 	// Print the response body
+	// 	std::cout << "Response body:\n" << readBuffer << std::endl;
+	// }
 
 	mutex.lock();
 
@@ -237,14 +237,14 @@ bool App::secure_slicing(int rnti)
 	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
 	curl_easy_setopt(curl, CURLOPT_HEADER, 1L);
 	
-	ret = curl_easy_perform(curl);	
+	// ret = curl_easy_perform(curl);	
 	
-	if(ret != CURLE_OK) {
-		std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(ret) << std::endl;
-	} else {
-		// Print the response body
-		std::cout << "Response body:\n" << readBuffer << std::endl;
-	}
+	// if(ret != CURLE_OK) {
+	// 	std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(ret) << std::endl;
+	// } else {
+	// 	// Print the response body
+	// 	std::cout << "Response body:\n" << readBuffer << std::endl;
+	// }
 
 	curl_easy_cleanup(curl);
 	curl_global_cleanup();
