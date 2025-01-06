@@ -12,7 +12,7 @@ ARG RMR_VERSION=4.4.6
 
 RUN apt-get update \
   && apt-get install -y cmake g++ libssl-dev rapidjson-dev git libboost-all-dev \
-    ca-certificates curl gnupg apt-transport-https apt-utils \
+    ca-certificates gnupg apt-transport-https apt-utils \
     pkg-config autoconf libtool libcurl4-openssl-dev \
   && curl -s https://packagecloud.io/install/repositories/o-ran-sc/${ORAN_REPO}/script.deb.sh | os=debian dist=stretch bash  \
   && ( [ "${ORAN_VERSIONS}" = "latest" ] \

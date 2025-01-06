@@ -18,7 +18,7 @@
 #include "restserver.h"
 //#include "restserver.cc"
 
-#include <curl/curl.h>
+// #include <curl/curl.h>
 #include <Python.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -185,7 +185,7 @@ bool App::handle(e2sm::nexran::SliceStatusIndication *ind)
 
 bool App::secure_slicing(int rnti)
 {
-	char url[1024];
+	// char url[1024];
 
 	std::string slice1 = "fast";
 	std::string slice2 = "secure_slice";
@@ -197,18 +197,18 @@ bool App::secure_slicing(int rnti)
 	mutex.unlock();
 	unbind_ue_slice(crnti_to_imsi[std::to_string(rnti)],slice1,&ae);
 
-	sprintf(url, "http://127.0.0.1:8000/v1/slices/fast/ues/%s", crnti_to_imsi[std::to_string(rnti)].c_str());
+	// sprintf(url, "http://127.0.0.1:8000/v1/slices/fast/ues/%s", crnti_to_imsi[std::to_string(rnti)].c_str());
 
-	mdclog_write(MDCLOG_INFO, "Deleting url: %s", url);
-	curl_global_init(CURL_GLOBAL_DEFAULT);
-	CURL *curl = curl_easy_init();
+	// mdclog_write(MDCLOG_INFO, "Deleting url: %s", url);
+	// curl_global_init(CURL_GLOBAL_DEFAULT);
+	// CURL *curl = curl_easy_init();
 
-	curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
-	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
-	curl_easy_setopt(curl, CURLOPT_URL, url);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L); 
-	curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 10L); // Minimum speed in bytes/sec
-	curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 30L);  // Time to allow low-speed connections
+	// curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+	// curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+	// curl_easy_setopt(curl, CURLOPT_URL, url);
+	// curl_easy_setopt(curl, CURLOPT_TIMEOUT, 10L); 
+	// curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 10L); // Minimum speed in bytes/sec
+	// curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 30L);  // Time to allow low-speed connections
 
 	// CURLcode ret = curl_easy_perform(curl);	
 	// std::string readBuffer;
@@ -230,12 +230,12 @@ bool App::secure_slicing(int rnti)
 	bind_ue_slice(crnti_to_imsi[std::to_string(rnti)],slice2,&ae);
 
 	// std::memset(url, 0, sizeof(url));p
-	sprintf(url, "http://127.0.0.1:8000/v1/slices/secure_slice/ues/%s", crnti_to_imsi[std::to_string(rnti)].c_str());
+	// sprintf(url, "http://127.0.0.1:8000/v1/slices/secure_slice/ues/%s", crnti_to_imsi[std::to_string(rnti)].c_str());
 
-	curl_easy_setopt(curl, CURLOPT_URL, url);
-	curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
-	curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
-	curl_easy_setopt(curl, CURLOPT_HEADER, 1L);
+	// curl_easy_setopt(curl, CURLOPT_URL, url);
+	// curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+	// curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "");
+	// curl_easy_setopt(curl, CURLOPT_HEADER, 1L);
 	
 	// ret = curl_easy_perform(curl);	
 	
@@ -246,8 +246,8 @@ bool App::secure_slicing(int rnti)
 	// 	std::cout << "Response body:\n" << readBuffer << std::endl;
 	// }
 
-	curl_easy_cleanup(curl);
-	curl_global_cleanup();
+	// curl_easy_cleanup(curl);
+	// curl_global_cleanup();
 	mdclog_write(MDCLOG_DEBUG,"BINDING SUCCESS");
 
 	mutex.lock();
