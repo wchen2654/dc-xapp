@@ -167,7 +167,6 @@ def run_autoencoder_influxdb(client):
     result = client.query(query)
     data_list = list(result.get_points())
 
-    print(data_list, flush=True)
 
     if not data_list:
         return -1
@@ -177,18 +176,30 @@ def run_autoencoder_influxdb(client):
         [point.get('tx_pkts', 0), point.get('tx_error', 0), point.get('cqi', 0)]
         for point in data_list
     ]
+
     data_array = np.array(data_values, dtype=np.float32)
+
+    print(data_array, flush=True)
 
     # Reshape into sequences for RNN
     num_sequences = len(data_array) // seq_length
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
 
+    print("1", flush=True)
+
     # Convert to PyTorch tensor and DataLoader
     data_tensor = torch.tensor(data_array, dtype=torch.float32)
+    print("2", flush=True)
+
     labels = torch.zeros(data_tensor.size(0))
+
+    print("3", flush=True)
     dataset = TensorDataset(data_tensor, labels)
+
+    print("4", flush=True)
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
+    print("5", flush=True)
     # Train the model
     model.train()
 
