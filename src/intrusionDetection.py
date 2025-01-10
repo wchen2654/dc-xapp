@@ -168,7 +168,7 @@ def run_autoencoder_influxdb(client):
     data_list = list(result.get_points())
 
     print(data_list, flush=True)
-    
+
     if not data_list:
         return -1
 
@@ -191,6 +191,9 @@ def run_autoencoder_influxdb(client):
 
     # Train the model
     model.train()
+
+    print("Training the model", flush=True)
+
     for epoch in range(num_epochs):
         epoch_loss = 0.0
         for batch_data, _ in data_loader:
