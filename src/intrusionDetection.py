@@ -10,11 +10,45 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from datetime import datetime, timedelta
 
+# Define parameters
+seq_length = 10 
+hidden_dim = 64
+latent_dim = 32
+batch_size = 32 
+num_epochs = 1
+learning_rate = 0.001
+# fetch_interval = 10  # Fetch new data every 10 seconds
 
 counter = 1
 client = None
 
 malicious = []
+
+# RNN Autoencoder model
+class RNN_Autoencoder(nn.Module):
+    def __init__(self, input_dim, hidden_dim, latent_dim):
+        super(RNN_Autoencoder, self).__init__()
+        self.encoder_rnn = nn.LSTM(input_dim, hidden_dim, batch_first=True)
+        self.hidden_to_latent = nn.Linear(hidden_dim, latent_dim)
+        self.latent_to_hidden = nn.Linear(latent_dim, hidden_dim)
+        self.decoder_rnn = nn.LSTM(hidden_dim, input_dim, batch_first=True)
+
+    def forward(self, x):
+        _, (h, _) = self.encoder_rnn(x)
+        latent = self.hidden_to_latent(h[-1])
+        h_decoded = self.latent_to_hidden(latent).unsqueeze(0)
+        x_reconstructed, _ = self.decoder_rnn(x, (h_decoded, torch.zeros_like(h_decoded)))
+        return x_reconstructed
+
+# Initialize model, loss, and optimizer
+n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_error, cqi)
+model = RNN_Autoencoder(n_features, hidden_dim, latent_dim)
+criterion = nn.MSELoss()
+optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+# Define time window for fetching data
+current_time = datetime.utcnow()
+start_time = current_time - timedelta(hours=1)  # Start fetching from 1 hour ago
 
 def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
@@ -110,40 +144,8 @@ def fetchData():
 
 
 def run_autoencoder_influxdb(client):
-    # Define parameters
-    seq_length = 10 
-    hidden_dim = 64
-    latent_dim = 32
-    batch_size = 32 
-    num_epochs = 1
-    learning_rate = 0.001
-    fetch_interval = 10  # Fetch new data every 10 seconds
 
-    # Define time window for fetching data
     current_time = datetime.utcnow()
-    start_time = current_time - timedelta(hours=1)  # Start fetching from 1 hour ago
-
-    # RNN Autoencoder model
-    class RNN_Autoencoder(nn.Module):
-        def __init__(self, input_dim, hidden_dim, latent_dim):
-            super(RNN_Autoencoder, self).__init__()
-            self.encoder_rnn = nn.LSTM(input_dim, hidden_dim, batch_first=True)
-            self.hidden_to_latent = nn.Linear(hidden_dim, latent_dim)
-            self.latent_to_hidden = nn.Linear(latent_dim, hidden_dim)
-            self.decoder_rnn = nn.LSTM(hidden_dim, input_dim, batch_first=True)
-
-        def forward(self, x):
-            _, (h, _) = self.encoder_rnn(x)
-            latent = self.hidden_to_latent(h[-1])
-            h_decoded = self.latent_to_hidden(latent).unsqueeze(0)
-            x_reconstructed, _ = self.decoder_rnn(x, (h_decoded, torch.zeros_like(h_decoded)))
-            return x_reconstructed
-
-    # Initialize model, loss, and optimizer
-    n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_error, cqi)
-    model = RNN_Autoencoder(n_features, hidden_dim, latent_dim)
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     # Start time loop
     while True:
@@ -209,5 +211,9 @@ def run_autoencoder_influxdb(client):
 
         # Update time window
         start_time = current_time
-        current_time = datetime.utcnow()
-        time.sleep(fetch_interval)
+        # time.sleep(fetch_interval)
+
+        if not anomalies:
+            return -1
+        else:
+            return 1
