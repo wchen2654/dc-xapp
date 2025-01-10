@@ -12,7 +12,7 @@ ARG RMR_VERSION=4.4.6
 
 RUN apt-get update \
   && apt-get install -y cmake g++ libssl-dev rapidjson-dev git libboost-all-dev \
-    ca-certificates curl gnupg apt-transport-https apt-utils \
+    ca-certificates curl gnupg apt-transport-https apt-utils libjpeg-dev zlib1g-dev libfreetype6-dev liblcms2-dev \
     pkg-config autoconf libtool libcurl4-openssl-dev \
   && curl -s https://packagecloud.io/install/repositories/o-ran-sc/${ORAN_REPO}/script.deb.sh | os=debian dist=stretch bash  \
   && ( [ "${ORAN_VERSIONS}" = "latest" ] \
@@ -27,7 +27,7 @@ RUN apt-get update \
 
 RUN apt-get update \
   && apt-get install -y python3-dev python3-pip \
-  && python3 -m pip install influxdb numpy torch torchvision torchaudio datetime Pillow \
+  && python3 -m pip install influxdb numpy torch torchvision torchaudio datetime \
   && update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
 RUN cd /tmp \
