@@ -154,72 +154,72 @@ def run_autoencoder_influxdb(client):
     global criterion
     global optimizer 
 
-
     current_time = datetime.utcnow()
 
     # Start time loop
-    while True:
-        print(f"Fetching data from {start_time} to {current_time}...", flush=True)
-        query = f'''
-            SELECT tx_pkts, tx_errors, dl_cqi
-            FROM ue
-            WHERE time >= '{start_time.isoformat()}Z' AND time < '{current_time.isoformat()}Z'
-            ORDER BY time ASC
-        '''
-        result = client.query(query)
-        data_list = list(result.get_points())
+    print(f"Fetching data from {start_time} to {current_time}...", flush=True)
+    query = f'''
+        SELECT tx_pkts, tx_errors, dl_cqi
+        FROM ue
+        WHERE time >= '{start_time.isoformat()}Z' AND time < '{current_time.isoformat()}Z'
+        ORDER BY time ASC
+    '''
+    result = client.query(query)
+    data_list = list(result.get_points())
 
-        if not data_list:
-            return -1
+    print(data_list, flush=True)
+    
+    if not data_list:
+        return -1
 
-        # Extract and preprocess data
-        data_values = [
-            [point.get('tx_pkts', 0), point.get('tx_error', 0), point.get('cqi', 0)]
-            for point in data_list
-        ]
-        data_array = np.array(data_values, dtype=np.float32)
+    # Extract and preprocess data
+    data_values = [
+        [point.get('tx_pkts', 0), point.get('tx_error', 0), point.get('cqi', 0)]
+        for point in data_list
+    ]
+    data_array = np.array(data_values, dtype=np.float32)
 
-        # Reshape into sequences for RNN
-        num_sequences = len(data_array) // seq_length
-        data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
+    # Reshape into sequences for RNN
+    num_sequences = len(data_array) // seq_length
+    data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
 
-        # Convert to PyTorch tensor and DataLoader
-        data_tensor = torch.tensor(data_array, dtype=torch.float32)
-        labels = torch.zeros(data_tensor.size(0))
-        dataset = TensorDataset(data_tensor, labels)
-        data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    # Convert to PyTorch tensor and DataLoader
+    data_tensor = torch.tensor(data_array, dtype=torch.float32)
+    labels = torch.zeros(data_tensor.size(0))
+    dataset = TensorDataset(data_tensor, labels)
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
-        # Train the model
-        model.train()
-        for epoch in range(num_epochs):
-            epoch_loss = 0.0
-            for batch_data, _ in data_loader:
-                optimizer.zero_grad()
-                reconstructed = model(batch_data)
-                loss = criterion(reconstructed, batch_data)
-                loss.backward()
-                optimizer.step()
-                epoch_loss += loss.item()
-            print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
+    # Train the model
+    model.train()
+    for epoch in range(num_epochs):
+        epoch_loss = 0.0
+        for batch_data, _ in data_loader:
+            optimizer.zero_grad()
+            reconstructed = model(batch_data)
+            loss = criterion(reconstructed, batch_data)
+            loss.backward()
+            optimizer.step()
+            epoch_loss += loss.item()
+        print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
 
-        # Evaluate anomaly detection using reconstruction error
-        model.eval()
-        with torch.no_grad():
-            reconstruction_errors = []
-            for batch_data, _ in data_loader:
-                reconstructed = model(batch_data)
-                errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2))
-                reconstruction_errors.extend(errors.numpy())
+    # Evaluate anomaly detection using reconstruction error
+    model.eval()
+    with torch.no_grad():
+        reconstruction_errors = []
+        for batch_data, _ in data_loader:
+            reconstructed = model(batch_data)
+            errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2))
+            reconstruction_errors.extend(errors.numpy())
 
-        # Detect anomalies
-        threshold = 0.05  # Example threshold
-        anomalies = [err > threshold for err in reconstruction_errors]
-        print(f"Detected {sum(anomalies)} anomalies out of {len(reconstruction_errors)} samples.", flush=True)
+    # Detect anomalies
+    threshold = 0.05  # Example threshold
+    anomalies = [err > threshold for err in reconstruction_errors]
+    print(f"Detected {sum(anomalies)} anomalies out of {len(reconstruction_errors)} samples.", flush=True)
 
-        # Update time window
-        start_time = current_time
+    # Update time window
+    start_time = current_time
 
-        if not anomalies:
-            return -1
-        else:
-            return 1
+    if not anomalies:
+        return -1
+    else:
+        return 1
