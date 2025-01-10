@@ -27,7 +27,7 @@ RUN apt-get update \
 
 RUN apt-get update \
   && apt-get install -y python3-dev python3-pip \
-  && python3 -m pip install influxdb numpy torch torchvision torchaudio datetime pillow \
+  && python3 -m pip install influxdb numpy torch torchvision torchaudio datetime Pillow \
   && update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
 RUN cd /tmp \
