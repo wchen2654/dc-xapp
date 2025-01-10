@@ -13,7 +13,7 @@ ARG RMR_VERSION=4.4.6
 RUN apt-get update \
   && apt-get install -y cmake g++ libssl-dev rapidjson-dev git libboost-all-dev \
     ca-certificates curl gnupg apt-transport-https apt-utils libjpeg-dev zlib1g-dev libfreetype6-dev liblcms2-dev \
-    pkg-config autoconf libtool libcurl4-openssl-dev \
+    pkg-config autoconf libtool libcurl4-openssl-dev wget \
   && curl -s https://packagecloud.io/install/repositories/o-ran-sc/${ORAN_REPO}/script.deb.sh | os=debian dist=stretch bash  \
   && ( [ "${ORAN_VERSIONS}" = "latest" ] \
       || apt-get install -y \
@@ -27,9 +27,15 @@ RUN apt-get update \
 
 RUN apt-get update \
   && apt-get install -y python3-dev python3-pip \
-  && python3 -m pip install influxdb numpy torch torchvision torchaudio datetime \
+  && python3 -m pip install --upgrade pip \
+  && python3 -m pip install influxdb numpy torch torchvision torchaudio datetime --index-url https://download.pytorch.org/whl/cu118 \
   && update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
+# Add NVIDIA-specific environment variables
+ENV NVIDIA_VISIBLE_DEVICES=all \
+    NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+# Clone and build necessary repositories
 RUN cd /tmp \
   && git clone https://gitlab.flux.utah.edu/powderrenewpublic/xapp-frame-cpp \
   && cd xapp-frame-cpp \

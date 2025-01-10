@@ -179,13 +179,12 @@ def run_autoencoder_influxdb(client):
 
     data_array = np.array(data_values, dtype=np.float32)
 
-    print(data_array, flush=True)
 
     # Reshape into sequences for RNN
     num_sequences = len(data_array) // seq_length
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
 
-    print("1", flush=True)
+    print(data_array, flush=True)
 
     # Convert to PyTorch tensor and DataLoader
     data_tensor = torch.tensor(data_array, dtype=torch.float32)
