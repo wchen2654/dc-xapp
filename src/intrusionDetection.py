@@ -147,7 +147,7 @@ def run_autoencoder_influxdb(client):
 
     # Start time loop
     while True:
-        print(f"Fetching data from {start_time} to {current_time}...")
+        print(f"Fetching data from {start_time} to {current_time}...", flush=True)
         query = f'''
             SELECT "tx_pkts", "tx_error", "cqi"
             FROM "your_measurement_name"
@@ -158,7 +158,7 @@ def run_autoencoder_influxdb(client):
         data_list = list(result.get_points())
 
         if not data_list:
-            print("No new data available. Waiting for the next fetch interval...")
+            print("No new data available. Waiting for the next fetch interval...", flush=True)
             time.sleep(fetch_interval)
             current_time = datetime.utcnow()
             continue
@@ -191,7 +191,7 @@ def run_autoencoder_influxdb(client):
                 loss.backward()
                 optimizer.step()
                 epoch_loss += loss.item()
-            print(f"Training completed for current batch. Loss: {epoch_loss:.4f}")
+            print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
 
         # Evaluate anomaly detection using reconstruction error
         model.eval()
@@ -205,7 +205,7 @@ def run_autoencoder_influxdb(client):
         # Detect anomalies
         threshold = 0.05  # Example threshold
         anomalies = [err > threshold for err in reconstruction_errors]
-        print(f"Detected {sum(anomalies)} anomalies out of {len(reconstruction_errors)} samples.")
+        print(f"Detected {sum(anomalies)} anomalies out of {len(reconstruction_errors)} samples.", flush=True)
 
         # Update time window
         start_time = current_time
