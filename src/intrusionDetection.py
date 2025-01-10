@@ -149,8 +149,8 @@ def run_autoencoder_influxdb(client):
     while True:
         print(f"Fetching data from {start_time} to {current_time}...", flush=True)
         query = f'''
-            SELECT "tx_pkts", "tx_error", "cqi"
-            FROM "your_measurement_name"
+            SELECT tx_pkts, tx_errors, dl_cqi
+            FROM ue
             WHERE time >= '{start_time.isoformat()}Z' AND time < '{current_time.isoformat()}Z'
             ORDER BY time ASC
         '''
