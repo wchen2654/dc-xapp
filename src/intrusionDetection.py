@@ -10,6 +10,8 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from datetime import datetime, timedelta
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 # Define parameters
 seq_length = 10 
 hidden_dim = 64
@@ -144,6 +146,8 @@ def fetchData():
 
 def run_autoencoder_influxdb(client):
 
+    global device
+
     global seq_length
     global batch_size
     global num_epochs
@@ -153,6 +157,8 @@ def run_autoencoder_influxdb(client):
     global model
     global criterion
     global optimizer 
+
+    print(device, flush=True)
 
     current_time = datetime.utcnow()
 
