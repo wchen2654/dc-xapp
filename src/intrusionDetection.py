@@ -47,8 +47,7 @@ criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 # Define time window for fetching data
-current_time = datetime.utcnow()
-start_time = current_time - timedelta(hours=1)  # Start fetching from 1 hour ago
+start_time = datetime.utcnow() - timedelta(hours=1)  # Start fetching from 1 hour ago
 
 def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
@@ -69,8 +68,8 @@ def fetchData():
         print("Error Message:", e, flush=True)
 
     try:
-        run_autoencoder_influxdb(client)
-
+        result = run_autoencoder_influxdb(client)
+        return result
     # # Query for metrics
     # try:
     #     ues = {}
@@ -145,6 +144,17 @@ def fetchData():
 
 def run_autoencoder_influxdb(client):
 
+    global seq_length
+    global batch_size
+    global num_epochs
+    global start_time
+
+    global n_features
+    global model
+    global criterion
+    global optimizer 
+
+
     current_time = datetime.utcnow()
 
     # Start time loop
@@ -160,10 +170,7 @@ def run_autoencoder_influxdb(client):
         data_list = list(result.get_points())
 
         if not data_list:
-            print("No new data available. Waiting for the next fetch interval...", flush=True)
-            time.sleep(fetch_interval)
-            current_time = datetime.utcnow()
-            continue
+            return -1
 
         # Extract and preprocess data
         data_values = [
@@ -211,7 +218,6 @@ def run_autoencoder_influxdb(client):
 
         # Update time window
         start_time = current_time
-        # time.sleep(fetch_interval)
 
         if not anomalies:
             return -1
