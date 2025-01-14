@@ -10,6 +10,9 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from datetime import datetime, timedelta
 
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Define parameters
@@ -137,7 +140,7 @@ def fetchData():
     #             return int(ue)
 
     except Exception as e:
-        print("Intrusion Detection: Error occured when trying to obtain metrics", flush=True)
+        print("Intrusion Detection: Error occured when trying to train model", flush=True)
         print("Error Message:", e, flush=True)
 
     counter += 1
@@ -184,61 +187,45 @@ def run_autoencoder_influxdb(client):
     ]
 
     data_array = np.array(data_values, dtype=np.float32)
-
-
-    # # Reshape into sequences for RNN
-    # num_sequences = len(data_array) // seq_length
-    # data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
-
-    # print(data_array, flush=True)
-
-    # # Convert to PyTorch tensor and DataLoader
-    # data_tensor = torch.tensor(data_array, dtype=torch.float32)
-    # print("2", flush=True)
-
-
+    
      #data_array Might Be Empty
     if data_array.size == 0:
-        print("No data points available for conversion to tensor.")
-        continue 
+        print("No data points available for conversion to tensor.", flush=True)
+        return -1
 
     #data_array Shape Issues
-    print(f"Data array shape before reshaping: {data_array.shape}")
+    print(f"Data array shape before reshaping: {data_array.shape}", flush=True)
     if len(data_array) < seq_length:
-        print("Not enough data points for a full sequence.")
-        continue
+        print("Not enough data points for a full sequence.", flush=True)
+        return -1
         
     # Dtype should be 'np.float32'
-    print(f"Data array dtype: {data_array.dtype}")
-            
+    print(f"Data array dtype: {data_array.dtype}", flush=True)
+         
     # Reshape into sequences for RNN
     num_sequences = len(data_array) // seq_length
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
 
-    if data_array.size == 0:
-        print("No data points available for conversion to tensor.")
-        continue 
+    #--------------------------------------------------
 
-    # Dtype should be 'np.float32'
-    print(f"Data array dtype: {data_array.dtype}")
-    
+    print(f"Reshaped data array shape: {data_array.shape}", flush=True)
+
+    print("Sample data (first sequence):", flush=True)
+    print(data_array[0], flush=True)
+
     try:
-        data_tensor = torch.tensor(data_array, dtype=torch.float32)
-        print(f"Data tensor created with shape: {data_tensor.shape}")
+        data_tensor = torch.from_numpy(data_array)
+        print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
     except Exception as e:
-        print(f"Error converting to tensor: {e}")
-    # Convert to PyTorch tensor and DataLoader
-    #data_tensor = torch.tensor(data_array, dtype=torch.float32)
+        print(f"Error converting to tensor: {e}", flush=True)
+        return -1
 
+    # DataLoader preparation
     labels = torch.zeros(data_tensor.size(0))
-
-    print("3", flush=True)
+    print('labels:', labels, flush=True)
     dataset = TensorDataset(data_tensor, labels)
-
-    print("4", flush=True)
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
-    print("5", flush=True)
     # Train the model
     model.train()
 
