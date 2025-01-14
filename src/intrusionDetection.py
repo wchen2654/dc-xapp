@@ -186,15 +186,49 @@ def run_autoencoder_influxdb(client):
     data_array = np.array(data_values, dtype=np.float32)
 
 
-    # Reshape into sequences for RNN
-    num_sequences = len(data_array) // seq_length
-    data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
+    # # Reshape into sequences for RNN
+    # num_sequences = len(data_array) // seq_length
+    # data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
 
-    print(data_array, flush=True)
+    # print(data_array, flush=True)
 
-    # Convert to PyTorch tensor and DataLoader
-    data_tensor = torch.tensor(data_array, dtype=torch.float32)
-    print("2", flush=True)
+    # # Convert to PyTorch tensor and DataLoader
+    # data_tensor = torch.tensor(data_array, dtype=torch.float32)
+    # print("2", flush=True)
+
+
+     #data_array Might Be Empty
+        if data_array.size == 0:
+            print("No data points available for conversion to tensor.")
+            continue 
+
+        #data_array Shape Issues
+        print(f"Data array shape before reshaping: {data_array.shape}")
+        if len(data_array) < seq_length:
+            print("Not enough data points for a full sequence.")
+            continue
+            
+        # Dtype should be 'np.float32'
+        print(f"Data array dtype: {data_array.dtype}")
+                
+        # Reshape into sequences for RNN
+        num_sequences = len(data_array) // seq_length
+        data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
+
+        if data_array.size == 0:
+            print("No data points available for conversion to tensor.")
+            continue 
+
+        # Dtype should be 'np.float32'
+        print(f"Data array dtype: {data_array.dtype}")
+        
+        try:
+            data_tensor = torch.tensor(data_array, dtype=torch.float32)
+            print(f"Data tensor created with shape: {data_tensor.shape}")
+        except Exception as e:
+            print(f"Error converting to tensor: {e}")
+        # Convert to PyTorch tensor and DataLoader
+        #data_tensor = torch.tensor(data_array, dtype=torch.float32)
 
     labels = torch.zeros(data_tensor.size(0))
 
