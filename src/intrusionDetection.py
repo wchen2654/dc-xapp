@@ -17,7 +17,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Define parameters
 seq_length = 10 
-hidden_dim = 64
+hidden_dim = 3
 latent_dim = 32
 batch_size = 32 
 num_epochs = 1
@@ -47,7 +47,7 @@ class RNN_Autoencoder(nn.Module):
 
 # Initialize model, loss, and optimizer
 n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_error, cqi)
-model = RNN_Autoencoder(n_features, hidden_dim, latent_dim)
+model = RNN_Autoencoder(input_dim=n_features, hidden_dim=3, latent_dim=32)
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
