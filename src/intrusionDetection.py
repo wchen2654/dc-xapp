@@ -22,7 +22,9 @@ latent_dim = 32
 batch_size = 32 
 num_epochs = 1
 learning_rate = 0.001
-# fetch_interval = 10  # Fetch new data every 10 seconds
+fetch_interval = 10  # Fetch new data every 10 seconds
+initial_training_duration = timedelta(hours=1)  # Training phase duration
+extra_training_duration = timedelta(minutes=30)
 
 counter = 1
 client = None
@@ -50,9 +52,6 @@ n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_erro
 model = RNN_Autoencoder(input_dim=n_features, hidden_dim=3, latent_dim=32)
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-
-# Define time window for fetching data
-start_time = datetime.utcnow() - timedelta(hours=1)  # Start fetching from 1 hour ago
 
 def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
@@ -160,29 +159,32 @@ def run_autoencoder_influxdb(client):
     global model
     global criterion
     global optimizer 
-
-    print(device, flush=True)
+    global fetch_interval
+    global initial_training_duration
+    global extra_training_duration
 
     current_time = datetime.utcnow()
+    start_time = current_time - initial_training_duration  # 1 hour ago
+    end_time = current_time + extra_training_duration  # 30 minutes after current time
 
-    # Start time loop
-    print(f"Fetching data from {start_time} to {current_time}...", flush=True)
+     # ---- 1. TRAINING PHASE ---- #
+    print("Starting initial training phase (1 hour + 30 minutes)...", flush=True)
     query = f'''
         SELECT tx_pkts, tx_errors, dl_cqi
         FROM ue
-        WHERE time >= '{start_time.isoformat()}Z' AND time < '{current_time.isoformat()}Z'
+        WHERE time >= '{start_time.isoformat()}Z' AND time < '{end_time.isoformat()}Z'
         ORDER BY time ASC
     '''
     result = client.query(query)
     data_list = list(result.get_points())
 
-
     if not data_list:
+        print("No data available for initial training. Exiting...", flush=True)
         return -1
 
     # Extract and preprocess data
     data_values = [
-        [point.get('tx_pkts', 0), point.get('tx_error', 0), point.get('cqi', 0)]
+        [point.get('tx_pkts', 0), point.get('tx_errors', 0), point.get('dl_cqi', 0)]
         for point in data_list
     ]
 
@@ -196,7 +198,7 @@ def run_autoencoder_influxdb(client):
     #data_array Shape Issues
     print(f"Data array shape before reshaping: {data_array.shape}", flush=True)
     if len(data_array) < seq_length:
-        print("Not enough data points for a full sequence.", flush=True)
+        print("Not enough data points for a full sequence during training. Exiting...", flush=True)
         return -1
         
     # Dtype should be 'np.float32'
@@ -205,15 +207,12 @@ def run_autoencoder_influxdb(client):
     # Reshape into sequences for RNN
     num_sequences = len(data_array) // seq_length
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
-
-    #--------------------------------------------------
-
     print(f"Reshaped data array shape: {data_array.shape}", flush=True)
-
     print("Sample data (first sequence):", flush=True)
     print(data_array[0], flush=True)
 
     try:
+        print('inside the try -------', flush=True)
         data_tensor = torch.from_numpy(data_array)
         print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
     except Exception as e:
@@ -234,32 +233,65 @@ def run_autoencoder_influxdb(client):
     for epoch in range(num_epochs):
         epoch_loss = 0.0
         for batch_data, _ in data_loader:
+            print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
+            if batch_data.shape[-1] != n_features:
+                raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
+
             optimizer.zero_grad()
             reconstructed = model(batch_data)
+            print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
+            
             loss = criterion(reconstructed, batch_data)
             loss.backward()
             optimizer.step()
             epoch_loss += loss.item()
         print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
 
-    # Evaluate anomaly detection using reconstruction error
-    model.eval()
-    with torch.no_grad():
-        reconstruction_errors = []
-        for batch_data, _ in data_loader:
-            reconstructed = model(batch_data)
-            errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2))
-            reconstruction_errors.extend(errors.numpy())
+    print("Initial training completed. Switching to evaluation mode...", flush=True)
 
-    # Detect anomalies
-    threshold = 0.05  # Example threshold
-    anomalies = [err > threshold for err in reconstruction_errors]
-    print(f"Detected {sum(anomalies)} anomalies out of {len(reconstruction_errors)} samples.", flush=True)
-
-    # Update time window
-    start_time = current_time
-
-    if not anomalies:
-        return -1
-    else:
-        return 1
+    while True:
+        print(f"Fetching new data for anomaly detection from {end_time} to present...", flush=True)
+        start_time = end_time
+        end_time = datetime.utcnow()
+        query = f'''
+            SELECT tx_pkts, tx_errors, dl_cqi
+            FROM ue
+            WHERE time >= '{start_time.isoformat()}Z' AND time < '{end_time.isoformat()}Z'
+            ORDER BY time ASC
+        '''
+        result = client.query(query)
+        data_list = list(result.get_points())
+        if not data_list:
+            print("No new data available. Waiting for the next fetch interval...", flush=True)
+            time.sleep(fetch_interval)
+            continue
+        # Extract and preprocess data
+        data_values = [
+            [point.get('tx_pkts', 0), point.get('tx_errors', 0), point.get('dl_cqi', 0)]
+            for point in data_list
+        ]
+        data_array = np.array(data_values, dtype=np.float32)
+        if len(data_array) < seq_length:
+            print("Not enough data points for a full sequence.", flush=True)
+            continue
+        # Reshape into sequences
+        num_sequences = len(data_array) // seq_length
+        data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
+        data_tensor = torch.from_numpy(data_array)
+        labels = torch.zeros(data_tensor.size(0))
+        dataset = TensorDataset(data_tensor, labels)
+        data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+        # Anomaly detection
+        model.eval()
+        with torch.no_grad():
+            reconstruction_errors = []
+            for i, (batch_data, _) in enumerate(data_loader):
+                reconstructed = model(batch_data)
+                errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2)).numpy()
+                for seq_idx, error in enumerate(errors):
+                    probability = (error / threshold) * 100
+                    if error > threshold:
+                        print(f"Sequence {i * batch_size + seq_idx + 1}: Anomaly detected with probability {probability:.2f}%.", flush=True)
+                    else:
+                        print(f"Sequence {i * batch_size + seq_idx + 1}: Normal data with low reconstruction error ({probability:.2f}%).", flush=True)
+        time.sleep(fetch_interval)
