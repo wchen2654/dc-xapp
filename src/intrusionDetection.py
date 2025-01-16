@@ -51,7 +51,7 @@ class RNN_Autoencoder(nn.Module):
 
 # Initialize model, loss, and optimizer
 n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_error, cqi)
-model = RNN_Autoencoder(input_dim=n_features, hidden_dim=3, latent_dim=32)
+model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
