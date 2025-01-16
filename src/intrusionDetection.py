@@ -17,7 +17,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Define parameters
 seq_length = 10 
-hidden_dim = 3
+hidden_dim = 64
 latent_dim = 32
 batch_size = 32 
 num_epochs = 1
@@ -42,7 +42,9 @@ class RNN_Autoencoder(nn.Module):
 
     def forward(self, x):
         _, (h, _) = self.encoder_rnn(x)
+        print(f"Shape of encoder hidden state h[-1]: {h[-1].shape}", flush=True)
         latent = self.hidden_to_latent(h[-1])
+        print(f"Shape of latent: {latent.shape}", flush=True)
         h_decoded = self.latent_to_hidden(latent).unsqueeze(0)
         x_reconstructed, _ = self.decoder_rnn(x, (h_decoded, torch.zeros_like(h_decoded)))
         return x_reconstructed
