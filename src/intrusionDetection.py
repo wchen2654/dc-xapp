@@ -20,7 +20,7 @@ seq_length = 10
 hidden_dim = 64
 latent_dim = 32
 batch_size = 32 
-num_epochs = 200
+num_epochs = 1000
 learning_rate = 0.001
 fetch_interval = 10  # Fetch new data every 10 seconds
 initial_training_duration = timedelta(hours=1)  # Training phase duration
@@ -212,7 +212,14 @@ def run_autoencoder_influxdb(client):
 
     data_array = np.array(data_values, dtype=np.float32)
     
-     #data_array Might Be Empty
+    # Apply Min-Max Scaling
+    data_min = np.min(data_array, axis=0)
+    data_max = np.max(data_array, axis=0)
+    data_array = (data_array - data_min) / (data_max - data_min + 1e-8)  # Normalize to [0, 1]
+    
+    print(f"Data normalized with Min-Max Scaling. Min: {data_min}, Max: {data_max}", flush=True)
+
+    #data_array Might Be Empty
     if data_array.size == 0:
         print("No data points available for conversion to tensor.", flush=True)
         return -1
