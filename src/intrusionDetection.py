@@ -292,6 +292,7 @@ def run_autoencoder_influxdb(client, reportCounter):
     '''
     result = client.query(query)
     data_list = list(result.get_points())
+    print("a", flush=True)
     if not data_list:
         print("No new data available. Waiting for the next function call...", flush=True)
         return -1
@@ -300,17 +301,26 @@ def run_autoencoder_influxdb(client, reportCounter):
         [point.get('tx_pkts', 0), point.get('tx_errors', 0), point.get('dl_cqi', 0)]
         for point in data_list
     ]
+    print("b", flush=True)
     data_array = np.array(data_values, dtype=np.float32)
+    print("c", flush=True)
     if len(data_array) < seq_length:
         print("Not enough data points for a full sequence.", flush=True)
         return -1
     # Reshape into sequences
+    print("d", flush=True)
     num_sequences = len(data_array) // seq_length
+    print("e", flush=True)
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
+    print("f", flush=True)
     data_tensor = torch.from_numpy(data_array)
+    print("g", flush=True)
     labels = torch.zeros(data_tensor.size(0))
+    print("h", flush=True)
     dataset = TensorDataset(data_tensor, labels)
+    print("i", flush=True)
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    print("j", flush=True)
     # Anomaly detection
 
     threshold = 0.05
