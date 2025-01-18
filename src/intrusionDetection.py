@@ -308,19 +308,42 @@ def run_autoencoder_influxdb(client, reportCounter):
         print("Not enough data points for a full sequence.", flush=True)
         return -1
     # Reshape into sequences
-    print("d", flush=True)
     num_sequences = len(data_array) // seq_length
-    print("e", flush=True)
+    print(f"Number of sequences calculated: {num_sequences}", flush=True)
+
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
-    print("f", flush=True)
+    print(f"Data array reshaped to: {data_array.shape}", flush=True)
+
     data_tensor = torch.from_numpy(data_array)
-    print("g", flush=True)
+    print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
+
     labels = torch.zeros(data_tensor.size(0))
-    print("h", flush=True)
-    dataset = TensorDataset(data_tensor, labels)
-    print("i", flush=True)
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-    print("j", flush=True)
+    print(f"Labels tensor created with shape: {labels.shape}", flush=True)
+
+    if data_tensor.size(0) == 0:
+        print("Data tensor is empty. Exiting.", flush=True)
+        return -1
+
+    try:
+        dataset = TensorDataset(data_tensor, labels)
+        print("TensorDataset created successfully", flush=True)
+    except Exception as e:
+        print(f"Error creating TensorDataset: {e}", flush=True)
+        return -1
+
+    if len(dataset) < batch_size:
+        batch_size = len(dataset)
+        print(f"Adjusted batch_size to: {batch_size}", flush=True)
+
+    try:
+        data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+        print("DataLoader created successfully", flush=True)
+    except Exception as e:
+        print(f"Error creating DataLoader: {e}", flush=True)
+        return -1
+
+    for batch_idx, (batch_data, batch_labels) in enumerate(data_loader):
+        print(f"Batch {batch_idx + 1}: Batch data shape: {batch_data.shape}, Batch labels shape: {batch_labels.shape}", flush=True)
     # Anomaly detection
 
     threshold = 0.05
