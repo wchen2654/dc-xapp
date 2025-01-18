@@ -30,6 +30,8 @@ malicious = []
 
 trained = False
 
+n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_error, cqi)
+
 # RNN Autoencoder model
 class RNN_Autoencoder(nn.Module):
     def __init__(self, input_dim, hidden_dim, latent_dim):
@@ -162,7 +164,6 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     global num_epochs
 
     # Initialize model, loss, and optimizer
-    n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_error, cqi)
     model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
