@@ -38,6 +38,7 @@ class RNN_Autoencoder(nn.Module):
         self.encoder_rnn = nn.LSTM(input_dim, hidden_dim, batch_first=True)
         self.hidden_to_latent = nn.Linear(hidden_dim, latent_dim)
         self.latent_to_hidden = nn.Linear(latent_dim, hidden_dim)
+        self.input_to_hidden = nn.Linear(input_dim, hidden_dim)
         self.decoder_rnn = nn.LSTM(hidden_dim, input_dim, batch_first=True)
 
     def forward(self, x):
@@ -46,7 +47,12 @@ class RNN_Autoencoder(nn.Module):
         latent = self.hidden_to_latent(h[-1])
         print(f"Shape of latent: {latent.shape}", flush=True)
         h_decoded = self.latent_to_hidden(latent).unsqueeze(0)
-        x_reconstructed, _ = self.decoder_rnn(x, (h_decoded, torch.zeros_like(h_decoded)))
+        print(f"Shape of decoded hidden state: {h_decoded.shape}", flush=True)
+        x_transformed = self.input_to_hidden(x)
+        print(f"Shape of transformed input: {x_transformed.shape}", flush=True)
+        x_reconstructed, _ = self.decoder_rnn(x_transformed, (h_decoded, torch.zeros_like(h_decoded)))
+        print(f"Shape of reconstructed output: {x_reconstructed.shape}", flush=True)
+        # x_reconstructed, _ = self.decoder_rnn(x, (h_decoded, torch.zeros_like(h_decoded)))
         return x_reconstructed
 
 # Initialize model, loss, and optimizer
