@@ -20,7 +20,7 @@ seq_length = 10
 hidden_dim = 64
 latent_dim = 32
 batch_size = 32 
-num_epochs = 1
+num_epochs = 200
 learning_rate = 0.001
 fetch_interval = 10  # Fetch new data every 10 seconds
 initial_training_duration = timedelta(hours=1)  # Training phase duration
