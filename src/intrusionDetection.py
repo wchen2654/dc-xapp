@@ -35,52 +35,37 @@ malicious = []
 class RNN_Autoencoder(nn.Module):
     def __init__(self, input_dim, hidden_dim, latent_dim):
         super(RNN_Autoencoder, self).__init__()
+        # Encoder
         self.encoder_rnn = nn.LSTM(input_dim, hidden_dim, batch_first=True)
         self.hidden_to_latent = nn.Linear(hidden_dim, latent_dim)
-        self.latent_to_hidden = nn.Linear(latent_dim, hidden_dim)
-        self.input_to_hidden = nn.Linear(input_dim, hidden_dim)
-        self.decoder_rnn = nn.LSTM(hidden_dim, input_dim, batch_first=True)
-
-    # def forward(self, x):
-    #     _, (h, _) = self.encoder_rnn(x)
-    #     print(f"Shape of encoder hidden state h[-1]: {h[-1].shape}", flush=True)
-    #     # Latent: Map hidden state to latent space
-    #     latent = self.hidden_to_latent(h[-1])  # h[-1] has shape (batch_size, hidden_dim)
-
-    #     print(f"Shape of latent: {latent.shape}", flush=True)
-    #     h_decoded = self.latent_to_hidden(latent).unsqueeze(0)  # Add the layer dimension: (1, batch_size, hidden_dim)
-    #     print(f"Shape of decoded hidden state: {h_decoded.shape}", flush=True)
-    #     # Initialize cell state for the decoder
-    #     c_decoded = torch.zeros_like(h_decoded)  # Ensure cell state matches hidden state dimensions
-    #     # Preprocess input for decoder
-    #     x_transformed = self.input_to_hidden(x)  # Transform input: (batch_size, seq_len, hidden_dim)
-    #     print(f"Shape of transformed input: {x_transformed.shape}", flush=True)
-    #     # Decode: Reconstruct input from latent space
-    #     x_reconstructed, _ = self.decoder_rnn(x_transformed, (h_decoded, c_decoded))  # Pass hidden and cell states
-    #     print(f"Shape of reconstructed output: {x_reconstructed.shape}", flush=True)
-    #     return x_reconstructed
-
-    def forward(self, x):
-        _, (h, _) = self.encoder_rnn(x)
-        print(f"Shape of encoder hidden state h[-1]: {h[-1].shape}", flush=True)
-        latent = self.hidden_to_latent(h[-1])
-        print(f"Shape of latent: {latent.shape}", flush=True)
         
         # Decoder
-        h_decoded = self.latent_to_hidden(latent).unsqueeze(0)
-        print(f"Shape of decoded hidden state: {h_decoded.shape}", flush=True)
+        self.latent_to_hidden = nn.Linear(latent_dim, input_dim)  # Map latent to input_dim for hidden state
+        self.decoder_rnn = nn.LSTM(hidden_dim, input_dim, batch_first=True)  # Decoder LSTM
+
+    def forward(self, x):
+        print(f"Input x shape: {x.shape}", flush=True)  # Shape: (batch_size, seq_len, input_dim)
         
-        # Initialize cell state for the decoder
-        c_decoded = torch.zeros_like(h_decoded)  # Ensure cell state matches hidden state dimensions
+        # Encoder
+        _, (h, _) = self.encoder_rnn(x)
+        print(f"Shape of encoder hidden state h[-1]: {h[-1].shape}", flush=True)  # Shape: (batch_size, hidden_dim)
+        latent = self.hidden_to_latent(h[-1])  # h[-1] → latent space
+        print(f"Shape of latent: {latent.shape}", flush=True)  # Shape: (batch_size, latent_dim)
         
-        # Provide an initial sequence of zeros as input to the decoder
-        seq_len = x.size(1)  # Match the sequence length of the input
-        batch_size = x.size(0)
-        decoder_input = torch.zeros(batch_size, seq_len, h_decoded.size(-1), device=x.device)  # Shape: (batch_size, seq_len, hidden_dim)
-        print(f"Shape of decoder_input: {decoder_input.shape}", flush=True)
-        # Decode: Reconstruct input from latent space
-        x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))  # Pass hidden and cell states
-        print(f"Shape of reconstructed output: {x_reconstructed.shape}", flush=True)
+        # Decoder
+        h_decoded = self.latent_to_hidden(latent).unsqueeze(0)  # Add layer dimension
+        print(f"Shape of decoded hidden state: {h_decoded.shape}", flush=True)  # Shape: (1, batch_size, input_dim)
+        c_decoded = torch.zeros_like(h_decoded)  # Cell state
+        print(f"Shape of decoded cell state: {c_decoded.shape}", flush=True)  # Shape: (1, batch_size, input_dim)
+        
+        # Initial decoder input (zeros)
+        batch_size, seq_len, _ = x.shape
+        decoder_input = torch.zeros(batch_size, seq_len, hidden_dim, device=x.device)  # Shape: (batch_size, seq_len, hidden_dim)
+        print(f"Shape of decoder_input: {decoder_input.shape}", flush=True)  # Shape: (batch_size, seq_len, hidden_dim)
+        
+        # Decode
+        x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))  # Decode
+        print(f"Shape of reconstructed output: {x_reconstructed.shape}", flush=True)  # Shape: (batch_size, seq_len, input_dim)
         
         return x_reconstructed
 
