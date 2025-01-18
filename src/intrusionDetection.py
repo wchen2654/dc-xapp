@@ -195,11 +195,11 @@ def run_autoencoder_influxdb(client, reportCounter):
 
     if not trained:
         # ---- 1. TRAINING PHASE ---- #
-        print("Starting initial training phase first 20 kpm reports...", flush=True)
+        print("Starting initial training phase first 32 kpm reports...", flush=True)
         query = f'''
             SELECT tx_pkts, tx_errors, dl_cqi
             FROM ue
-            WHERE report_num >= {(reportCounter - 1) * 10 + 1} and report_num <= {reportCounter * 10}'
+            WHERE report_num >= {(reportCounter - 1) * 16 + 1} and report_num <= {reportCounter * 16}
             ORDER BY report_num ASC
         '''
         result = client.query(query)
@@ -285,11 +285,11 @@ def run_autoencoder_influxdb(client, reportCounter):
 
         trained = True
 
-    print(f"Fetching new data for anomaly detection from reportNumber {(reportCounter - 1) * 10 + 1} - {reportCounter * 10} to present...", flush=True)
+    print(f"Fetching new data for anomaly detection from reportNumber {(reportCounter - 1) * 16 + 1} - {reportCounter * 16} to present...", flush=True)
     query = f'''
         SELECT tx_pkts, tx_errors, dl_cqi
         FROM ue
-        WHERE report_num >= {(reportCounter - 1) * 10 + 1} and report_num <= {reportCounter * 10}'
+        WHERE report_num >= {(reportCounter - 1) * 16 + 1} and report_num <= {reportCounter * 16}
         ORDER BY report_num ASC
     '''
     result = client.query(query)
