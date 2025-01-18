@@ -284,7 +284,7 @@ def run_autoencoder_influxdb(client, reportCounter):
 
         trained = True
 
-    print(f"Fetching new data for anomaly detection from reportNumber {(reportCounter - 1) * 16 + 1} - {reportCounter * 16} to present...", flush=True)
+    # Fetch new data
     query = f'''
         SELECT tx_pkts, tx_errors, dl_cqi
         FROM ue
@@ -292,58 +292,59 @@ def run_autoencoder_influxdb(client, reportCounter):
     '''
     result = client.query(query)
     data_list = list(result.get_points())
-    print("a", flush=True)
+
     if not data_list:
         print("No new data available. Waiting for the next function call...", flush=True)
         return -1
+
     # Extract and preprocess data
     data_values = [
         [point.get('tx_pkts', 0), point.get('tx_errors', 0), point.get('dl_cqi', 0)]
         for point in data_list
     ]
-    print("b", flush=True)
     data_array = np.array(data_values, dtype=np.float32)
-    print("c", flush=True)
+
+    # Debug extraction
+    print(f"Extracted data values: {data_values[:3]}", flush=True)  # First 3 rows
+    print(f"Data array shape: {data_array.shape}", flush=True)
+
     if len(data_array) < seq_length:
-        print("Not enough data points for a full sequence.", flush=True)
+        print("Not enough data for a full sequence in evaluation. Exiting.", flush=True)
         return -1
+
+    # Normalization
+    data_min = np.min(data_array, axis=0)
+    data_max = np.max(data_array, axis=0)
+    data_array = (data_array - data_min) / (data_max - data_min + 1e-8)
+    print(f"Normalized evaluation data. Min: {data_min}, Max: {data_max}", flush=True)
+
     # Reshape into sequences
     num_sequences = len(data_array) // seq_length
-    print(f"Number of sequences calculated: {num_sequences}", flush=True)
+    print(f"Number of sequences for evaluation: {num_sequences}", flush=True)
+
+    if num_sequences == 0:
+        print("No valid sequences in evaluation data. Exiting.", flush=True)
+        return -1
 
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
-    print(f"Data array reshaped to: {data_array.shape}", flush=True)
+    print(f"Reshaped data array shape: {data_array.shape}", flush=True)
 
+    # DataLoader creation
     data_tensor = torch.from_numpy(data_array)
-    print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
-
     labels = torch.zeros(data_tensor.size(0))
-    print(f"Labels tensor created with shape: {labels.shape}", flush=True)
-
-    if data_tensor.size(0) == 0:
-        print("Data tensor is empty. Exiting.", flush=True)
-        return -1
-
-    try:
-        dataset = TensorDataset(data_tensor, labels)
-        print("TensorDataset created successfully", flush=True)
-    except Exception as e:
-        print(f"Error creating TensorDataset: {e}", flush=True)
-        return -1
+    dataset = TensorDataset(data_tensor, labels)
 
     if len(dataset) < batch_size:
         batch_size = len(dataset)
         print(f"Adjusted batch_size to: {batch_size}", flush=True)
 
-    try:
-        data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-        print("DataLoader created successfully", flush=True)
-    except Exception as e:
-        print(f"Error creating DataLoader: {e}", flush=True)
-        return -1
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=0)
+    print("DataLoader created successfully for evaluation.", flush=True)
 
-    for batch_idx, (batch_data, batch_labels) in enumerate(data_loader):
-        print(f"Batch {batch_idx + 1}: Batch data shape: {batch_data.shape}, Batch labels shape: {batch_labels.shape}", flush=True)
+    # Iterate through DataLoader
+    for batch_idx, (batch_data, _) in enumerate(data_loader):
+        print(f"Evaluation Batch {batch_idx + 1}: Batch data shape: {batch_data.shape}", flush=True)
+
     # Anomaly detection
 
     threshold = 0.05
@@ -354,7 +355,7 @@ def run_autoencoder_influxdb(client, reportCounter):
         print("2", flush=True)
         reconstruction_errors = []
         print("3", flush=True)
-        for i, (batch_data, _) in enumerate(data_loader):
+        for i, (batch_data, _) in enumerate(data_loader2):
             reconstructed = model(batch_data)
             print("4", flush=True)
             errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2)).numpy()
