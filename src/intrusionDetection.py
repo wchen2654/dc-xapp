@@ -68,17 +68,13 @@ class RNN_Autoencoder(nn.Module):
         
         return x_reconstructed
 
-# Initialize model, loss, and optimizer
-n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_error, cqi)
-model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
-criterion = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
 def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
 
     global client
     global counter
+    global trained
 
     # Connecting to database
     try:
@@ -93,8 +89,14 @@ def fetchData():
         print("Error Message:", e, flush=True)
 
     try:
-        result = run_autoencoder_influxdb(client, counter)
+        if not trained:
+            run_autoencoder_influxdb(client, counter)
+            trained = True
+            return -1
+        
+        result = run_evaluation(client, counter)
         return result
+    
     except Exception as e:
         print("Intrusion Detection: Error occured when trying to train model", flush=True)
         print("Error Message:", e, flush=True)
@@ -102,24 +104,10 @@ def fetchData():
     counter += 1
     return -1
 
-def run_autoencoder_influxdb(client, reportCounter):
-
-    global device
-
-    global seq_length
-    global batch_size
-    global num_epochs
-    global start_time
+def gatherData(client, reportCounter):
 
     global n_features
-    global model
-    global criterion
-    global optimizer 
-    global fetch_interval
-    global initial_training_duration
-    global extra_training_duration
-
-    global trained
+    global seq_length
 
     query = f'''
         SELECT tx_pkts, tx_errors, dl_cqi
@@ -165,6 +153,22 @@ def run_autoencoder_influxdb(client, reportCounter):
     # Reshape into sequences for RNN
     num_sequences = len(data_array) // seq_length
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
+    
+    return data_array
+
+def run_autoencoder_influxdb(client, reportCounter): # Training
+
+    global batch_size
+    global num_epochs
+
+    # Initialize model, loss, and optimizer
+    n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_error, cqi)
+    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+    data_array = gatherData(client, reportCounter)
+
     print(f"Reshaped data array shape: {data_array.shape}", flush=True)
     print("Sample data (first sequence):", flush=True)
     print(data_array[0], flush=True)
@@ -182,96 +186,43 @@ def run_autoencoder_influxdb(client, reportCounter):
     print('labels:', labels, flush=True)
     dataset = TensorDataset(data_tensor, labels)
     # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-    train_loader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=4)
 
-    if not trained:
-        # ---- 1. TRAINING PHASE ---- #
-        print("Starting initial training phase first 32 kpm reports...", flush=True)
-        
-        # Train the model
-        model.train()
+    train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=4)
 
-        print("Training the model", flush=True)
+    # ---- 1. TRAINING PHASE ---- #
+    print("Starting initial training phase first 32 kpm reports...", flush=True)
+    
+    # Train the model
+    model.train()
 
-        for epoch in range(num_epochs):
-            epoch_loss = 0.0
-            for batch_data, _ in train_loader:
-                print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
-                if batch_data.shape[-1] != n_features:
-                    raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
+    print("Training the model", flush=True)
 
-                optimizer.zero_grad()
-                reconstructed = model(batch_data)
-                print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
-                
-                loss = criterion(reconstructed, batch_data)
-                loss.backward()
-                optimizer.step()
-                epoch_loss += loss.item()
-            print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
+    for epoch in range(num_epochs):
+        epoch_loss = 0.0
+        for batch_data, _ in train_loader:
+            print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
+            if batch_data.shape[-1] != n_features:
+                raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
 
-        print("Initial training completed. Switching to evaluation mode...", flush=True)
+            optimizer.zero_grad()
+            reconstructed = model(batch_data)
+            print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
+            
+            loss = criterion(reconstructed, batch_data)
+            loss.backward()
+            optimizer.step()
+            epoch_loss += loss.item()
+        print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
 
-        trained = True
+    print("Initial training completed. Switching to evaluation mode...", flush=True)
 
-    # # Fetch new data
-    # query = f'''
-    #     SELECT tx_pkts, tx_errors, dl_cqi
-    #     FROM ue
-    #     WHERE report_num >= {(reportCounter - 1) * 16 + 1} and report_num <= {reportCounter * 16}
-    # '''
-    # result = client.query(query)
-    # data_list = list(result.get_points())
+    torch.save(model, "model.pth")
 
-    # if not data_list:
-    #     print("No new data available. Waiting for the next function call...", flush=True)
-    #     return -1
+def run_evaluation(client, reportCounter):
 
-    # # Extract and preprocess data
-    # data_values = [
-    #     [point.get('tx_pkts', 0), point.get('tx_errors', 0), point.get('dl_cqi', 0)]
-    #     for point in data_list
-    # ]
-    # data_array = np.array(data_values, dtype=np.float32)
+    global batch_size
 
-    # # Debug extraction
-    # print(f"Extracted data values: {data_values[:3]}", flush=True)  # First 3 rows
-    # print(f"Data array shape: {data_array.shape}", flush=True)
-
-    # if len(data_array) < seq_length:
-    #     print("Not enough data for a full sequence in evaluation. Exiting.", flush=True)
-    #     return -1
-
-    # # Normalization
-    # data_min = np.min(data_array, axis=0)
-    # data_max = np.max(data_array, axis=0)
-    # data_array = (data_array - data_min) / (data_max - data_min + 1e-8)
-    # print(f"Normalized evaluation data. Min: {data_min}, Max: {data_max}", flush=True)
-
-    # # Reshape into sequences
-    # num_sequences = len(data_array) // seq_length
-    # print(f"Number of sequences for evaluation: {num_sequences}", flush=True)
-
-    # if num_sequences == 0:
-    #     print("No valid sequences in evaluation data. Exiting.", flush=True)
-    #     return -1
-
-    # data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
-    # print(f"Reshaped data array shape: {data_array.shape}", flush=True)
-
-    # # DataLoader creation
-    # data_tensor = torch.from_numpy(data_array)
-    # labels = torch.zeros(data_tensor.size(0))
-    # dataset = TensorDataset(data_tensor, labels)
-
-    # if len(dataset) < batch_size:
-    #     batch_size = len(dataset)
-    #     print(f"Adjusted batch_size to: {batch_size}", flush=True)
-
-    # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=0)
-    # print("DataLoader created successfully for evaluation.", flush=True)
-
-    eval_data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features) # Same preprocessing function 
+    eval_data_array = gatherData(client, reportCounter)
     eval_data_tensor = torch.from_numpy(eval_data_array) 
     eval_labels = torch.zeros(eval_data_tensor.size(0)) 
     eval_dataset = TensorDataset(eval_data_tensor, eval_labels) 
@@ -285,7 +236,9 @@ def run_autoencoder_influxdb(client, reportCounter):
 
     threshold = 0.05
 
+    model = torch.load("model.pth")
     model.eval()
+
     print("Evaluation started...", flush=True)
 
     with torch.no_grad():
