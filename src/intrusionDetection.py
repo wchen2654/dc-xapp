@@ -28,7 +28,7 @@ client = None
 
 malicious = []
 
-trained = False
+trained = True
 
 n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_error, cqi)
 
