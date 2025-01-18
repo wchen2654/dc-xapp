@@ -31,6 +31,8 @@ client = None
 
 malicious = []
 
+trained = False
+
 # RNN Autoencoder model
 class RNN_Autoencoder(nn.Module):
     def __init__(self, input_dim, hidden_dim, latent_dim):
@@ -94,7 +96,7 @@ def fetchData():
         print("Error Message:", e, flush=True)
 
     try:
-        result = run_autoencoder_influxdb(client)
+        result = run_autoencoder_influxdb(client, counter)
         return result
     # # Query for metrics
     # try:
@@ -168,7 +170,7 @@ def fetchData():
     return -1
 
 
-def run_autoencoder_influxdb(client):
+def run_autoencoder_influxdb(client, reportCounter):
 
     global device
 
@@ -185,142 +187,146 @@ def run_autoencoder_influxdb(client):
     global initial_training_duration
     global extra_training_duration
 
+    global trained
+
     current_time = datetime.utcnow()
     start_time = current_time - initial_training_duration  # 1 hour ago
     end_time = current_time + extra_training_duration  # 30 minutes after current time
 
-     # ---- 1. TRAINING PHASE ---- #
-    print("Starting initial training phase (1 hour + 30 minutes)...", flush=True)
-    query = f'''
-        SELECT tx_pkts, tx_errors, dl_cqi
-        FROM ue
-        WHERE time >= '{start_time.isoformat()}Z' AND time < '{end_time.isoformat()}Z'
-        ORDER BY time ASC
-    '''
-    result = client.query(query)
-    data_list = list(result.get_points())
-
-    if not data_list:
-        print("No data available for initial training. Exiting...", flush=True)
-        return -1
-
-    # Extract and preprocess data
-    data_values = [
-        [point.get('tx_pkts', 0), point.get('tx_errors', 0), point.get('dl_cqi', 0)]
-        for point in data_list
-    ]
-
-    data_array = np.array(data_values, dtype=np.float32)
-    
-    # Apply Min-Max Scaling
-    data_min = np.min(data_array, axis=0)
-    data_max = np.max(data_array, axis=0)
-    data_array = (data_array - data_min) / (data_max - data_min + 1e-8)  # Normalize to [0, 1]
-    
-    print(f"Data normalized with Min-Max Scaling. Min: {data_min}, Max: {data_max}", flush=True)
-
-    #data_array Might Be Empty
-    if data_array.size == 0:
-        print("No data points available for conversion to tensor.", flush=True)
-        return -1
-
-    #data_array Shape Issues
-    print(f"Data array shape before reshaping: {data_array.shape}", flush=True)
-    if len(data_array) < seq_length:
-        print("Not enough data points for a full sequence during training. Exiting...", flush=True)
-        return -1
-        
-    # Dtype should be 'np.float32'
-    print(f"Data array dtype: {data_array.dtype}", flush=True)
-         
-    # Reshape into sequences for RNN
-    num_sequences = len(data_array) // seq_length
-    data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
-    print(f"Reshaped data array shape: {data_array.shape}", flush=True)
-    print("Sample data (first sequence):", flush=True)
-    print(data_array[0], flush=True)
-
-    try:
-        print('inside the try -------', flush=True)
-        data_tensor = torch.from_numpy(data_array)
-        print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
-    except Exception as e:
-        print(f"Error converting to tensor: {e}", flush=True)
-        return -1
-
-    # DataLoader preparation
-    labels = torch.zeros(data_tensor.size(0))
-    print('labels:', labels, flush=True)
-    dataset = TensorDataset(data_tensor, labels)
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-
-    # Train the model
-    model.train()
-
-    print("Training the model", flush=True)
-
-    for epoch in range(num_epochs):
-        epoch_loss = 0.0
-        for batch_data, _ in data_loader:
-            print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
-            if batch_data.shape[-1] != n_features:
-                raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
-
-            optimizer.zero_grad()
-            reconstructed = model(batch_data)
-            print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
-            
-            loss = criterion(reconstructed, batch_data)
-            loss.backward()
-            optimizer.step()
-            epoch_loss += loss.item()
-        print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
-
-    print("Initial training completed. Switching to evaluation mode...", flush=True)
-
-    while True:
-        print(f"Fetching new data for anomaly detection from {end_time} to present...", flush=True)
-        start_time = end_time
-        end_time = datetime.utcnow()
+    if not trained:
+        # ---- 1. TRAINING PHASE ---- #
+        print("Starting initial training phase first 20 kpm reports...", flush=True)
         query = f'''
             SELECT tx_pkts, tx_errors, dl_cqi
             FROM ue
-            WHERE time >= '{start_time.isoformat()}Z' AND time < '{end_time.isoformat()}Z'
-            ORDER BY time ASC
+            WHERE report_num >= {(reportCounter - 1) * 10 + 1} and report_num <= {reportCounter * 10}'
+            ORDER BY report_num ASC
         '''
         result = client.query(query)
         data_list = list(result.get_points())
+
         if not data_list:
-            print("No new data available. Waiting for the next fetch interval...", flush=True)
-            time.sleep(fetch_interval)
-            continue
+            print("No data available for initial training. Exiting...", flush=True)
+            return -1
+
         # Extract and preprocess data
         data_values = [
             [point.get('tx_pkts', 0), point.get('tx_errors', 0), point.get('dl_cqi', 0)]
             for point in data_list
         ]
+
         data_array = np.array(data_values, dtype=np.float32)
+        
+        # Apply Min-Max Scaling
+        data_min = np.min(data_array, axis=0)
+        data_max = np.max(data_array, axis=0)
+        data_array = (data_array - data_min) / (data_max - data_min + 1e-8)  # Normalize to [0, 1]
+        
+        print(f"Data normalized with Min-Max Scaling. Min: {data_min}, Max: {data_max}", flush=True)
+
+        #data_array Might Be Empty
+        if data_array.size == 0:
+            print("No data points available for conversion to tensor.", flush=True)
+            return -1
+
+        #data_array Shape Issues
+        print(f"Data array shape before reshaping: {data_array.shape}", flush=True)
         if len(data_array) < seq_length:
-            print("Not enough data points for a full sequence.", flush=True)
-            continue
-        # Reshape into sequences
+            print("Not enough data points for a full sequence during training. Exiting...", flush=True)
+            return -1
+            
+        # Dtype should be 'np.float32'
+        print(f"Data array dtype: {data_array.dtype}", flush=True)
+            
+        # Reshape into sequences for RNN
         num_sequences = len(data_array) // seq_length
         data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
-        data_tensor = torch.from_numpy(data_array)
+        print(f"Reshaped data array shape: {data_array.shape}", flush=True)
+        print("Sample data (first sequence):", flush=True)
+        print(data_array[0], flush=True)
+
+        try:
+            print('inside the try -------', flush=True)
+            data_tensor = torch.from_numpy(data_array)
+            print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
+        except Exception as e:
+            print(f"Error converting to tensor: {e}", flush=True)
+            return -1
+
+        # DataLoader preparation
         labels = torch.zeros(data_tensor.size(0))
+        print('labels:', labels, flush=True)
         dataset = TensorDataset(data_tensor, labels)
         data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-        # Anomaly detection
-        model.eval()
-        with torch.no_grad():
-            reconstruction_errors = []
-            for i, (batch_data, _) in enumerate(data_loader):
+
+        # Train the model
+        model.train()
+
+        print("Training the model", flush=True)
+
+        for epoch in range(num_epochs):
+            epoch_loss = 0.0
+            for batch_data, _ in data_loader:
+                print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
+                if batch_data.shape[-1] != n_features:
+                    raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
+
+                optimizer.zero_grad()
                 reconstructed = model(batch_data)
-                errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2)).numpy()
-                for seq_idx, error in enumerate(errors):
-                    probability = (error / threshold) * 100
-                    if error > threshold:
-                        print(f"Sequence {i * batch_size + seq_idx + 1}: Anomaly detected with probability {probability:.2f}%.", flush=True)
-                    else:
-                        print(f"Sequence {i * batch_size + seq_idx + 1}: Normal data with low reconstruction error ({probability:.2f}%).", flush=True)
-        time.sleep(fetch_interval)
+                print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
+                
+                loss = criterion(reconstructed, batch_data)
+                loss.backward()
+                optimizer.step()
+                epoch_loss += loss.item()
+            print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
+
+        print("Initial training completed. Switching to evaluation mode...", flush=True)
+
+        trained = True
+
+    print(f"Fetching new data for anomaly detection from reportNumber {(reportCounter - 1) * 10 + 1} - {reportCounter * 10} to present...", flush=True)
+    query = f'''
+        SELECT tx_pkts, tx_errors, dl_cqi
+        FROM ue
+        WHERE report_num >= {(reportCounter - 1) * 10 + 1} and report_num <= {reportCounter * 10}'
+        ORDER BY report_num ASC
+    '''
+    result = client.query(query)
+    data_list = list(result.get_points())
+    if not data_list:
+        print("No new data available. Waiting for the next function call...", flush=True)
+        return -1
+    # Extract and preprocess data
+    data_values = [
+        [point.get('tx_pkts', 0), point.get('tx_errors', 0), point.get('dl_cqi', 0)]
+        for point in data_list
+    ]
+    data_array = np.array(data_values, dtype=np.float32)
+    if len(data_array) < seq_length:
+        print("Not enough data points for a full sequence.", flush=True)
+        return -1
+    # Reshape into sequences
+    num_sequences = len(data_array) // seq_length
+    data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
+    data_tensor = torch.from_numpy(data_array)
+    labels = torch.zeros(data_tensor.size(0))
+    dataset = TensorDataset(data_tensor, labels)
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    # Anomaly detection
+
+    threshold = 0.05
+
+    model.eval()
+    with torch.no_grad():
+        reconstruction_errors = []
+        for i, (batch_data, _) in enumerate(data_loader):
+            reconstructed = model(batch_data)
+            errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2)).numpy()
+            for seq_idx, error in enumerate(errors):
+                probability = (error / threshold) * 100
+                if error > threshold:
+                    print(f"Sequence {i * batch_size + seq_idx + 1}: Anomaly detected with probability {probability:.2f}%.", flush=True)
+                else:
+                    print(f"Sequence {i * batch_size + seq_idx + 1}: Normal data with low reconstruction error ({probability:.2f}%).", flush=True)
+    time.sleep(fetch_interval)
