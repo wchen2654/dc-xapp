@@ -198,7 +198,7 @@ def run_autoencoder_influxdb(client, reportCounter):
     data_list = list(result.get_points())
 
     if not data_list:
-        print("No data available. Exiting...", flush=True)
+        print("No data available for initial training. Exiting...", flush=True)
         return -1
 
     # Extract and preprocess data
@@ -249,7 +249,8 @@ def run_autoencoder_influxdb(client, reportCounter):
     labels = torch.zeros(data_tensor.size(0))
     print('labels:', labels, flush=True)
     dataset = TensorDataset(data_tensor, labels)
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=4)
 
     if not trained:
         # ---- 1. TRAINING PHASE ---- #
@@ -262,7 +263,7 @@ def run_autoencoder_influxdb(client, reportCounter):
 
         for epoch in range(num_epochs):
             epoch_loss = 0.0
-            for batch_data, _ in data_loader:
+            for batch_data, _ in train_loader:
                 print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
                 if batch_data.shape[-1] != n_features:
                     raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
@@ -338,8 +339,14 @@ def run_autoencoder_influxdb(client, reportCounter):
     # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=0)
     # print("DataLoader created successfully for evaluation.", flush=True)
 
+    eval_data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features) # Same preprocessing function 
+    eval_data_tensor = torch.from_numpy(eval_data_array) 
+    eval_labels = torch.zeros(eval_data_tensor.size(0)) 
+    eval_dataset = TensorDataset(eval_data_tensor, eval_labels) 
+    eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False) # Debugging the Evaluation DataLoader 
+
     # Iterate through DataLoader
-    for batch_idx, (batch_data, _) in enumerate(data_loader):
+    for batch_idx, (batch_data, _) in enumerate(eval_loader):
         print(f"Evaluation Batch {batch_idx + 1}: Batch data shape: {batch_data.shape}", flush=True)
 
     # Anomaly detection
@@ -347,21 +354,30 @@ def run_autoencoder_influxdb(client, reportCounter):
     threshold = 0.05
 
     model.eval()
-    print("1", flush=True)
+    print("Evaluation started...", flush=True)
+
     with torch.no_grad():
-        print("2", flush=True)
+        print("Model set to evaluation mode.", flush=True)
+    
         reconstruction_errors = []
-        print("3", flush=True)
-        for i, (batch_data, _) in enumerate(data_loader):
+        print("Initialized reconstruction_errors list.", flush=True)
+    
+        for i, (batch_data, _) in enumerate(eval_loader):
+            print(f"Processing Batch {i + 1}/{len(eval_loader)}: Batch data shape: {batch_data.shape}", flush=True)
+        
             reconstructed = model(batch_data)
-            print("4", flush=True)
+            print(f"Reconstructed data shape: {reconstructed.shape} for Batch {i + 1}", flush=True)
+        
+            # Calculate reconstruction errors
             errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2)).numpy()
-            print("5", flush=True)
+            print(f"Reconstruction errors calculated for Batch {i + 1}.", flush=True)
+        
             for seq_idx, error in enumerate(errors):
                 probability = (error / threshold) * 100
-                print("6", flush=True)
                 if error > threshold:
-                    print(f"Sequence {i * batch_size + seq_idx + 1}: Anomaly detected with probability {probability:.2f}%.", flush=True)
+                    print(f"Batch {i + 1}, Sequence {seq_idx + 1}: Anomaly detected with probability {probability:.2f}%.", flush=True)
                 else:
-                    print(f"Sequence {i * batch_size + seq_idx + 1}: Normal data with low reconstruction error ({probability:.2f}%).", flush=True)
+                    print(f"Batch {i + 1}, Sequence {seq_idx + 1}: Normal data with probability {probability:.2f}%.", flush=True)
+
+    print("Evaluation completed.", flush=True)
     return -1
