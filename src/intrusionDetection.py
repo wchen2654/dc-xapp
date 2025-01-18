@@ -200,7 +200,6 @@ def run_autoencoder_influxdb(client, reportCounter):
             SELECT tx_pkts, tx_errors, dl_cqi
             FROM ue
             WHERE report_num >= {(reportCounter - 1) * 16 + 1} and report_num <= {reportCounter * 16}
-            ORDER BY report_num ASC
         '''
         result = client.query(query)
         data_list = list(result.get_points())
@@ -290,7 +289,6 @@ def run_autoencoder_influxdb(client, reportCounter):
         SELECT tx_pkts, tx_errors, dl_cqi
         FROM ue
         WHERE report_num >= {(reportCounter - 1) * 16 + 1} and report_num <= {reportCounter * 16}
-        ORDER BY report_num ASC
     '''
     result = client.query(query)
     data_list = list(result.get_points())
