@@ -316,15 +316,21 @@ def run_autoencoder_influxdb(client, reportCounter):
     threshold = 0.05
 
     model.eval()
+    print("1", flush=True)
     with torch.no_grad():
+        print("2", flush=True)
         reconstruction_errors = []
+        print("3", flush=True)
         for i, (batch_data, _) in enumerate(data_loader):
             reconstructed = model(batch_data)
+            print("4", flush=True)
             errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2)).numpy()
+            print("5", flush=True)
             for seq_idx, error in enumerate(errors):
                 probability = (error / threshold) * 100
+                print("6", flush=True)
                 if error > threshold:
                     print(f"Sequence {i * batch_size + seq_idx + 1}: Anomaly detected with probability {probability:.2f}%.", flush=True)
                 else:
                     print(f"Sequence {i * batch_size + seq_idx + 1}: Normal data with low reconstruction error ({probability:.2f}%).", flush=True)
-    time.sleep(fetch_interval)
+    return -1
