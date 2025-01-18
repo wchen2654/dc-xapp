@@ -19,7 +19,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 seq_length = 10 
 hidden_dim = 64
 latent_dim = 32
-batch_size = 1
+batch_size = 32
 num_epochs = 1000
 learning_rate = 0.001
 
@@ -94,6 +94,7 @@ def fetchData():
         if not trained:
             run_autoencoder_influxdb(client, counter)
             trained = True
+            print("Training finished", flush=True)
             return -1
         
         result = run_evaluation(client, counter)
@@ -237,7 +238,7 @@ def run_evaluation(client, reportCounter):
 
     threshold = 0.05
 
-    model = torch.load("model.pth")
+    model = torch.load("/nexran/src/model.pth")
     model.eval()
 
     print("Evaluation started...", flush=True)
