@@ -238,7 +238,7 @@ def run_evaluation(client, reportCounter):
 
     threshold = 0.05
 
-    model = torch.load("/nexran/src/model.pth")
+    model = torch.load("/nexran/model.pth")
     model.eval()
 
     print("Evaluation started...", flush=True)
