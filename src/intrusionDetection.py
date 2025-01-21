@@ -220,6 +220,8 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
 
     torch.save(model, "model.pth")
 
+    return
+
 def run_evaluation(client, reportCounter):
 
     global batch_size
