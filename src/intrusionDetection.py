@@ -189,7 +189,7 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     dataset = TensorDataset(data_tensor, labels)
     # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
-    train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=4)
+    train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
 
     # ---- 1. TRAINING PHASE ---- #
     print("Starting initial training phase first 32 kpm reports...", flush=True)
@@ -228,7 +228,7 @@ def run_evaluation(client, reportCounter):
     eval_data_tensor = torch.from_numpy(eval_data_array) 
     eval_labels = torch.zeros(eval_data_tensor.size(0)) 
     eval_dataset = TensorDataset(eval_data_tensor, eval_labels) 
-    eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False) # Debugging the Evaluation DataLoader 
+    eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, num_workers=0) # Debugging the Evaluation DataLoader 
 
     # Iterate through DataLoader
     for batch_idx, (batch_data, _) in enumerate(eval_loader):
