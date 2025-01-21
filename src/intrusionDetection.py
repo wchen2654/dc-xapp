@@ -10,6 +10,8 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from datetime import datetime, timedelta
 
+torch.set_num_threads(1)
+
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 
@@ -177,6 +179,8 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
 
     try:
         print('inside the try -------', flush=True)
+        if not data_array.flags['C_CONTIGUOUS']:
+            data_array = np.ascontiguousarray(data_array)
         data_tensor = torch.from_numpy(data_array)
         # print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
     except Exception as e:

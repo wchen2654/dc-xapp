@@ -31,6 +31,7 @@ int sliceReportId = 1;
 int ueReportId = 1;
 
 PyObject* pModule = nullptr;  // Global variable to store the Python module
+PyGILState_STATE gstate;
 
 // Secure Slicing
 
@@ -793,6 +794,9 @@ void App::start()
 	{
 		Py_Initialize();	// Initialize Python Interpreter
 
+		// Acquire GIL
+		gstate = PyGILState_Ensure();
+
 		PyRun_SimpleString("import sys; sys.argv = ['']");
 		PyRun_SimpleString("sys.path.append('/nexran/src/')");
 
@@ -858,6 +862,10 @@ void App::stop()
 	// Finalize the Python Interpreter
 
 	Py_DECREF(pModule);
+
+	// Release GIL
+    PyGILState_Release(gstate);
+
 	Py_Finalize();
 
 }
