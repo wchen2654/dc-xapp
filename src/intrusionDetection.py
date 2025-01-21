@@ -189,7 +189,7 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     dataset = TensorDataset(data_tensor, labels)
     # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
-    train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
+    # train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
 
     # ---- 1. TRAINING PHASE ---- #
     print("Starting initial training phase first 32 kpm reports...", flush=True)
