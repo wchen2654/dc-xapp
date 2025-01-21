@@ -177,7 +177,7 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
 
     try:
         print('inside the try -------', flush=True)
-        data_tensor = torch.from_numpy(data_array)
+        # data_tensor = torch.from_numpy(data_array)
         print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
     except Exception as e:
         print(f"Error converting to tensor: {e}", flush=True)
