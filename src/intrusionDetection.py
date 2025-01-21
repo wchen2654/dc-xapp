@@ -195,7 +195,7 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     print("Starting initial training phase first 32 kpm reports...", flush=True)
     
     # Train the model
-    model.train()
+    # model.train()
 
     print("Training the model", flush=True)
 
