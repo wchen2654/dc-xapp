@@ -93,66 +93,6 @@ def fetchData():
     try:
         if not trained:
             # run_autoencoder_influxdb(client, counter)
-
-            global batch_size
-            global num_epochs
-
-            # Initialize model, loss, and optimizer
-            model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
-            criterion = nn.MSELoss()
-            optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-
-            data_array = gatherData(client, counter)
-
-            print(f"Reshaped data array shape: {data_array.shape}", flush=True)
-            print("Sample data (first sequence):", flush=True)
-            print(data_array[0], flush=True)
-
-            try:
-                print('inside the try -------', flush=True)
-                data_tensor = torch.from_numpy(data_array)
-                print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
-            except Exception as e:
-                print(f"Error converting to tensor: {e}", flush=True)
-                return -1
-
-            # DataLoader preparation
-            labels = torch.zeros(data_tensor.size(0))
-            print('labels:', labels, flush=True)
-            dataset = TensorDataset(data_tensor, labels)
-            # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-
-            train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
-
-            # ---- 1. TRAINING PHASE ---- #
-            print("Starting initial training phase first 32 kpm reports...", flush=True)
-            
-            # Train the model
-            model.train()
-
-            print("Training the model", flush=True)
-
-            for epoch in range(num_epochs):
-                epoch_loss = 0.0
-                for batch_data, _ in train_loader:
-                    print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
-                    if batch_data.shape[-1] != n_features:
-                        raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
-
-                    optimizer.zero_grad()
-                    reconstructed = model(batch_data)
-                    print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
-                    
-                    loss = criterion(reconstructed, batch_data)
-                    loss.backward()
-                    optimizer.step()
-                    epoch_loss += loss.item()
-                print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
-
-            print("Initial training completed. Switching to evaluation mode...", flush=True)
-
-            torch.save(model, "model.pth")
-
             trained = True
             print("Training finished", flush=True)
             return -1
@@ -219,68 +159,66 @@ def gatherData(client, reportCounter): # Gather data for both the training and e
     
     return data_array
 
-# def run_autoencoder_influxdb(client, reportCounter): # Training
+def run_autoencoder_influxdb(client, reportCounter): # Training
 
-    # global batch_size
-    # global num_epochs
+    global batch_size
+    global num_epochs
 
-    # # Initialize model, loss, and optimizer
-    # model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
-    # criterion = nn.MSELoss()
-    # optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+    # Initialize model, loss, and optimizer
+    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    # data_array = gatherData(client, reportCounter)
+    data_array = gatherData(client, reportCounter)
 
-    # print(f"Reshaped data array shape: {data_array.shape}", flush=True)
-    # print("Sample data (first sequence):", flush=True)
-    # print(data_array[0], flush=True)
+    print(f"Reshaped data array shape: {data_array.shape}", flush=True)
+    print("Sample data (first sequence):", flush=True)
+    print(data_array[0], flush=True)
 
-    # try:
-    #     print('inside the try -------', flush=True)
-    #     data_tensor = torch.from_numpy(data_array)
-    #     print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
-    # except Exception as e:
-    #     print(f"Error converting to tensor: {e}", flush=True)
-    #     return -1
+    try:
+        print('inside the try -------', flush=True)
+        data_tensor = torch.from_numpy(data_array)
+        print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
+    except Exception as e:
+        print(f"Error converting to tensor: {e}", flush=True)
+        return -1
 
-    # # DataLoader preparation
-    # labels = torch.zeros(data_tensor.size(0))
-    # print('labels:', labels, flush=True)
-    # dataset = TensorDataset(data_tensor, labels)
-    # # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    # DataLoader preparation
+    labels = torch.zeros(data_tensor.size(0))
+    print('labels:', labels, flush=True)
+    dataset = TensorDataset(data_tensor, labels)
+    # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
-    # train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
+    train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
 
-    # # ---- 1. TRAINING PHASE ---- #
-    # print("Starting initial training phase first 32 kpm reports...", flush=True)
+    # ---- 1. TRAINING PHASE ---- #
+    print("Starting initial training phase first 32 kpm reports...", flush=True)
     
-    # # Train the model
-    # model.train()
+    # Train the model
+    model.train()
 
-    # print("Training the model", flush=True)
+    print("Training the model", flush=True)
 
-    # for epoch in range(num_epochs):
-    #     epoch_loss = 0.0
-    #     for batch_data, _ in train_loader:
-    #         print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
-    #         if batch_data.shape[-1] != n_features:
-    #             raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
+    for epoch in range(num_epochs):
+        epoch_loss = 0.0
+        for batch_data, _ in train_loader:
+            print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
+            if batch_data.shape[-1] != n_features:
+                raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
 
-    #         optimizer.zero_grad()
-    #         reconstructed = model(batch_data)
-    #         print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
+            optimizer.zero_grad()
+            reconstructed = model(batch_data)
+            print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
             
-    #         loss = criterion(reconstructed, batch_data)
-    #         loss.backward()
-    #         optimizer.step()
-    #         epoch_loss += loss.item()
-    #     print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
+            loss = criterion(reconstructed, batch_data)
+            loss.backward()
+            optimizer.step()
+            epoch_loss += loss.item()
+        print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
 
-    # print("Initial training completed. Switching to evaluation mode...", flush=True)
+    print("Initial training completed. Switching to evaluation mode...", flush=True)
 
-    # torch.save(model, "model.pth")
-
-    # return
+    torch.save(model, "/nexran/model.pth")
 
 def run_evaluation(client, reportCounter):
 
