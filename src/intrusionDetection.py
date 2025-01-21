@@ -92,7 +92,7 @@ def fetchData():
 
     try:
         if not trained:
-            # run_autoencoder_influxdb(client, counter)
+            run_autoencoder_influxdb(client, counter)
             trained = True
             print("Training finished", flush=True)
             return -1
@@ -199,22 +199,22 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
 
     print("Training the model", flush=True)
 
-    for epoch in range(num_epochs):
-        epoch_loss = 0.0
-        for batch_data, _ in train_loader:
-            print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
-            if batch_data.shape[-1] != n_features:
-                raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
+    # for epoch in range(num_epochs):
+    #     epoch_loss = 0.0
+    #     for batch_data, _ in train_loader:
+    #         print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
+    #         if batch_data.shape[-1] != n_features:
+    #             raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
 
-            optimizer.zero_grad()
-            reconstructed = model(batch_data)
-            print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
+    #         optimizer.zero_grad()
+    #         reconstructed = model(batch_data)
+    #         print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
             
-            loss = criterion(reconstructed, batch_data)
-            loss.backward()
-            optimizer.step()
-            epoch_loss += loss.item()
-        print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
+    #         loss = criterion(reconstructed, batch_data)
+    #         loss.backward()
+    #         optimizer.step()
+    #         epoch_loss += loss.item()
+    #     print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
 
     print("Initial training completed. Switching to evaluation mode...", flush=True)
 
