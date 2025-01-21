@@ -233,6 +233,10 @@ bool App::intrusion_detection()
 						{
 							secure_slicing(result);
 						}
+						else
+						{
+							std::cout << "No Malicous UE found" << std::endl;
+						}
 					} else {
 						std::cerr << "Returned value is not a integer." << std::endl;
 					}

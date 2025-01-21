@@ -107,7 +107,7 @@ def fetchData():
     counter += 1
     return -1
 
-def gatherData(client, reportCounter):
+def gatherData(client, reportCounter): # Gather data for both the training and evaluation phase
 
     global n_features
     global seq_length
