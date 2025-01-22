@@ -187,7 +187,7 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
         for i in range(data_array.shape[0]):
             for j in range(data_array.shape[1]):
                 for k in range(data_array.shape[2]):
-                    data_tensor[i, j, k] = data_array[i, j, k]
+                    data_tensor[i, j, k] = float(data_array[i, j, k])
 
         print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
     except Exception as e:
