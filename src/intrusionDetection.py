@@ -179,9 +179,6 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
 
     try:
         print('inside the try -------', flush=True)
-        # if not data_array.flags['C_CONTIGUOUS']:
-        #     data_array = np.ascontiguousarray(data_array)
-        # data_tensor = torch.from_numpy(data_array)
         data_tensor = torch.empty(data_array.shape, dtype=torch.float32)
 
         for i in range(data_array.shape[0]):
@@ -194,38 +191,38 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
         print(f"Error converting to tensor: {e}", flush=True)
         return -1
 
-    # # DataLoader preparation
-    # labels = torch.zeros(data_tensor.size(0))
-    # print('labels:', labels, flush=True)
-    # dataset = TensorDataset(data_tensor, labels)
+    # DataLoader preparation
+    labels = torch.zeros(data_tensor.size(0))
+    print('labels:', labels, flush=True)
+    dataset = TensorDataset(data_tensor, labels)
     # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
-    # train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
+    train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
 
     # ---- 1. TRAINING PHASE ---- #
     print("Starting initial training phase first 32 kpm reports...", flush=True)
     
     # Train the model
-    # model.train()
+    model.train()
 
     print("Training the model", flush=True)
 
-    # for epoch in range(num_epochs):
-    #     epoch_loss = 0.0
-    #     for batch_data, _ in train_loader:
-    #         print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
-    #         if batch_data.shape[-1] != n_features:
-    #             raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
+    for epoch in range(num_epochs):
+        epoch_loss = 0.0
+        for batch_data, _ in train_loader:
+            print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
+            if batch_data.shape[-1] != n_features:
+                raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
 
-    #         optimizer.zero_grad()
-    #         reconstructed = model(batch_data)
-    #         print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
+            optimizer.zero_grad()
+            reconstructed = model(batch_data)
+            print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
             
-    #         loss = criterion(reconstructed, batch_data)
-    #         loss.backward()
-    #         optimizer.step()
-    #         epoch_loss += loss.item()
-    #     print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
+            loss = criterion(reconstructed, batch_data)
+            loss.backward()
+            optimizer.step()
+            epoch_loss += loss.item()
+        print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
 
     print("Initial training completed. Switching to evaluation mode...", flush=True)
 
