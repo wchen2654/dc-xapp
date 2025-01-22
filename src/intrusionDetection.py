@@ -179,10 +179,17 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
 
     try:
         print('inside the try -------', flush=True)
-        if not data_array.flags['C_CONTIGUOUS']:
-            data_array = np.ascontiguousarray(data_array)
-        data_tensor = torch.from_numpy(data_array)
-        # print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
+        # if not data_array.flags['C_CONTIGUOUS']:
+        #     data_array = np.ascontiguousarray(data_array)
+        # data_tensor = torch.from_numpy(data_array)
+        data_tensor = torch.empty(data_array.shape, dtype=torch.float32)
+
+        for i in range(array.shape[0]):
+            for j in range(array.shape[1]):
+                for k in range(array.shape[2]):
+                    data_tensor[i, j, k] = array[i, j, k]
+
+        print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
     except Exception as e:
         print(f"Error converting to tensor: {e}", flush=True)
         return -1
