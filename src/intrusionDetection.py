@@ -184,9 +184,9 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
         # data_tensor = torch.from_numpy(data_array)
         data_tensor = torch.empty(data_array.shape, dtype=torch.float32)
 
-        for i in range(array.shape[0]):
-            for j in range(array.shape[1]):
-                for k in range(array.shape[2]):
+        for i in range(data_array.shape[0]):
+            for j in range(data_array.shape[1]):
+                for k in range(data_array.shape[2]):
                     data_tensor[i, j, k] = array[i, j, k]
 
         print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
