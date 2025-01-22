@@ -214,8 +214,8 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
             if batch_data.shape[-1] != n_features:
                 raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
 
-    #         optimizer.zero_grad()
-    #         reconstructed = model(batch_data)
+            optimizer.zero_grad()
+            reconstructed = model(batch_data)
     #         print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
             
     #         loss = criterion(reconstructed, batch_data)
