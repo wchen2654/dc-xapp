@@ -159,20 +159,6 @@ def gatherData(client, reportCounter): # Gather data for both the training and e
     num_sequences = len(data_array) // seq_length
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
     
-    return data_array
-
-def run_autoencoder_influxdb(client, reportCounter): # Training
-
-    global batch_size
-    global num_epochs
-
-    # Initialize model, loss, and optimizer
-    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-
-    data_array = gatherData(client, reportCounter)
-
     print(f"Reshaped data array shape: {data_array.shape}", flush=True)
     print("Sample data (first sequence):", flush=True)
     print(data_array[0], flush=True)
@@ -191,6 +177,20 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
         print(f"Error converting to tensor: {e}", flush=True)
         return -1
 
+    return data_tensor
+
+def run_autoencoder_influxdb(client, reportCounter): # Training
+
+    global batch_size
+    global num_epochs
+
+    # Initialize model, loss, and optimizer
+    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+    data_tensor = gatherData(client, reportCounter)
+
     # DataLoader preparation
     labels = torch.zeros(data_tensor.size(0))
     print('labels:', labels, flush=True)
@@ -207,12 +207,12 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
 
     print("Training the model", flush=True)
 
-    # for epoch in range(num_epochs):
-    #     epoch_loss = 0.0
-    #     for batch_data, _ in train_loader:
-    #         print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
-    #         if batch_data.shape[-1] != n_features:
-    #             raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
+    for epoch in range(num_epochs):
+        epoch_loss = 0.0
+        for batch_data, _ in train_loader:
+            print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
+            if batch_data.shape[-1] != n_features:
+                raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
 
     #         optimizer.zero_grad()
     #         reconstructed = model(batch_data)
@@ -232,8 +232,7 @@ def run_evaluation(client, reportCounter):
 
     global batch_size
 
-    eval_data_array = gatherData(client, reportCounter)
-    eval_data_tensor = torch.from_numpy(eval_data_array) 
+    eval_data_tensor = gatherData(client, reportCounter)
     eval_labels = torch.zeros(eval_data_tensor.size(0)) 
     eval_dataset = TensorDataset(eval_data_tensor, eval_labels) 
     eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, num_workers=0) # Debugging the Evaluation DataLoader 
