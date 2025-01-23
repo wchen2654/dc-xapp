@@ -248,11 +248,6 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     # num_sequences = 1000  # Number of sequences for training
     # data_tensor = gather_random_data(seq_length, num_sequences, n_features)
 
-    # DataLoader preparation
-    labels = torch.zeros(data_tensor.size(0))
-    dataset = TensorDataset(data_tensor, labels)
-    train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
-
     # Training phase
     print("Starting training phase with random data...", flush=True)
 
