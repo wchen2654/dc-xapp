@@ -266,12 +266,12 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
         print(f"  Model parameters before epoch: {list(model.parameters())[0][:5]}", flush=True)  # Example: print first few weights
         print(f"Epoch {epoch + 1}/{num_epochs} started. Total batches: {len(train_loader)}", flush=True)
         epoch_loss = 0.0
-        for batch_idx, (batch_data, _) in enumerate(train_loader):
-            print(f"Batch {batch_idx + 1}/{len(train_loader)} started", flush=True)  # Tracking batch start
-            print(f"  Processing batch {batch_idx + 1}/{len(train_loader)}. Batch data shape: {batch_data.shape}", flush=True)
-            batch_data = batch_data.to(device)
-            print(f"  Transferred batch to device: {batch_data.device}", flush=True)  # Verify data on device
-            batch_data = batch_data.to(device)
+        # for batch_idx, (batch_data, _) in enumerate(train_loader):
+        #     print(f"Batch {batch_idx + 1}/{len(train_loader)} started", flush=True)  # Tracking batch start
+        #     print(f"  Processing batch {batch_idx + 1}/{len(train_loader)}. Batch data shape: {batch_data.shape}", flush=True)
+        #     batch_data = batch_data.to(device)
+        #     print(f"  Transferred batch to device: {batch_data.device}", flush=True)  # Verify data on device
+        #     batch_data = batch_data.to(device)
 
             # print(f"    Running optimizer.zero_grad()", flush=True)
             # optimizer.zero_grad()
