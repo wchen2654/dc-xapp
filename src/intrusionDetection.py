@@ -383,10 +383,3 @@ def run_evaluation(client, reportCounter):
 
     print("Evaluation completed.", flush=True)
     return -1
-
-# Entry point
-if __name__ == "__main__":
-    run_autoencoder_random_data()
-    print("------------Training finished.-----------", flush=True)
-    run_evaluation_random_data()
-    print("------------Evaluation finished.---------", flush=True)
