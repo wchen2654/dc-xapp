@@ -227,7 +227,7 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     global device
 
     # Initialize model, loss, and optimizer
-    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
+    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32).to(device)
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
@@ -300,6 +300,9 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
         print("Model file saved successfully.", flush=True) 
     else: 
         print("Model file not found.", flush=True)
+
+    print(f"CPU Usage: {psutil.cpu_percent()}%")
+    print(f"Memory Usage: {psutil.virtual_memory().percent}%")
 
     return -1
 
