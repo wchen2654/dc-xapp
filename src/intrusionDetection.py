@@ -122,7 +122,7 @@ def gatherData(client, reportCounter):
     query = f'''
         SELECT tx_pkts, tx_errors, dl_cqi
         FROM ue
-        WHERE report_num >= {(reportCounter - 1) * 16 + 1} and report_num <= {reportCounter * 16}
+        WHERE report_num >= {(reportCounter - 1) * 10 + 1} and report_num <= {reportCounter * 10}
     '''
     result = client.query(query)
     data_list = list(result.get_points())
@@ -154,6 +154,22 @@ def gatherData(client, reportCounter):
 
     return data_tensor
 
+# Random data generator
+def generate_random_data(seq_length, num_sequences, n_features):
+    data = np.random.rand(num_sequences * seq_length, n_features).astype(np.float32)
+    return data
+
+# Data preparation
+def gather_random_data(seq_length, num_sequences, n_features):
+    data_array = generate_random_data(seq_length, num_sequences, n_features)
+
+    # Reshape into sequences for RNN
+    num_sequences = len(data_array) // seq_length
+    data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
+
+    print(f"Generated data array shape: {data_array.shape}", flush=True)
+    return torch.tensor(data_array, dtype=torch.float32)
+
 def run_autoencoder_influxdb(client, reportCounter): # Training
 
     global batch_size
@@ -164,19 +180,31 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    data_tensor = gatherData(client, reportCounter)
+    # data_tensor = gatherData(client, reportCounter)
+
+    # # DataLoader preparation
+    # labels = torch.zeros(data_tensor.size(0))
+    # print('labels:', labels, flush=True)
+    # dataset = TensorDataset(data_tensor, labels)
+    # # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+
+    # train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
+
+    # # ---- 1. TRAINING PHASE ---- #
+    # print("Starting initial training phase first 32 kpm reports...", flush=True)
+    
+    # Generate random data
+    num_sequences = 1000  # Number of sequences for training
+    data_tensor = gather_random_data(seq_length, num_sequences, n_features)
 
     # DataLoader preparation
     labels = torch.zeros(data_tensor.size(0))
-    print('labels:', labels, flush=True)
     dataset = TensorDataset(data_tensor, labels)
-    # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-
     train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
 
-    # ---- 1. TRAINING PHASE ---- #
-    print("Starting initial training phase first 32 kpm reports...", flush=True)
-    
+    # Training phase
+    print("Starting training phase with random data...", flush=True)
+
     # Train the model
     model.train()
 
@@ -191,7 +219,7 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
 
             optimizer.zero_grad()
             reconstructed = model(batch_data)
-    #         print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
+            print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
             
     #         loss = criterion(reconstructed, batch_data)
     #         loss.backward()
