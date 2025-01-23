@@ -224,6 +224,7 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
 
     global batch_size
     global num_epochs
+    global device
 
     # Initialize model, loss, and optimizer
     model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
@@ -272,9 +273,9 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
             print(f"  Transferred batch to device: {batch_data.device}", flush=True)  # Verify data on device
             batch_data = batch_data.to(device)
 
-            print(f"    Running optimizer.zero_grad()", flush=True)
-            optimizer.zero_grad()
-            print(f"    Passing batch through the model", flush=True)
+            # print(f"    Running optimizer.zero_grad()", flush=True)
+            # optimizer.zero_grad()
+            # print(f"    Passing batch through the model", flush=True)
             # reconstructed = model(batch_data)
             # print(f"  Output from model: {reconstructed[0][:5]} (first sequence, first few values)", flush=True)  # Check example output
             # print(f"    Model output shape: {reconstructed.shape}", flush=True)
