@@ -215,7 +215,7 @@ bool App::intrusion_detection()
 	{
 		if (pModule != nullptr) {
 			// Get the function from the module
-			PyObject *pFunc = PyObject_GetAttrString(pModule, "fetchData");
+			PyObject *pFunc = PyObject_GetAttrString(pModule, "main");
 
 			// Check if the function is callable
 			if (pFunc && PyCallable_Check(pFunc)) {
