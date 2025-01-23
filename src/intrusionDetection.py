@@ -36,47 +36,6 @@ trained = False
 
 n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_error, cqi)
 
-# # RNN Autoencoder model
-# class RNN_Autoencoder(nn.Module):
-#     def __init__(self, input_dim, hidden_dim, latent_dim):
-#         super(RNN_Autoencoder, self).__init__()
-#         # Encoder
-#         self.encoder_rnn = nn.LSTM(input_dim, hidden_dim, batch_first=True)
-#         self.hidden_to_latent = nn.Linear(hidden_dim, latent_dim)
-        
-#         # Decoder
-#         self.latent_to_hidden = nn.Linear(latent_dim, input_dim)  # Map latent to input_dim for hidden state
-#         self.decoder_rnn = nn.LSTM(hidden_dim, input_dim, batch_first=True)  # Decoder LSTM
-
-#     def forward(self, x):
-#         print(f"Input x shape: {x.shape}", flush=True)  # Shape: (batch_size, seq_len, input_dim)
-        
-#         # Encoder
-#         _, (h, _) = self.encoder_rnn(x)
-#         print(f"Shape of encoder hidden state h[-1]: {h[-1].shape}", flush=True)  # Shape: (batch_size, hidden_dim)
-#         latent = self.hidden_to_latent(h[-1])  # h[-1] → latent space
-#         print(f"Shape of latent: {latent.shape}", flush=True)  # Shape: (batch_size, latent_dim)
-        
-#         # Decoder
-#         h_decoded = self.latent_to_hidden(latent).unsqueeze(0)  # Add layer dimension
-#         print(f"Shape of decoded hidden state: {h_decoded.shape}", flush=True)  # Shape: (1, batch_size, input_dim)
-#         c_decoded = torch.zeros_like(h_decoded)  # Cell state
-#         print(f"Shape of decoded cell state: {c_decoded.shape}", flush=True)  # Shape: (1, batch_size, input_dim)
-        
-#         # Initial decoder input (zeros)
-#         batch_size, seq_len, _ = x.shape
-#         decoder_input = torch.zeros(batch_size, seq_len, hidden_dim, device=x.device)  # Shape: (batch_size, seq_len, hidden_dim)
-#         print(f"Shape of decoder_input: {decoder_input.shape}", flush=True)  # Shape: (batch_size, seq_len, hidden_dim)
-        
-#         # Decode
-#         x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))  # Decode
-#         print(f"Shape of reconstructed output: {x_reconstructed.shape}", flush=True)  # Shape: (batch_size, seq_len, input_dim)
-        
-#         memory = psutil.virtual_memory()
-#         print(f"Used memory: {memory.used / 1e6} MB", flush=True)
-
-#         return x_reconstructed
-
 # RNN Autoencoder model
 class RNN_Autoencoder(nn.Module):
     def __init__(self, input_dim, hidden_dim, latent_dim):
@@ -106,39 +65,36 @@ class RNN_Autoencoder(nn.Module):
 def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
 
-    run_autoencoder_influxdb()
-    run_evaluation_random_data()
+    global client
+    global counter
+    global trained
 
-    # global client
-    # global counter
-    # global trained
+    # Connecting to database
+    try:
+        if client == None:
+            client = InfluxDBClient(
+                host='ricplt-influxdb.ricplt.svc.cluster.local',
+                port=8086
+            )
+            client.switch_database('Data_Collector')
+    except Exception as e:
+        print("IntrusionDetection: Error connecting to InfluxDB", flush=True)
+        print("Error Message:", e, flush=True)
 
-    # # Connecting to database
-    # try:
-    #     if client == None:
-    #         client = InfluxDBClient(
-    #             host='ricplt-influxdb.ricplt.svc.cluster.local',
-    #             port=8086
-    #         )
-    #         client.switch_database('Data_Collector')
-    # except Exception as e:
-    #     print("IntrusionDetection: Error connecting to InfluxDB", flush=True)
-    #     print("Error Message:", e, flush=True)
-
-    # try:
-    #     # if not trained:
-    #     run_autoencoder_influxdb()
-    #     print("Training finished", flush=True)
+    try:
+        if not trained:
+            run_autoencoder_influxdb()
+            print("Training finished", flush=True)
         
-    #     result = run_evaluation_random_data()
-    #     return result
+        result = run_evaluation()
+        return result
     
-    # except Exception as e:
-    #     print("Intrusion Detection: Error occured when trying to train model", flush=True)
-    #     print("Error Message:", e, flush=True)
+    except Exception as e:
+        print("Intrusion Detection: Error occured when trying to train model", flush=True)
+        print("Error Message:", e, flush=True)
 
-    # counter += 1
-    # return -1
+    counter += 1
+    return -1
 
 def gatherData(client, reportCounter):
 
@@ -180,113 +136,31 @@ def gatherData(client, reportCounter):
 
     return data_tensor
 
-# Random data generator
-def generate_random_data(seq_length, num_sequences, n_features):
-    data = np.random.rand(num_sequences * seq_length, n_features).astype(np.float32)
-    return data
+# # Random data generator
+# def generate_random_data(seq_length, num_sequences, n_features):
+#     data = np.random.rand(num_sequences * seq_length, n_features).astype(np.float32)
+#     return data
 
-# Data preparation
-def gather_random_data(seq_length, num_sequences, n_features):
-    data_array = generate_random_data(seq_length, num_sequences, n_features)
+# # Data preparation
+# def gather_random_data(seq_length, num_sequences, n_features):
+#     data_array = generate_random_data(seq_length, num_sequences, n_features)
 
-    # Reshape into sequences for RNN
-    num_sequences = len(data_array) // seq_length
-    data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
+#     # Reshape into sequences for RNN
+#     num_sequences = len(data_array) // seq_length
+#     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
 
-    print(f"Generated data array shape: {data_array.shape}", flush=True)
-    return torch.from_numpy(data_array).float()
+#     print(f"Generated data array shape: {data_array.shape}", flush=True)
+#     return torch.from_numpy(data_array).float()
 
-# Training function
-def run_autoencoder_random_data():
-    global batch_size, num_epochs
-
-    # Initialize model, loss, and optimizer
-    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=hidden_dim, latent_dim=latent_dim).to(device)
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-
-    # Generate random data
-    num_sequences = 1000  # Number of sequences for training
-    data_tensor = gather_random_data(seq_length, num_sequences, n_features)
-
-    # DataLoader preparation
-    labels = torch.zeros(data_tensor.size(0))
-    dataset = TensorDataset(data_tensor, labels)
-    train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
-
-    # Training phase
-    print("Starting training phase with random data...", flush=True)
-    model.train()
-
-    for epoch in range(num_epochs):
-        print(f"Epoch {epoch + 1}/{num_epochs} started", flush=True)
-        print(f"  Model parameters before epoch: {list(model.parameters())[0][:5]}", flush=True)  # Example: print first few weights
-        print(f"Epoch {epoch + 1}/{num_epochs} started. Total batches: {len(train_loader)}", flush=True)
-        epoch_loss = 0.0
-        for batch_idx, (batch_data, _) in enumerate(train_loader):
-            print(f"Batch {batch_idx + 1}/{len(train_loader)} started", flush=True)  # Tracking batch start
-            print(f"  Processing batch {batch_idx + 1}/{len(train_loader)}. Batch data shape: {batch_data.shape}", flush=True)
-            batch_data = batch_data.to(device)
-            print(f"  Transferred batch to device: {batch_data.device}", flush=True)  # Verify data on device
-            batch_data = batch_data.to(device)
-
-            print(f"    Running optimizer.zero_grad()", flush=True)
-            optimizer.zero_grad()
-            print(f"    Passing batch through the model", flush=True)
-            reconstructed = model(batch_data)
-            print(f"  Output from model: {reconstructed[0][:5]} (first sequence, first few values)", flush=True)  # Check example output
-            print(f"    Model output shape: {reconstructed.shape}", flush=True)
-            print(f"    Calculating loss", flush=True)
-            loss = criterion(reconstructed, batch_data)
-            print(f"    Loss: {loss.item()}", flush=True)
-            print(f"    Backpropagating loss", flush=True)
-            loss.backward()
-            print(f"  Gradients computed for backpropagation", flush=True)  # Confirm gradients computed
-            print(f"    Updating model parameters", flush=True)
-            optimizer.step()
-            print(f"  Optimizer updated model parameters", flush=True)  # Confirm optimizer step completed
-            epoch_loss += loss.item()
-            print(f"    Cumulative epoch loss: {epoch_loss}", flush=True)
-
-        if (epoch + 1) % 10 == 0:
-            print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}", flush=True)
-
-    print("Training completed.", flush=True)
-
-    # Save the trained model
-    torch.save(model.state_dict(), "autoencoder_random_data.pth")
-
-    if os.path.exists("autoencoder_random_data.pth"): 
-        print("Model file saved successfully.", flush=True) 
-    else: 
-        print("Model file not found.", flush=True)
-
-    model_state = torch.load("autoencoder_random_data.pth") 
-    print(model_state.keys(), flush=True)
-
-# def run_autoencoder_influxdb(): # Training
-
-#     global batch_size
-#     global num_epochs
+# # Training function
+# def run_autoencoder_random_data():
+#     global batch_size, num_epochs
 
 #     # Initialize model, loss, and optimizer
-#     model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
+#     model = RNN_Autoencoder(input_dim=n_features, hidden_dim=hidden_dim, latent_dim=latent_dim).to(device)
 #     criterion = nn.MSELoss()
 #     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-#     # data_tensor = gatherData(client, reportCounter)
-
-#     # # DataLoader preparation
-#     # labels = torch.zeros(data_tensor.size(0))
-#     # print('labels:', labels, flush=True)
-#     # dataset = TensorDataset(data_tensor, labels)
-#     # # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-
-#     # train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
-
-#     # # ---- 1. TRAINING PHASE ---- #
-#     # print("Starting initial training phase first 32 kpm reports...", flush=True)
-    
 #     # Generate random data
 #     num_sequences = 1000  # Number of sequences for training
 #     data_tensor = gather_random_data(seq_length, num_sequences, n_features)
@@ -298,11 +172,7 @@ def run_autoencoder_random_data():
 
 #     # Training phase
 #     print("Starting training phase with random data...", flush=True)
-
-#     # Train the model
 #     model.train()
-
-#     print("Training the model", flush=True)
 
 #     for epoch in range(num_epochs):
 #         print(f"Epoch {epoch + 1}/{num_epochs} started", flush=True)
@@ -339,8 +209,6 @@ def run_autoencoder_random_data():
 
 #     print("Training completed.", flush=True)
 
-#     print("Saving model as 'autoencoder_random_data.pth'.", flush=True)
-
 #     # Save the trained model
 #     torch.save(model.state_dict(), "autoencoder_random_data.pth")
 
@@ -352,81 +220,169 @@ def run_autoencoder_random_data():
 #     model_state = torch.load("autoencoder_random_data.pth") 
 #     print(model_state.keys(), flush=True)
 
-def run_evaluation_random_data():
+def run_autoencoder_influxdb(): # Training
+
     global batch_size
+    global num_epochs
 
-    print("Starting Evaluation", flush=True)
+    # Initialize model, loss, and optimizer
+    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
+    criterion = nn.MSELoss()
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    # Load trained model
-    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=hidden_dim, latent_dim=latent_dim).to(device)
-    model.load_state_dict(torch.load("autoencoder_random_data.pth"))
-    model.eval()
+    data_tensor = gatherData(client, reportCounter)
 
-    # Generate random evaluation data
-    num_sequences = 100  # Number of sequences for evaluation
-    eval_data_tensor = gather_random_data(seq_length, num_sequences, n_features)
+    # DataLoader preparation
+    labels = torch.zeros(data_tensor.size(0))
+    print('labels:', labels, flush=True)
+    dataset = TensorDataset(data_tensor, labels)
+    # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
-    eval_dataset = TensorDataset(eval_data_tensor, torch.zeros(eval_data_tensor.size(0)))
-    eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
+    train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
 
-    # Evaluation phase
-    print("Starting evaluation phase with random data...", flush=True)
-    with torch.no_grad():
-        for batch_idx, (batch_data, _) in enumerate(eval_loader):
+    # ---- 1. TRAINING PHASE ---- #
+    print("Starting initial training phase first 32 kpm reports...", flush=True)
+    
+    # Generate random data
+    num_sequences = 1000  # Number of sequences for training
+    data_tensor = gather_random_data(seq_length, num_sequences, n_features)
+
+    # DataLoader preparation
+    labels = torch.zeros(data_tensor.size(0))
+    dataset = TensorDataset(data_tensor, labels)
+    train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
+
+    # Training phase
+    print("Starting training phase with random data...", flush=True)
+
+    # Train the model
+    model.train()
+
+    print("Training the model", flush=True)
+
+    for epoch in range(num_epochs):
+        print(f"Epoch {epoch + 1}/{num_epochs} started", flush=True)
+        print(f"  Model parameters before epoch: {list(model.parameters())[0][:5]}", flush=True)  # Example: print first few weights
+        print(f"Epoch {epoch + 1}/{num_epochs} started. Total batches: {len(train_loader)}", flush=True)
+        epoch_loss = 0.0
+        for batch_idx, (batch_data, _) in enumerate(train_loader):
+            print(f"Batch {batch_idx + 1}/{len(train_loader)} started", flush=True)  # Tracking batch start
+            print(f"  Processing batch {batch_idx + 1}/{len(train_loader)}. Batch data shape: {batch_data.shape}", flush=True)
             batch_data = batch_data.to(device)
+            print(f"  Transferred batch to device: {batch_data.device}", flush=True)  # Verify data on device
+            batch_data = batch_data.to(device)
+
+            print(f"    Running optimizer.zero_grad()", flush=True)
+            # optimizer.zero_grad()
+            print(f"    Passing batch through the model", flush=True)
             reconstructed = model(batch_data)
-            errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2))
-            print(f"Batch {batch_idx + 1}: Reconstruction errors: {errors.tolist()}", flush=True)
+            print(f"  Output from model: {reconstructed[0][:5]} (first sequence, first few values)", flush=True)  # Check example output
+            print(f"    Model output shape: {reconstructed.shape}", flush=True)
+            print(f"    Calculating loss", flush=True)
+            loss = criterion(reconstructed, batch_data)
+            print(f"    Loss: {loss.item()}", flush=True)
+            print(f"    Backpropagating loss", flush=True)
+            loss.backward()
+            print(f"  Gradients computed for backpropagation", flush=True)  # Confirm gradients computed
+            print(f"    Updating model parameters", flush=True)
+            optimizer.step()
+            print(f"  Optimizer updated model parameters", flush=True)  # Confirm optimizer step completed
+            epoch_loss += loss.item()
+            print(f"    Cumulative epoch loss: {epoch_loss}", flush=True)
 
-    return -1
+        if (epoch + 1) % 10 == 0:
+            print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}", flush=True)
 
-# def run_evaluation(client, reportCounter):
+    print("Training completed.", flush=True)
 
+    print("Saving model as 'autoencoder_random_data.pth'.", flush=True)
+
+    # Save the trained model
+    torch.save(model.state_dict(), "autoencoder_random_data.pth")
+
+    if os.path.exists("autoencoder_random_data.pth"): 
+        print("Model file saved successfully.", flush=True) 
+    else: 
+        print("Model file not found.", flush=True)
+
+    model_state = torch.load("autoencoder_random_data.pth") 
+    print(model_state.keys(), flush=True)
+
+# def run_evaluation_random_data():
 #     global batch_size
 
-#     eval_data_tensor = gatherData(client, reportCounter)
-#     eval_labels = torch.zeros(eval_data_tensor.size(0)) 
-#     eval_dataset = TensorDataset(eval_data_tensor, eval_labels) 
-#     eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, num_workers=0) # Debugging the Evaluation DataLoader 
+#     print("Starting Evaluation", flush=True)
 
-#     # Iterate through DataLoader
-#     for batch_idx, (batch_data, _) in enumerate(eval_loader):
-#         print(f"Evaluation Batch {batch_idx + 1}: Batch data shape: {batch_data.shape}", flush=True)
-
-#     # Anomaly detection
-
-#     threshold = 0.05
-
-#     model = torch.load("/nexran/model.pth")
+#     # Load trained model
+#     model = RNN_Autoencoder(input_dim=n_features, hidden_dim=hidden_dim, latent_dim=latent_dim).to(device)
+#     model.load_state_dict(torch.load("autoencoder_random_data.pth"))
 #     model.eval()
 
-#     print("Evaluation started...", flush=True)
+#     # Generate random evaluation data
+#     num_sequences = 100  # Number of sequences for evaluation
+#     eval_data_tensor = gather_random_data(seq_length, num_sequences, n_features)
 
+#     eval_dataset = TensorDataset(eval_data_tensor, torch.zeros(eval_data_tensor.size(0)))
+#     eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
+
+#     # Evaluation phase
+#     print("Starting evaluation phase with random data...", flush=True)
 #     with torch.no_grad():
-#         print("Model set to evaluation mode.", flush=True)
-    
-#         reconstruction_errors = []
-#         print("Initialized reconstruction_errors list.", flush=True)
-    
-#         for i, (batch_data, _) in enumerate(eval_loader):
-#             print(f"Processing Batch {i + 1}/{len(eval_loader)}: Batch data shape: {batch_data.shape}", flush=True)
-        
+#         for batch_idx, (batch_data, _) in enumerate(eval_loader):
+#             batch_data = batch_data.to(device)
 #             reconstructed = model(batch_data)
-#             print(f"Reconstructed data shape: {reconstructed.shape} for Batch {i + 1}", flush=True)
-        
-#             # Calculate reconstruction errors
-#             errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2)).numpy()
-#             print(f"Reconstruction errors calculated for Batch {i + 1}.", flush=True)
-        
-#             for seq_idx, error in enumerate(errors):
-#                 probability = (error / threshold) * 100
-#                 if error > threshold:
-#                     print(f"Batch {i + 1}, Sequence {seq_idx + 1}: Anomaly detected with probability {probability:.2f}%.", flush=True)
-#                 else:
-#                     print(f"Batch {i + 1}, Sequence {seq_idx + 1}: Normal data with probability {probability:.2f}%.", flush=True)
+#             errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2))
+#             print(f"Batch {batch_idx + 1}: Reconstruction errors: {errors.tolist()}", flush=True)
 
-#     print("Evaluation completed.", flush=True)
 #     return -1
+
+def run_evaluation(client, reportCounter):
+
+    global batch_size
+
+    eval_data_tensor = gatherData(client, reportCounter)
+    eval_labels = torch.zeros(eval_data_tensor.size(0)) 
+    eval_dataset = TensorDataset(eval_data_tensor, eval_labels) 
+    eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, num_workers=0) # Debugging the Evaluation DataLoader 
+
+    # Iterate through DataLoader
+    for batch_idx, (batch_data, _) in enumerate(eval_loader):
+        print(f"Evaluation Batch {batch_idx + 1}: Batch data shape: {batch_data.shape}", flush=True)
+
+    # Anomaly detection
+
+    threshold = 0.05
+
+    model = torch.load("/nexran/model.pth")
+    model.eval()
+
+    print("Evaluation started...", flush=True)
+
+    with torch.no_grad():
+        print("Model set to evaluation mode.", flush=True)
+    
+        reconstruction_errors = []
+        print("Initialized reconstruction_errors list.", flush=True)
+    
+        for i, (batch_data, _) in enumerate(eval_loader):
+            print(f"Processing Batch {i + 1}/{len(eval_loader)}: Batch data shape: {batch_data.shape}", flush=True)
+        
+            reconstructed = model(batch_data)
+            print(f"Reconstructed data shape: {reconstructed.shape} for Batch {i + 1}", flush=True)
+        
+            # Calculate reconstruction errors
+            errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2)).numpy()
+            print(f"Reconstruction errors calculated for Batch {i + 1}.", flush=True)
+        
+            for seq_idx, error in enumerate(errors):
+                probability = (error / threshold) * 100
+                if error > threshold:
+                    print(f"Batch {i + 1}, Sequence {seq_idx + 1}: Anomaly detected with probability {probability:.2f}%.", flush=True)
+                else:
+                    print(f"Batch {i + 1}, Sequence {seq_idx + 1}: Normal data with probability {probability:.2f}%.", flush=True)
+
+    print("Evaluation completed.", flush=True)
+    return -1
 
 # Entry point
 if __name__ == "__main__":
