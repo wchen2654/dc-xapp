@@ -286,8 +286,8 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
             # epoch_loss += loss.item()
             # print(f"    Cumulative epoch loss: {epoch_loss}", flush=True)
 
-        if (epoch + 1) % 10 == 0:
-            print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}", flush=True)
+        # if (epoch + 1) % 10 == 0:
+        #     print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}", flush=True)
 
     print("Training completed.", flush=True)
 
