@@ -111,7 +111,7 @@ async def gatherData(client, reportCounter):
 
     if not data_list:
         print("No data available for the current report.", flush=True)
-        return None
+        return -1
 
     data_values = [[point.get('tx_pkts', 0), point.get('tx_errors', 0), point.get('dl_cqi', 0)] for point in data_list]
     data_array = np.array(data_values, dtype=np.float32)
@@ -122,7 +122,7 @@ async def gatherData(client, reportCounter):
 
     if len(data_array) < seq_length:
         print("Not enough data for a full sequence.", flush=True)
-        return None
+        return -1
 
     num_sequences = len(data_array) // seq_length
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
@@ -301,8 +301,7 @@ async def run_autoencoder_influxdb(client, reportCounter): # Training
     else: 
         print("Model file not found.", flush=True)
 
-    # model_state = torch.load("autoencoder_random_data.pth") 
-    # print(model_state.keys(), flush=True)
+    return -1
 
 # def run_evaluation_random_data():
 #     global batch_size
