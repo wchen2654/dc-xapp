@@ -106,36 +106,39 @@ class RNN_Autoencoder(nn.Module):
 def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
 
-    global client
-    global counter
-    global trained
+    run_autoencoder_influxdb()
+    run_evaluation_random_data()
 
-    # Connecting to database
-    try:
-        if client == None:
-            client = InfluxDBClient(
-                host='ricplt-influxdb.ricplt.svc.cluster.local',
-                port=8086
-            )
-            client.switch_database('Data_Collector')
-    except Exception as e:
-        print("IntrusionDetection: Error connecting to InfluxDB", flush=True)
-        print("Error Message:", e, flush=True)
+    # global client
+    # global counter
+    # global trained
 
-    try:
-        # if not trained:
-        run_autoencoder_influxdb()
-        print("Training finished", flush=True)
+    # # Connecting to database
+    # try:
+    #     if client == None:
+    #         client = InfluxDBClient(
+    #             host='ricplt-influxdb.ricplt.svc.cluster.local',
+    #             port=8086
+    #         )
+    #         client.switch_database('Data_Collector')
+    # except Exception as e:
+    #     print("IntrusionDetection: Error connecting to InfluxDB", flush=True)
+    #     print("Error Message:", e, flush=True)
+
+    # try:
+    #     # if not trained:
+    #     run_autoencoder_influxdb()
+    #     print("Training finished", flush=True)
         
-        result = run_evaluation_random_data()
-        return result
+    #     result = run_evaluation_random_data()
+    #     return result
     
-    except Exception as e:
-        print("Intrusion Detection: Error occured when trying to train model", flush=True)
-        print("Error Message:", e, flush=True)
+    # except Exception as e:
+    #     print("Intrusion Detection: Error occured when trying to train model", flush=True)
+    #     print("Error Message:", e, flush=True)
 
-    counter += 1
-    return -1
+    # counter += 1
+    # return -1
 
 def gatherData(client, reportCounter):
 
@@ -268,10 +271,18 @@ def run_autoencoder_influxdb(): # Training
 
     print("Training completed.", flush=True)
 
-    trained = True
+    print("Saving model as 'autoencoder_random_data.pth'.", flush=True)
 
     # Save the trained model
     torch.save(model.state_dict(), "autoencoder_random_data.pth")
+
+    if os.path.exists("autoencoder_random_data.pth"): 
+        print("Model file saved successfully.", flush=True) 
+    else: 
+        print("Model file not found.", flush=True)
+
+    model_state = torch.load("autoencoder_random_data.pth") 
+    print(model_state.keys(), flush=True)
 
 def run_evaluation_random_data():
     global batch_size
