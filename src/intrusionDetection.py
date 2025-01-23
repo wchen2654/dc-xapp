@@ -24,7 +24,7 @@ seq_length = 10
 hidden_dim = 64
 latent_dim = 32
 batch_size = 32
-num_epochs = 100
+num_epochs = 50
 learning_rate = 0.001
 
 counter = 1
@@ -123,11 +123,11 @@ def fetchData():
         print("Error Message:", e, flush=True)
 
     try:
-        if not trained:
-            run_autoencoder_influxdb(client, counter)
-            print("Training finished", flush=True)
+        # if not trained:
+        run_autoencoder_influxdb()
+        print("Training finished", flush=True)
         
-        result = run_evaluation_random_data(client, counter)
+        result = run_evaluation_random_data()
         return result
     
     except Exception as e:
@@ -193,7 +193,7 @@ def gather_random_data(seq_length, num_sequences, n_features):
     print(f"Generated data array shape: {data_array.shape}", flush=True)
     return torch.from_numpy(data_array).float()
 
-def run_autoencoder_influxdb(client, reportCounter): # Training
+def run_autoencoder_influxdb(): # Training
 
     global batch_size
     global num_epochs
@@ -275,6 +275,8 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
 
 def run_evaluation_random_data():
     global batch_size
+
+    print("Starting Evaluation", flush=True)
 
     # Load trained model
     model = RNN_Autoencoder(input_dim=n_features, hidden_dim=hidden_dim, latent_dim=latent_dim).to(device)
