@@ -36,6 +36,47 @@ trained = False
 
 n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_error, cqi)
 
+# # RNN Autoencoder model
+# class RNN_Autoencoder(nn.Module):
+#     def __init__(self, input_dim, hidden_dim, latent_dim):
+#         super(RNN_Autoencoder, self).__init__()
+#         # Encoder
+#         self.encoder_rnn = nn.LSTM(input_dim, hidden_dim, batch_first=True)
+#         self.hidden_to_latent = nn.Linear(hidden_dim, latent_dim)
+        
+#         # Decoder
+#         self.latent_to_hidden = nn.Linear(latent_dim, input_dim)  # Map latent to input_dim for hidden state
+#         self.decoder_rnn = nn.LSTM(hidden_dim, input_dim, batch_first=True)  # Decoder LSTM
+
+#     def forward(self, x):
+#         print(f"Input x shape: {x.shape}", flush=True)  # Shape: (batch_size, seq_len, input_dim)
+        
+#         # Encoder
+#         _, (h, _) = self.encoder_rnn(x)
+#         print(f"Shape of encoder hidden state h[-1]: {h[-1].shape}", flush=True)  # Shape: (batch_size, hidden_dim)
+#         latent = self.hidden_to_latent(h[-1])  # h[-1] → latent space
+#         print(f"Shape of latent: {latent.shape}", flush=True)  # Shape: (batch_size, latent_dim)
+        
+#         # Decoder
+#         h_decoded = self.latent_to_hidden(latent).unsqueeze(0)  # Add layer dimension
+#         print(f"Shape of decoded hidden state: {h_decoded.shape}", flush=True)  # Shape: (1, batch_size, input_dim)
+#         c_decoded = torch.zeros_like(h_decoded)  # Cell state
+#         print(f"Shape of decoded cell state: {c_decoded.shape}", flush=True)  # Shape: (1, batch_size, input_dim)
+        
+#         # Initial decoder input (zeros)
+#         batch_size, seq_len, _ = x.shape
+#         decoder_input = torch.zeros(batch_size, seq_len, hidden_dim, device=x.device)  # Shape: (batch_size, seq_len, hidden_dim)
+#         print(f"Shape of decoder_input: {decoder_input.shape}", flush=True)  # Shape: (batch_size, seq_len, hidden_dim)
+        
+#         # Decode
+#         x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))  # Decode
+#         print(f"Shape of reconstructed output: {x_reconstructed.shape}", flush=True)  # Shape: (batch_size, seq_len, input_dim)
+        
+#         memory = psutil.virtual_memory()
+#         print(f"Used memory: {memory.used / 1e6} MB", flush=True)
+
+#         return x_reconstructed
+
 # RNN Autoencoder model
 class RNN_Autoencoder(nn.Module):
     def __init__(self, input_dim, hidden_dim, latent_dim):
@@ -45,38 +86,22 @@ class RNN_Autoencoder(nn.Module):
         self.hidden_to_latent = nn.Linear(hidden_dim, latent_dim)
         
         # Decoder
-        self.latent_to_hidden = nn.Linear(latent_dim, input_dim)  # Map latent to input_dim for hidden state
-        self.decoder_rnn = nn.LSTM(hidden_dim, input_dim, batch_first=True)  # Decoder LSTM
+        self.latent_to_hidden = nn.Linear(latent_dim, input_dim)
+        self.decoder_rnn = nn.LSTM(hidden_dim, input_dim, batch_first=True)
 
     def forward(self, x):
-        print(f"Input x shape: {x.shape}", flush=True)  # Shape: (batch_size, seq_len, input_dim)
-        
         # Encoder
         _, (h, _) = self.encoder_rnn(x)
-        print(f"Shape of encoder hidden state h[-1]: {h[-1].shape}", flush=True)  # Shape: (batch_size, hidden_dim)
-        latent = self.hidden_to_latent(h[-1])  # h[-1] → latent space
-        print(f"Shape of latent: {latent.shape}", flush=True)  # Shape: (batch_size, latent_dim)
+        latent = self.hidden_to_latent(h[-1])
         
         # Decoder
-        h_decoded = self.latent_to_hidden(latent).unsqueeze(0)  # Add layer dimension
-        print(f"Shape of decoded hidden state: {h_decoded.shape}", flush=True)  # Shape: (1, batch_size, input_dim)
-        c_decoded = torch.zeros_like(h_decoded)  # Cell state
-        print(f"Shape of decoded cell state: {c_decoded.shape}", flush=True)  # Shape: (1, batch_size, input_dim)
-        
-        # Initial decoder input (zeros)
-        batch_size, seq_len, _ = x.shape
-        decoder_input = torch.zeros(batch_size, seq_len, hidden_dim, device=x.device)  # Shape: (batch_size, seq_len, hidden_dim)
-        print(f"Shape of decoder_input: {decoder_input.shape}", flush=True)  # Shape: (batch_size, seq_len, hidden_dim)
+        h_decoded = self.latent_to_hidden(latent).unsqueeze(0)
+        c_decoded = torch.zeros_like(h_decoded)
+        decoder_input = torch.zeros(x.size(0), x.size(1), hidden_dim, device=x.device)
         
         # Decode
-        x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))  # Decode
-        print(f"Shape of reconstructed output: {x_reconstructed.shape}", flush=True)  # Shape: (batch_size, seq_len, input_dim)
-        
-        memory = psutil.virtual_memory()
-        print(f"Used memory: {memory.used / 1e6} MB", flush=True)
-
+        x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))
         return x_reconstructed
-
 
 def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
@@ -211,25 +236,42 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     print("Training the model", flush=True)
 
     for epoch in range(num_epochs):
+        print(f"Epoch {epoch + 1}/{num_epochs} started", flush=True)
+        print(f"  Model parameters before epoch: {list(model.parameters())[0][:5]}", flush=True)  # Example: print first few weights
+        print(f"Epoch {epoch + 1}/{num_epochs} started. Total batches: {len(train_loader)}", flush=True)
         epoch_loss = 0.0
-        for batch_data, _ in train_loader:
-            print(f"Batch data shape: {batch_data.shape}", flush=True)  # Should be [batch_size, seq_length, n_features]
-            if batch_data.shape[-1] != n_features:
-                raise ValueError(f"Input dimension mismatch! Expected last dimension to be {n_features}, but got {batch_data.shape[-1]}.")
+        for batch_idx, (batch_data, _) in enumerate(train_loader):
+            print(f"Batch {batch_idx + 1}/{len(train_loader)} started", flush=True)  # Tracking batch start
+            print(f"  Processing batch {batch_idx + 1}/{len(train_loader)}. Batch data shape: {batch_data.shape}", flush=True)
+            batch_data = batch_data.to(device)
+            print(f"  Transferred batch to device: {batch_data.device}", flush=True)  # Verify data on device
+            batch_data = batch_data.to(device)
 
+            print(f"    Running optimizer.zero_grad()", flush=True)
             optimizer.zero_grad()
+            print(f"    Passing batch through the model", flush=True)
             reconstructed = model(batch_data)
-            print(f"Reconstructed data shape: {reconstructed.shape}", flush=True)  # Should match batch_data.shape
-            
-    #         loss = criterion(reconstructed, batch_data)
-    #         loss.backward()
-    #         optimizer.step()
-    #         epoch_loss += loss.item()
-    #     print(f"Training completed for current batch. Loss: {epoch_loss:.4f}", flush=True)
+            print(f"  Output from model: {reconstructed[0][:5]} (first sequence, first few values)", flush=True)  # Check example output
+            print(f"    Model output shape: {reconstructed.shape}", flush=True)
+            print(f"    Calculating loss", flush=True)
+            loss = criterion(reconstructed, batch_data)
+            print(f"    Loss: {loss.item()}", flush=True)
+            print(f"    Backpropagating loss", flush=True)
+            loss.backward()
+            print(f"  Gradients computed for backpropagation", flush=True)  # Confirm gradients computed
+            print(f"    Updating model parameters", flush=True)
+            optimizer.step()
+            print(f"  Optimizer updated model parameters", flush=True)  # Confirm optimizer step completed
+            epoch_loss += loss.item()
+            print(f"    Cumulative epoch loss: {epoch_loss}", flush=True)
 
-    print("Initial training completed. Switching to evaluation mode...", flush=True)
+        if (epoch + 1) % 10 == 0:
+            print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}", flush=True)
 
-    torch.save(model, "/nexran/model.pth")
+    print("Training completed.", flush=True)
+
+    # Save the trained model
+    torch.save(model.state_dict(), "autoencoder_random_data.pth")
 
 def run_evaluation(client, reportCounter):
 
