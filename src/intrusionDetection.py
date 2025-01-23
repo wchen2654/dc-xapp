@@ -126,7 +126,7 @@ def gatherData(client, reportCounter):
 
     num_sequences = len(data_array) // seq_length
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
-    data_tensor = torch.empty(data_array.shape, dtype=torch.float32)
+    # data_tensor = torch.empty(data_array.shape, dtype=torch.float32)
 
     # # Convert the numpy array manually to a Tensor due to hanging issues.
     # for i in range(data_array.shape[0]):
@@ -134,7 +134,7 @@ def gatherData(client, reportCounter):
     #         for k in range(data_array.shape[2]):
     #             data_tensor[i, j, k] = float(data_array[i, j, k])
 
-    return data_tensor
+    return data_array
 
 # # Random data generator
 # def generate_random_data(seq_length, num_sequences, n_features):
