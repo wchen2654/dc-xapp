@@ -12,7 +12,6 @@ from datetime import datetime, timedelta
 
 import psutil
 
-
 torch.set_num_threads(1)
 
 os.environ["OMP_NUM_THREADS"] = "1"
