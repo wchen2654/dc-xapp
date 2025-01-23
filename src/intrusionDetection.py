@@ -50,7 +50,7 @@ class RNN_Autoencoder(nn.Module):
 
     def forward(self, x):
         # Encoder
-        _, (h, _) = self.encoder_rnn(x)
+        # _, (h, _) = self.encoder_rnn(x)
         # latent = self.hidden_to_latent(h[-1])
         
         # # Decoder
@@ -62,7 +62,7 @@ class RNN_Autoencoder(nn.Module):
         # x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))
         # return x_reconstructed
 
-        return h
+        return []
 
 def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
