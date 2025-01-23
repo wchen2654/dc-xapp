@@ -62,7 +62,7 @@ class RNN_Autoencoder(nn.Module):
         x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))
         return x_reconstructed
 
-def fetchData():
+async def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
 
     global client
