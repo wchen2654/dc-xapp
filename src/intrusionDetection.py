@@ -296,13 +296,13 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     # Save the trained model
     torch.save(model.state_dict(), "autoencoder_random_data.pth")
 
-    if os.path.exists("autoencoder_random_data.pth"): 
-        print("Model file saved successfully.", flush=True) 
-    else: 
-        print("Model file not found.", flush=True)
+    # if os.path.exists("autoencoder_random_data.pth"): 
+    #     print("Model file saved successfully.", flush=True) 
+    # else: 
+    #     print("Model file not found.", flush=True)
 
-    model_state = torch.load("autoencoder_random_data.pth") 
-    print(model_state.keys(), flush=True)
+    # model_state = torch.load("autoencoder_random_data.pth") 
+    # print(model_state.keys(), flush=True)
 
 # def run_evaluation_random_data():
 #     global batch_size
