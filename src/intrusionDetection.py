@@ -38,7 +38,7 @@ n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_erro
 
 # RNN Autoencoder model
 class RNN_Autoencoder(nn.Module):
-    async def __init__(self, input_dim, hidden_dim, latent_dim):
+    def __init__(self, input_dim, hidden_dim, latent_dim):
         super(RNN_Autoencoder, self).__init__()
         # Encoder
         self.encoder_rnn = nn.LSTM(input_dim, hidden_dim, batch_first=True)
@@ -48,7 +48,7 @@ class RNN_Autoencoder(nn.Module):
         self.latent_to_hidden = nn.Linear(latent_dim, input_dim)
         self.decoder_rnn = nn.LSTM(hidden_dim, input_dim, batch_first=True)
 
-    async def forward(self, x):
+    def forward(self, x):
         # Encoder
         _, (h, _) = self.encoder_rnn(x)
         latent = self.hidden_to_latent(h[-1])
@@ -62,7 +62,7 @@ class RNN_Autoencoder(nn.Module):
         x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))
         return x_reconstructed
 
-async def fetchData():
+def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
 
     global client
@@ -83,10 +83,10 @@ async def fetchData():
 
     try:
         if not trained:
-            await run_autoencoder_influxdb(client, counter)
+            run_autoencoder_influxdb(client, counter)
             print("Training finished", flush=True)
         
-        result = await run_evaluation(client, counter)
+        result = run_evaluation(client, counter)
         return result
     
     except Exception as e:
@@ -96,7 +96,7 @@ async def fetchData():
     counter += 1
     return -1
 
-async def gatherData(client, reportCounter):
+def gatherData(client, reportCounter):
 
     global n_features
     global seq_length
@@ -220,7 +220,7 @@ async def gatherData(client, reportCounter):
 #     model_state = torch.load("autoencoder_random_data.pth") 
 #     print(model_state.keys(), flush=True)
 
-async def run_autoencoder_influxdb(client, reportCounter): # Training
+def run_autoencoder_influxdb(client, reportCounter): # Training
 
     global batch_size
     global num_epochs
@@ -231,7 +231,7 @@ async def run_autoencoder_influxdb(client, reportCounter): # Training
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    data_tensor = await gatherData(client, reportCounter)
+    data_tensor = gatherData(client, reportCounter)
 
     # DataLoader preparation
     labels = torch.zeros(data_tensor.size(0))
@@ -331,7 +331,7 @@ async def run_autoencoder_influxdb(client, reportCounter): # Training
 
 #     return -1
 
-async def run_evaluation(client, reportCounter):
+def run_evaluation(client, reportCounter):
 
     global batch_size
 

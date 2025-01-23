@@ -223,38 +223,30 @@ bool App::intrusion_detection()
 				// PyObject *pArgs = PyTuple_Pack(2, PyLong_FromLong(3), PyLong_FromLong(5));  // Passing 3 and 5 as arguments
 				PyObject *pArgs = PyTuple_New(0);
 				// Call the function
-				// PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
-
-				// Call the async function to get a coroutine object
-				PyObject *coroutine = PyObject_CallOneArg(pFunc, pArgs);
+				PyObject *pValue = PyObject_CallObject(pFunc, pArgs);
 				Py_DECREF(pArgs);
 
-				if (PyCoro_CheckExact(coroutine)) {
-    				printf("Coroutine created.\n");
-					PyObject *pValue = PyObject_CallMethod(coroutine, "__await__", NULL);
-					// If there's a return value
-					if (pValue != nullptr) {
-						if (PyLong_Check(pValue)) {  // Check if pValue is a integer
-							int result = PyLong_AsLong(pValue);  // Extract the integer value
-							if (result != -1)	// If there is a malicious UE
-							{
-								secure_slicing(result);
-							}
-							else
-							{
-								std::cout << "No Malicous UE found" << std::endl;
-							}
-						} else {
-							std::cerr << "Returned value is not a integer." << std::endl;
+				// If there's a return value
+				if (pValue != nullptr) {
+					if (PyLong_Check(pValue)) {  // Check if pValue is a integer
+						int result = PyLong_AsLong(pValue);  // Extract the integer value
+						if (result != -1)	// If there is a malicious UE
+						{
+							secure_slicing(result);
 						}
-						Py_DECREF(pValue);
+						else
+						{
+							std::cout << "No Malicous UE found" << std::endl;
+						}
+					} else {
+						std::cerr << "Returned value is not a integer." << std::endl;
 					}
-					else
-					{
-						PyErr_Print();
-						std::cerr << "Function call failed" << std::endl;
-					}
-					Py_DECREF(coroutine);
+					Py_DECREF(pValue);
+				}
+				else
+				{
+					PyErr_Print();
+					std::cerr << "Function call failed" << std::endl;
 				}
 				Py_DECREF(pFunc);
 
