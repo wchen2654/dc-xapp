@@ -51,16 +51,18 @@ class RNN_Autoencoder(nn.Module):
     def forward(self, x):
         # Encoder
         _, (h, _) = self.encoder_rnn(x)
-        latent = self.hidden_to_latent(h[-1])
+        # latent = self.hidden_to_latent(h[-1])
         
-        # Decoder
-        h_decoded = self.latent_to_hidden(latent).unsqueeze(0)
-        c_decoded = torch.zeros_like(h_decoded)
-        decoder_input = torch.zeros(x.size(0), x.size(1), hidden_dim, device=x.device)
+        # # Decoder
+        # h_decoded = self.latent_to_hidden(latent).unsqueeze(0)
+        # c_decoded = torch.zeros_like(h_decoded)
+        # decoder_input = torch.zeros(x.size(0), x.size(1), hidden_dim, device=x.device)
         
-        # Decode
-        x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))
-        return x_reconstructed
+        # # Decode
+        # x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))
+        # return x_reconstructed
+
+        return h
 
 def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
