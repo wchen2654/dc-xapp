@@ -244,8 +244,8 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     print("Starting initial training phase first 32 kpm reports...", flush=True)
     
     # Generate random data
-    num_sequences = 1000  # Number of sequences for training
-    data_tensor = gather_random_data(seq_length, num_sequences, n_features)
+    # num_sequences = 1000  # Number of sequences for training
+    # data_tensor = gather_random_data(seq_length, num_sequences, n_features)
 
     # DataLoader preparation
     labels = torch.zeros(data_tensor.size(0))
