@@ -233,10 +233,10 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
 
     data_tensor = gatherData(client, reportCounter)
 
-    # DataLoader preparation
-    labels = torch.zeros(data_tensor.size(0))
-    print('labels:', labels, flush=True)
-    dataset = TensorDataset(data_tensor, labels)
+    # # DataLoader preparation
+    # labels = torch.zeros(data_tensor.size(0))
+    # print('labels:', labels, flush=True)
+    # dataset = TensorDataset(data_tensor, labels)
     # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
     # train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
