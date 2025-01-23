@@ -231,42 +231,42 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    # data_tensor = gatherData(client, reportCounter)
+    data_tensor = gatherData(client, reportCounter)
 
-    # # DataLoader preparation
-    # labels = torch.zeros(data_tensor.size(0))
-    # print('labels:', labels, flush=True)
-    # dataset = TensorDataset(data_tensor, labels)
+    # DataLoader preparation
+    labels = torch.zeros(data_tensor.size(0))
+    print('labels:', labels, flush=True)
+    dataset = TensorDataset(data_tensor, labels)
     # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
-    # train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
+    train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
 
-    # # ---- 1. TRAINING PHASE ---- #
-    # print("Starting initial training phase first 32 kpm reports...", flush=True)
+    # ---- 1. TRAINING PHASE ---- #
+    print("Starting initial training phase first 32 kpm reports...", flush=True)
     
     # # Generate random data
     # # num_sequences = 1000  # Number of sequences for training
     # # data_tensor = gather_random_data(seq_length, num_sequences, n_features)
 
-    # # Training phase
-    # print("Starting training phase with random data...", flush=True)
+    # Training phase
+    print("Starting training phase with random data...", flush=True)
 
-    # # Train the model
-    # model.train()
+    # Train the model
+    model.train()
 
-    # print("Training the model", flush=True)
+    print("Training the model", flush=True)
 
-    # for epoch in range(num_epochs):
-    #     print(f"Epoch {epoch + 1}/{num_epochs} started", flush=True)
-    #     print(f"  Model parameters before epoch: {list(model.parameters())[0][:5]}", flush=True)  # Example: print first few weights
-    #     print(f"Epoch {epoch + 1}/{num_epochs} started. Total batches: {len(train_loader)}", flush=True)
-    #     epoch_loss = 0.0
-        # for batch_idx, (batch_data, _) in enumerate(train_loader):
-        #     print(f"Batch {batch_idx + 1}/{len(train_loader)} started", flush=True)  # Tracking batch start
-        #     print(f"  Processing batch {batch_idx + 1}/{len(train_loader)}. Batch data shape: {batch_data.shape}", flush=True)
-        #     batch_data = batch_data.to(device)
-        #     print(f"  Transferred batch to device: {batch_data.device}", flush=True)  # Verify data on device
-        #     batch_data = batch_data.to(device)
+    for epoch in range(num_epochs):
+        print(f"Epoch {epoch + 1}/{num_epochs} started", flush=True)
+        print(f"  Model parameters before epoch: {list(model.parameters())[0][:5]}", flush=True)  # Example: print first few weights
+        print(f"Epoch {epoch + 1}/{num_epochs} started. Total batches: {len(train_loader)}", flush=True)
+        epoch_loss = 0.0
+        for batch_idx, (batch_data, _) in enumerate(train_loader):
+            print(f"Batch {batch_idx + 1}/{len(train_loader)} started", flush=True)  # Tracking batch start
+            print(f"  Processing batch {batch_idx + 1}/{len(train_loader)}. Batch data shape: {batch_data.shape}", flush=True)
+            batch_data = batch_data.to(device)
+            print(f"  Transferred batch to device: {batch_data.device}", flush=True)  # Verify data on device
+            batch_data = batch_data.to(device)
 
             # print(f"    Running optimizer.zero_grad()", flush=True)
             # optimizer.zero_grad()
@@ -296,10 +296,10 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     # Save the trained model
     torch.save(model.state_dict(), "autoencoder_random_data.pth")
 
-    # if os.path.exists("autoencoder_random_data.pth"): 
-    #     print("Model file saved successfully.", flush=True) 
-    # else: 
-    #     print("Model file not found.", flush=True)
+    if os.path.exists("autoencoder_random_data.pth"): 
+        print("Model file saved successfully.", flush=True) 
+    else: 
+        print("Model file not found.", flush=True)
 
     # model_state = torch.load("autoencoder_random_data.pth") 
     # print(model_state.keys(), flush=True)
