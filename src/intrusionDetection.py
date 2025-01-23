@@ -38,7 +38,7 @@ n_features = 3  # Adjust based on the number of features (e.g., tx_pkts, tx_erro
 
 # RNN Autoencoder model
 class RNN_Autoencoder(nn.Module):
-    def __init__(self, input_dim, hidden_dim, latent_dim):
+    async def __init__(self, input_dim, hidden_dim, latent_dim):
         super(RNN_Autoencoder, self).__init__()
         # Encoder
         self.encoder_rnn = nn.LSTM(input_dim, hidden_dim, batch_first=True)
@@ -48,21 +48,19 @@ class RNN_Autoencoder(nn.Module):
         self.latent_to_hidden = nn.Linear(latent_dim, input_dim)
         self.decoder_rnn = nn.LSTM(hidden_dim, input_dim, batch_first=True)
 
-    def forward(self, x):
+    async def forward(self, x):
         # Encoder
-        # _, (h, _) = self.encoder_rnn(x)
-        # latent = self.hidden_to_latent(h[-1])
+        _, (h, _) = self.encoder_rnn(x)
+        latent = self.hidden_to_latent(h[-1])
         
-        # # Decoder
-        # h_decoded = self.latent_to_hidden(latent).unsqueeze(0)
-        # c_decoded = torch.zeros_like(h_decoded)
-        # decoder_input = torch.zeros(x.size(0), x.size(1), hidden_dim, device=x.device)
+        # Decoder
+        h_decoded = self.latent_to_hidden(latent).unsqueeze(0)
+        c_decoded = torch.zeros_like(h_decoded)
+        decoder_input = torch.zeros(x.size(0), x.size(1), hidden_dim, device=x.device)
         
-        # # Decode
-        # x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))
-        # return x_reconstructed
-
-        return []
+        # Decode
+        x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))
+        return x_reconstructed
 
 def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
@@ -85,10 +83,10 @@ def fetchData():
 
     try:
         if not trained:
-            run_autoencoder_influxdb(client, counter)
+            await run_autoencoder_influxdb(client, counter)
             print("Training finished", flush=True)
         
-        result = run_evaluation(client, counter)
+        result = await run_evaluation(client, counter)
         return result
     
     except Exception as e:
@@ -98,7 +96,7 @@ def fetchData():
     counter += 1
     return -1
 
-def gatherData(client, reportCounter):
+async def gatherData(client, reportCounter):
 
     global n_features
     global seq_length
@@ -222,7 +220,7 @@ def gatherData(client, reportCounter):
 #     model_state = torch.load("autoencoder_random_data.pth") 
 #     print(model_state.keys(), flush=True)
 
-def run_autoencoder_influxdb(client, reportCounter): # Training
+async def run_autoencoder_influxdb(client, reportCounter): # Training
 
     global batch_size
     global num_epochs
@@ -233,7 +231,7 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    data_tensor = gatherData(client, reportCounter)
+    data_tensor = await gatherData(client, reportCounter)
 
     # DataLoader preparation
     labels = torch.zeros(data_tensor.size(0))
@@ -274,22 +272,22 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
             optimizer.zero_grad()
             print(f"    Passing batch through the model", flush=True)
             reconstructed = model(batch_data)
-            # print(f"  Output from model: {reconstructed[0][:5]} (first sequence, first few values)", flush=True)  # Check example output
-            # print(f"    Model output shape: {reconstructed.shape}", flush=True)
-            # print(f"    Calculating loss", flush=True)
-            # loss = criterion(reconstructed, batch_data)
-            # print(f"    Loss: {loss.item()}", flush=True)
-            # print(f"    Backpropagating loss", flush=True)
-            # loss.backward()
-            # print(f"  Gradients computed for backpropagation", flush=True)  # Confirm gradients computed
-            # print(f"    Updating model parameters", flush=True)
-            # optimizer.step()
-            # print(f"  Optimizer updated model parameters", flush=True)  # Confirm optimizer step completed
-            # epoch_loss += loss.item()
-            # print(f"    Cumulative epoch loss: {epoch_loss}", flush=True)
+            print(f"  Output from model: {reconstructed[0][:5]} (first sequence, first few values)", flush=True)  # Check example output
+            print(f"    Model output shape: {reconstructed.shape}", flush=True)
+            print(f"    Calculating loss", flush=True)
+            loss = criterion(reconstructed, batch_data)
+            print(f"    Loss: {loss.item()}", flush=True)
+            print(f"    Backpropagating loss", flush=True)
+            loss.backward()
+            print(f"  Gradients computed for backpropagation", flush=True)  # Confirm gradients computed
+            print(f"    Updating model parameters", flush=True)
+            optimizer.step()
+            print(f"  Optimizer updated model parameters", flush=True)  # Confirm optimizer step completed
+            epoch_loss += loss.item()
+            print(f"    Cumulative epoch loss: {epoch_loss}", flush=True)
 
-        # if (epoch + 1) % 10 == 0:
-        #     print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}", flush=True)
+        if (epoch + 1) % 10 == 0:
+            print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}", flush=True)
 
     print("Training completed.", flush=True)
 
@@ -334,7 +332,7 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
 
 #     return -1
 
-def run_evaluation(client, reportCounter):
+async def run_evaluation(client, reportCounter):
 
     global batch_size
 
