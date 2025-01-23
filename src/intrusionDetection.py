@@ -24,7 +24,7 @@ seq_length = 10
 hidden_dim = 64
 latent_dim = 32
 batch_size = 32
-num_epochs = 1000
+num_epochs = 100
 learning_rate = 0.001
 
 counter = 1
@@ -125,11 +125,9 @@ def fetchData():
     try:
         if not trained:
             run_autoencoder_influxdb(client, counter)
-            trained = True
             print("Training finished", flush=True)
-            return -1
         
-        result = run_evaluation(client, counter)
+        result = run_evaluation_random_data(client, counter)
         return result
     
     except Exception as e:
@@ -270,53 +268,81 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
 
     print("Training completed.", flush=True)
 
+    trained = True
+
     # Save the trained model
     torch.save(model.state_dict(), "autoencoder_random_data.pth")
 
-def run_evaluation(client, reportCounter):
-
+def run_evaluation_random_data():
     global batch_size
 
-    eval_data_tensor = gatherData(client, reportCounter)
-    eval_labels = torch.zeros(eval_data_tensor.size(0)) 
-    eval_dataset = TensorDataset(eval_data_tensor, eval_labels) 
-    eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, num_workers=0) # Debugging the Evaluation DataLoader 
-
-    # Iterate through DataLoader
-    for batch_idx, (batch_data, _) in enumerate(eval_loader):
-        print(f"Evaluation Batch {batch_idx + 1}: Batch data shape: {batch_data.shape}", flush=True)
-
-    # Anomaly detection
-
-    threshold = 0.05
-
-    model = torch.load("/nexran/model.pth")
+    # Load trained model
+    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=hidden_dim, latent_dim=latent_dim).to(device)
+    model.load_state_dict(torch.load("autoencoder_random_data.pth"))
     model.eval()
 
-    print("Evaluation started...", flush=True)
+    # Generate random evaluation data
+    num_sequences = 100  # Number of sequences for evaluation
+    eval_data_tensor = gather_random_data(seq_length, num_sequences, n_features)
 
+    eval_dataset = TensorDataset(eval_data_tensor, torch.zeros(eval_data_tensor.size(0)))
+    eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
+
+    # Evaluation phase
+    print("Starting evaluation phase with random data...", flush=True)
     with torch.no_grad():
-        print("Model set to evaluation mode.", flush=True)
-    
-        reconstruction_errors = []
-        print("Initialized reconstruction_errors list.", flush=True)
-    
-        for i, (batch_data, _) in enumerate(eval_loader):
-            print(f"Processing Batch {i + 1}/{len(eval_loader)}: Batch data shape: {batch_data.shape}", flush=True)
-        
+        for batch_idx, (batch_data, _) in enumerate(eval_loader):
+            batch_data = batch_data.to(device)
             reconstructed = model(batch_data)
-            print(f"Reconstructed data shape: {reconstructed.shape} for Batch {i + 1}", flush=True)
-        
-            # Calculate reconstruction errors
-            errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2)).numpy()
-            print(f"Reconstruction errors calculated for Batch {i + 1}.", flush=True)
-        
-            for seq_idx, error in enumerate(errors):
-                probability = (error / threshold) * 100
-                if error > threshold:
-                    print(f"Batch {i + 1}, Sequence {seq_idx + 1}: Anomaly detected with probability {probability:.2f}%.", flush=True)
-                else:
-                    print(f"Batch {i + 1}, Sequence {seq_idx + 1}: Normal data with probability {probability:.2f}%.", flush=True)
+            errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2))
+            print(f"Batch {batch_idx + 1}: Reconstruction errors: {errors.tolist()}", flush=True)
 
-    print("Evaluation completed.", flush=True)
     return -1
+
+# def run_evaluation(client, reportCounter):
+
+#     global batch_size
+
+#     eval_data_tensor = gatherData(client, reportCounter)
+#     eval_labels = torch.zeros(eval_data_tensor.size(0)) 
+#     eval_dataset = TensorDataset(eval_data_tensor, eval_labels) 
+#     eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, num_workers=0) # Debugging the Evaluation DataLoader 
+
+#     # Iterate through DataLoader
+#     for batch_idx, (batch_data, _) in enumerate(eval_loader):
+#         print(f"Evaluation Batch {batch_idx + 1}: Batch data shape: {batch_data.shape}", flush=True)
+
+#     # Anomaly detection
+
+#     threshold = 0.05
+
+#     model = torch.load("/nexran/model.pth")
+#     model.eval()
+
+#     print("Evaluation started...", flush=True)
+
+#     with torch.no_grad():
+#         print("Model set to evaluation mode.", flush=True)
+    
+#         reconstruction_errors = []
+#         print("Initialized reconstruction_errors list.", flush=True)
+    
+#         for i, (batch_data, _) in enumerate(eval_loader):
+#             print(f"Processing Batch {i + 1}/{len(eval_loader)}: Batch data shape: {batch_data.shape}", flush=True)
+        
+#             reconstructed = model(batch_data)
+#             print(f"Reconstructed data shape: {reconstructed.shape} for Batch {i + 1}", flush=True)
+        
+#             # Calculate reconstruction errors
+#             errors = ((batch_data - reconstructed) ** 2).mean(dim=(1, 2)).numpy()
+#             print(f"Reconstruction errors calculated for Batch {i + 1}.", flush=True)
+        
+#             for seq_idx, error in enumerate(errors):
+#                 probability = (error / threshold) * 100
+#                 if error > threshold:
+#                     print(f"Batch {i + 1}, Sequence {seq_idx + 1}: Anomaly detected with probability {probability:.2f}%.", flush=True)
+#                 else:
+#                     print(f"Batch {i + 1}, Sequence {seq_idx + 1}: Normal data with probability {probability:.2f}%.", flush=True)
+
+#     print("Evaluation completed.", flush=True)
+#     return -1
