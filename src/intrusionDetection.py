@@ -239,22 +239,22 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     dataset = TensorDataset(data_tensor, labels)
     # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
 
-    train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
+    # train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
 
-    # ---- 1. TRAINING PHASE ---- #
-    print("Starting initial training phase first 32 kpm reports...", flush=True)
+    # # ---- 1. TRAINING PHASE ---- #
+    # print("Starting initial training phase first 32 kpm reports...", flush=True)
     
-    # Generate random data
-    # num_sequences = 1000  # Number of sequences for training
-    # data_tensor = gather_random_data(seq_length, num_sequences, n_features)
+    # # Generate random data
+    # # num_sequences = 1000  # Number of sequences for training
+    # # data_tensor = gather_random_data(seq_length, num_sequences, n_features)
 
-    # Training phase
-    print("Starting training phase with random data...", flush=True)
+    # # Training phase
+    # print("Starting training phase with random data...", flush=True)
 
-    # Train the model
-    model.train()
+    # # Train the model
+    # model.train()
 
-    print("Training the model", flush=True)
+    # print("Training the model", flush=True)
 
     # for epoch in range(num_epochs):
     #     print(f"Epoch {epoch + 1}/{num_epochs} started", flush=True)
