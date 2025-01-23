@@ -128,11 +128,11 @@ def gatherData(client, reportCounter):
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
     data_tensor = torch.empty(data_array.shape, dtype=torch.float32)
 
-    # Convert the numpy array manually to a Tensor due to hanging issues.
-    for i in range(data_array.shape[0]):
-        for j in range(data_array.shape[1]):
-            for k in range(data_array.shape[2]):
-                data_tensor[i, j, k] = float(data_array[i, j, k])
+    # # Convert the numpy array manually to a Tensor due to hanging issues.
+    # for i in range(data_array.shape[0]):
+    #     for j in range(data_array.shape[1]):
+    #         for k in range(data_array.shape[2]):
+    #             data_tensor[i, j, k] = float(data_array[i, j, k])
 
     return data_tensor
 
