@@ -273,22 +273,22 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
             batch_data = batch_data.to(device)
 
             print(f"    Running optimizer.zero_grad()", flush=True)
-            # optimizer.zero_grad()
+            optimizer.zero_grad()
             print(f"    Passing batch through the model", flush=True)
-            reconstructed = model(batch_data)
-            print(f"  Output from model: {reconstructed[0][:5]} (first sequence, first few values)", flush=True)  # Check example output
-            print(f"    Model output shape: {reconstructed.shape}", flush=True)
-            print(f"    Calculating loss", flush=True)
-            loss = criterion(reconstructed, batch_data)
-            print(f"    Loss: {loss.item()}", flush=True)
-            print(f"    Backpropagating loss", flush=True)
-            loss.backward()
-            print(f"  Gradients computed for backpropagation", flush=True)  # Confirm gradients computed
-            print(f"    Updating model parameters", flush=True)
-            optimizer.step()
-            print(f"  Optimizer updated model parameters", flush=True)  # Confirm optimizer step completed
-            epoch_loss += loss.item()
-            print(f"    Cumulative epoch loss: {epoch_loss}", flush=True)
+            # reconstructed = model(batch_data)
+            # print(f"  Output from model: {reconstructed[0][:5]} (first sequence, first few values)", flush=True)  # Check example output
+            # print(f"    Model output shape: {reconstructed.shape}", flush=True)
+            # print(f"    Calculating loss", flush=True)
+            # loss = criterion(reconstructed, batch_data)
+            # print(f"    Loss: {loss.item()}", flush=True)
+            # print(f"    Backpropagating loss", flush=True)
+            # loss.backward()
+            # print(f"  Gradients computed for backpropagation", flush=True)  # Confirm gradients computed
+            # print(f"    Updating model parameters", flush=True)
+            # optimizer.step()
+            # print(f"  Optimizer updated model parameters", flush=True)  # Confirm optimizer step completed
+            # epoch_loss += loss.item()
+            # print(f"    Cumulative epoch loss: {epoch_loss}", flush=True)
 
         if (epoch + 1) % 10 == 0:
             print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}", flush=True)
