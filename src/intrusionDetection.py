@@ -109,77 +109,11 @@ def fetchData():
     counter += 1
     return -1
 
-# def gatherData(client, reportCounter): # Gather data for both the training and evaluation phase
-
-#     global n_features
-#     global seq_length
-
-#     query = f'''
-#         SELECT tx_pkts, tx_errors, dl_cqi
-#         FROM ue
-#         WHERE report_num >= {(reportCounter - 1) * 16 + 1} and report_num <= {reportCounter * 16}
-#     '''
-#     result = client.query(query)
-#     data_list = list(result.get_points())
-
-#     if not data_list:
-#         print("No data available for initial training. Exiting...", flush=True)
-#         return -1
-
-#     # Extract and preprocess data
-#     data_values = [
-#         [point.get('tx_pkts', 0), point.get('tx_errors', 0), point.get('dl_cqi', 0)]
-#         for point in data_list
-#     ]
-
-#     data_array = np.array(data_values, dtype=np.float32)
-    
-#     # Apply Min-Max Scaling
-#     data_min = np.min(data_array, axis=0)
-#     data_max = np.max(data_array, axis=0)
-#     data_array = (data_array - data_min) / (data_max - data_min + 1e-8)  # Normalize to [0, 1]
-    
-#     print(f"Data normalized with Min-Max Scaling. Min: {data_min}, Max: {data_max}", flush=True)
-
-#     #data_array Might Be Empty
-#     if data_array.size == 0:
-#         print("No data points available for conversion to tensor.", flush=True)
-#         return -1
-
-#     #data_array Shape Issues
-#     print(f"Data array shape before reshaping: {data_array.shape}", flush=True)
-#     if len(data_array) < seq_length:
-#         print("Not enough data points for a full sequence during training. Exiting...", flush=True)
-#         return -1
-        
-#     # Dtype should be 'np.float32'
-#     print(f"Data array dtype: {data_array.dtype}", flush=True)
-        
-#     # Reshape into sequences for RNN
-#     num_sequences = len(data_array) // seq_length
-#     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
-    
-#     print(f"Reshaped data array shape: {data_array.shape}", flush=True)
-#     print("Sample data (first sequence):", flush=True)
-#     print(data_array[0], flush=True)
-
-#     try:
-#         print('inside the try -------', flush=True)
-#         data_tensor = torch.empty(data_array.shape, dtype=torch.float32)
-
-#         for i in range(data_array.shape[0]):
-#             for j in range(data_array.shape[1]):
-#                 for k in range(data_array.shape[2]):
-#                     data_tensor[i, j, k] = float(data_array[i, j, k])
-
-#         print(f"Data tensor created with shape: {data_tensor.shape}", flush=True)
-#     except Exception as e:
-#         print(f"Error converting to tensor: {e}", flush=True)
-#         return -1
-
-#     return data_tensor
-
 def gatherData(client, reportCounter):
+
+    global n_features
+    global seq_length
+
     query = f'''
         SELECT tx_pkts, tx_errors, dl_cqi
         FROM ue
@@ -205,9 +139,14 @@ def gatherData(client, reportCounter):
 
     num_sequences = len(data_array) // seq_length
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
-    print("Before Tensor", flush=True)
-    data_tensor = torch.tensor(data_array, dtype=torch.float32, device=device)
-    print("After Tesnor", flush=True)
+    data_tensor = torch.empty(data_array.shape, dtype=torch.float32)
+
+    # Convert the numpy array manually to a Tensor due to hanging issues.
+    for i in range(data_array.shape[0]):
+        for j in range(data_array.shape[1]):
+            for k in range(data_array.shape[2]):
+                data_tensor[i, j, k] = float(data_array[i, j, k])
+
     return data_tensor
 
 def run_autoencoder_influxdb(client, reportCounter): # Training
