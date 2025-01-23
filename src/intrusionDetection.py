@@ -10,6 +10,9 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from datetime import datetime, timedelta
 
+import psutil
+
+
 torch.set_num_threads(1)
 
 os.environ["OMP_NUM_THREADS"] = "1"
@@ -70,6 +73,9 @@ class RNN_Autoencoder(nn.Module):
         x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))  # Decode
         print(f"Shape of reconstructed output: {x_reconstructed.shape}", flush=True)  # Shape: (batch_size, seq_len, input_dim)
         
+        memory = psutil.virtual_memory()
+        print(f"Used memory: {memory.used / 1e6} MB", flush=True)
+
         return x_reconstructed
 
 
