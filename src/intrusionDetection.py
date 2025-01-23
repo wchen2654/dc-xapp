@@ -196,29 +196,15 @@ def gather_random_data(seq_length, num_sequences, n_features):
     print(f"Generated data array shape: {data_array.shape}", flush=True)
     return torch.from_numpy(data_array).float()
 
-def run_autoencoder_influxdb(): # Training
-
-    global batch_size
-    global num_epochs
+# Training function
+def run_autoencoder_random_data():
+    global batch_size, num_epochs
 
     # Initialize model, loss, and optimizer
-    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
+    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=hidden_dim, latent_dim=latent_dim).to(device)
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    # data_tensor = gatherData(client, reportCounter)
-
-    # # DataLoader preparation
-    # labels = torch.zeros(data_tensor.size(0))
-    # print('labels:', labels, flush=True)
-    # dataset = TensorDataset(data_tensor, labels)
-    # # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
-
-    # train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
-
-    # # ---- 1. TRAINING PHASE ---- #
-    # print("Starting initial training phase first 32 kpm reports...", flush=True)
-    
     # Generate random data
     num_sequences = 1000  # Number of sequences for training
     data_tensor = gather_random_data(seq_length, num_sequences, n_features)
@@ -230,11 +216,7 @@ def run_autoencoder_influxdb(): # Training
 
     # Training phase
     print("Starting training phase with random data...", flush=True)
-
-    # Train the model
     model.train()
-
-    print("Training the model", flush=True)
 
     for epoch in range(num_epochs):
         print(f"Epoch {epoch + 1}/{num_epochs} started", flush=True)
@@ -271,8 +253,6 @@ def run_autoencoder_influxdb(): # Training
 
     print("Training completed.", flush=True)
 
-    print("Saving model as 'autoencoder_random_data.pth'.", flush=True)
-
     # Save the trained model
     torch.save(model.state_dict(), "autoencoder_random_data.pth")
 
@@ -283,6 +263,94 @@ def run_autoencoder_influxdb(): # Training
 
     model_state = torch.load("autoencoder_random_data.pth") 
     print(model_state.keys(), flush=True)
+
+# def run_autoencoder_influxdb(): # Training
+
+#     global batch_size
+#     global num_epochs
+
+#     # Initialize model, loss, and optimizer
+#     model = RNN_Autoencoder(input_dim=n_features, hidden_dim=64, latent_dim=32)
+#     criterion = nn.MSELoss()
+#     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
+
+#     # data_tensor = gatherData(client, reportCounter)
+
+#     # # DataLoader preparation
+#     # labels = torch.zeros(data_tensor.size(0))
+#     # print('labels:', labels, flush=True)
+#     # dataset = TensorDataset(data_tensor, labels)
+#     # # data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+
+#     # train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
+
+#     # # ---- 1. TRAINING PHASE ---- #
+#     # print("Starting initial training phase first 32 kpm reports...", flush=True)
+    
+#     # Generate random data
+#     num_sequences = 1000  # Number of sequences for training
+#     data_tensor = gather_random_data(seq_length, num_sequences, n_features)
+
+#     # DataLoader preparation
+#     labels = torch.zeros(data_tensor.size(0))
+#     dataset = TensorDataset(data_tensor, labels)
+#     train_loader = DataLoader(dataset, batch_size, shuffle=True, num_workers=0)
+
+#     # Training phase
+#     print("Starting training phase with random data...", flush=True)
+
+#     # Train the model
+#     model.train()
+
+#     print("Training the model", flush=True)
+
+#     for epoch in range(num_epochs):
+#         print(f"Epoch {epoch + 1}/{num_epochs} started", flush=True)
+#         print(f"  Model parameters before epoch: {list(model.parameters())[0][:5]}", flush=True)  # Example: print first few weights
+#         print(f"Epoch {epoch + 1}/{num_epochs} started. Total batches: {len(train_loader)}", flush=True)
+#         epoch_loss = 0.0
+#         for batch_idx, (batch_data, _) in enumerate(train_loader):
+#             print(f"Batch {batch_idx + 1}/{len(train_loader)} started", flush=True)  # Tracking batch start
+#             print(f"  Processing batch {batch_idx + 1}/{len(train_loader)}. Batch data shape: {batch_data.shape}", flush=True)
+#             batch_data = batch_data.to(device)
+#             print(f"  Transferred batch to device: {batch_data.device}", flush=True)  # Verify data on device
+#             batch_data = batch_data.to(device)
+
+#             print(f"    Running optimizer.zero_grad()", flush=True)
+#             optimizer.zero_grad()
+#             print(f"    Passing batch through the model", flush=True)
+#             reconstructed = model(batch_data)
+#             print(f"  Output from model: {reconstructed[0][:5]} (first sequence, first few values)", flush=True)  # Check example output
+#             print(f"    Model output shape: {reconstructed.shape}", flush=True)
+#             print(f"    Calculating loss", flush=True)
+#             loss = criterion(reconstructed, batch_data)
+#             print(f"    Loss: {loss.item()}", flush=True)
+#             print(f"    Backpropagating loss", flush=True)
+#             loss.backward()
+#             print(f"  Gradients computed for backpropagation", flush=True)  # Confirm gradients computed
+#             print(f"    Updating model parameters", flush=True)
+#             optimizer.step()
+#             print(f"  Optimizer updated model parameters", flush=True)  # Confirm optimizer step completed
+#             epoch_loss += loss.item()
+#             print(f"    Cumulative epoch loss: {epoch_loss}", flush=True)
+
+#         if (epoch + 1) % 10 == 0:
+#             print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}", flush=True)
+
+#     print("Training completed.", flush=True)
+
+#     print("Saving model as 'autoencoder_random_data.pth'.", flush=True)
+
+#     # Save the trained model
+#     torch.save(model.state_dict(), "autoencoder_random_data.pth")
+
+#     if os.path.exists("autoencoder_random_data.pth"): 
+#         print("Model file saved successfully.", flush=True) 
+#     else: 
+#         print("Model file not found.", flush=True)
+
+#     model_state = torch.load("autoencoder_random_data.pth") 
+#     print(model_state.keys(), flush=True)
 
 def run_evaluation_random_data():
     global batch_size
@@ -359,3 +427,10 @@ def run_evaluation_random_data():
 
 #     print("Evaluation completed.", flush=True)
 #     return -1
+
+# Entry point
+if __name__ == "__main__":
+    run_autoencoder_random_data()
+    print("------------Training finished.-----------", flush=True)
+    run_evaluation_random_data()
+    print("------------Evaluation finished.---------", flush=True)
