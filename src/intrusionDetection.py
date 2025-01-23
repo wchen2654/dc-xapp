@@ -83,10 +83,10 @@ def fetchData():
 
     try:
         if not trained:
-            run_autoencoder_influxdb()
+            run_autoencoder_influxdb(client, counter)
             print("Training finished", flush=True)
         
-        result = run_evaluation()
+        result = run_evaluation(client, counter)
         return result
     
     except Exception as e:
@@ -220,7 +220,7 @@ def gatherData(client, reportCounter):
 #     model_state = torch.load("autoencoder_random_data.pth") 
 #     print(model_state.keys(), flush=True)
 
-def run_autoencoder_influxdb(): # Training
+def run_autoencoder_influxdb(client, reportCounter): # Training
 
     global batch_size
     global num_epochs
