@@ -168,7 +168,7 @@ def gather_random_data(seq_length, num_sequences, n_features):
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
 
     print(f"Generated data array shape: {data_array.shape}", flush=True)
-    return torch.tensor(data_array, dtype=torch.float32)
+    return torch.from_numpy(data_array).float()
 
 def run_autoencoder_influxdb(client, reportCounter): # Training
 
