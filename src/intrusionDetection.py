@@ -126,15 +126,15 @@ def gatherData(client, reportCounter):
 
     num_sequences = len(data_array) // seq_length
     data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
-    # data_tensor = torch.empty(data_array.shape, dtype=torch.float32)
+    data_tensor = torch.empty(data_array.shape, dtype=torch.float32)
 
-    # # Convert the numpy array manually to a Tensor due to hanging issues.
-    # for i in range(data_array.shape[0]):
-    #     for j in range(data_array.shape[1]):
-    #         for k in range(data_array.shape[2]):
-    #             data_tensor[i, j, k] = float(data_array[i, j, k])
+    # Convert the numpy array manually to a Tensor due to hanging issues.
+    for i in range(data_array.shape[0]):
+        for j in range(data_array.shape[1]):
+            for k in range(data_array.shape[2]):
+                data_tensor[i, j, k] = float(data_array[i, j, k])
 
-    return data_array
+    return data_tensor
 
 # # Random data generator
 # def generate_random_data(seq_length, num_sequences, n_features):
@@ -231,7 +231,7 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
-    data_tensor = gatherData(client, reportCounter)
+    # data_tensor = gatherData(client, reportCounter)
 
     # # DataLoader preparation
     # labels = torch.zeros(data_tensor.size(0))
