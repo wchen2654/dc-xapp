@@ -185,5 +185,8 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     del criterion
     del train_loader
     del data_tensor
+    del reconstructed
+
+    gc.collect()
 
     return -1
