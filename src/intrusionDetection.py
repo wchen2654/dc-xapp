@@ -9,6 +9,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from datetime import datetime, timedelta
+import gc
 
 torch.set_num_threads(1)
 
@@ -178,5 +179,11 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
         print("Model file saved successfully.", flush=True) 
     else: 
         print("Model file not found.", flush=True)
+
+    del model
+    del optimizer
+    del criterion
+    del train_loader
+    del data_tensor
 
     return -1
