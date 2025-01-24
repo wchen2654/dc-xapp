@@ -165,6 +165,11 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
             epoch_loss += loss.item()
             print(f"    Cumulative epoch loss: {epoch_loss}", flush=True)
 
+            del reconstructed
+            del loss
+
+            gc.collect()
+
         if (epoch + 1) % 10 == 0:
             print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {epoch_loss:.4f}", flush=True)
 
@@ -185,7 +190,6 @@ def run_autoencoder_influxdb(client, reportCounter): # Training
     del criterion
     del train_loader
     del data_tensor
-    del reconstructed
 
     gc.collect()
 
