@@ -53,6 +53,14 @@ class RNN_Autoencoder(nn.Module):
         c_decoded = torch.zeros_like(h_decoded)
         decoder_input = torch.zeros(x.size(0), x.size(1), hidden_dim, device=x.device)
         x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))
+
+        del latent
+        del h_decoded
+        del c_decoded
+        del decoder_input
+
+        gc.collect()
+
         return x_reconstructed
 
 def fetchData():
