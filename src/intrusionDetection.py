@@ -9,7 +9,16 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from datetime import datetime, timedelta
+
 import gc
+import sys
+
+def trace_calls(frame, event, arg):
+    if event == "return":
+        print(f"Return value: {arg}")
+    return trace_calls
+
+sys.settrace(trace_calls)
 
 torch.set_num_threads(1)
 
@@ -54,10 +63,7 @@ class RNN_Autoencoder(nn.Module):
         decoder_input = torch.zeros(x.size(0), x.size(1), hidden_dim, device=x.device)
         x_reconstructed, _ = self.decoder_rnn(decoder_input, (h_decoded, c_decoded))
 
-        del latent
-        del h_decoded
-        del c_decoded
-        del decoder_input
+        del latent, h_decoded, c_decoded, decoder_input
 
         gc.collect()
 
