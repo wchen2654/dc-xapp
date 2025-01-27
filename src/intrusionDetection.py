@@ -100,67 +100,69 @@ def gatherData(client):
     return data_array
 
 def run_autoencoder_influxdb(client):
-    global trained
+    # global trained
 
-    # Initialize model
-    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=hidden_dim, latent_dim=latent_dim)
-    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
-    loss_fn = tf.keras.losses.MeanSquaredError()
+    # # Initialize model
+    # model = RNN_Autoencoder(input_dim=n_features, hidden_dim=hidden_dim, latent_dim=latent_dim)
+    # optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+    # loss_fn = tf.keras.losses.MeanSquaredError()
 
-    # Gather data
-    data_array = gatherData(client)
-    if data_array is None:
-        return
+    # # Gather data
+    # data_array = gatherData(client)
+    # if data_array is None:
+    #     return
 
-    dataset = tf.data.Dataset.from_tensor_slices((data_array, data_array))
-    dataset = dataset.batch(batch_size).shuffle(1000)
+    # dataset = tf.data.Dataset.from_tensor_slices((data_array, data_array))
+    # dataset = dataset.batch(batch_size).shuffle(1000)
 
-    # Training loop
-    print("Starting training...", flush=True)
-    for epoch in range(num_epochs):
-        epoch_loss = 0
-        for batch_data, _ in dataset:
-            with tf.GradientTape() as tape:
-                reconstructed = model(batch_data)
-                loss = loss_fn(batch_data, reconstructed)
+    # # Training loop
+    # print("Starting training...", flush=True)
+    # for epoch in range(num_epochs):
+    #     epoch_loss = 0
+    #     for batch_data, _ in dataset:
+    #         with tf.GradientTape() as tape:
+    #             reconstructed = model(batch_data)
+    #             loss = loss_fn(batch_data, reconstructed)
 
-            gradients = tape.gradient(loss, model.trainable_variables)
-            optimizer.apply_gradients(zip(gradients, model.trainable_variables))
-            epoch_loss += loss.numpy()
+    #         gradients = tape.gradient(loss, model.trainable_variables)
+    #         optimizer.apply_gradients(zip(gradients, model.trainable_variables))
+    #         epoch_loss += loss.numpy()
 
-        print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {epoch_loss:.4f}")
+    #     print(f"Epoch {epoch + 1}/{num_epochs}, Loss: {epoch_loss:.4f}")
 
-    # Save the trained model
-    model.save_weights("autoencoder_model")
-    trained = True
+    # # Save the trained model
+    # model.save_weights("autoencoder_model")
+    # trained = True
+
+    pass
 
 def run_evaluation(client):
-    # Load model
-    model = RNN_Autoencoder(input_dim=n_features, hidden_dim=hidden_dim, latent_dim=latent_dim)
-    model.load_weights("autoencoder_model")
+    # # Load model
+    # model = RNN_Autoencoder(input_dim=n_features, hidden_dim=hidden_dim, latent_dim=latent_dim)
+    # model.load_weights("autoencoder_model")
 
-    data_array = gatherData(client)
-    if data_array is None:
-        return -1
+    # data_array = gatherData(client)
+    # if data_array is None:
+    #     return -1
 
-    dataset = tf.data.Dataset.from_tensor_slices((data_array, data_array))
-    dataset = dataset.batch(batch_size)
+    # dataset = tf.data.Dataset.from_tensor_slices((data_array, data_array))
+    # dataset = dataset.batch(batch_size)
 
-    # Evaluation
-    print("Starting evaluation...", flush=True)
-    reconstruction_errors = []
-    threshold = 0.05
+    # # Evaluation
+    # print("Starting evaluation...", flush=True)
+    # reconstruction_errors = []
+    # threshold = 0.05
 
-    for batch_data, _ in dataset:
-        reconstructed = model(batch_data)
-        errors = tf.reduce_mean(tf.square(batch_data - reconstructed), axis=(1, 2)).numpy()
-        reconstruction_errors.extend(errors)
+    # for batch_data, _ in dataset:
+    #     reconstructed = model(batch_data)
+    #     errors = tf.reduce_mean(tf.square(batch_data - reconstructed), axis=(1, 2)).numpy()
+    #     reconstruction_errors.extend(errors)
 
-    for idx, error in enumerate(reconstruction_errors):
-        probability = (error / threshold) * 100
-        if error > threshold:
-            print(f"Sequence {idx + 1}: Anomaly detected with probability {probability:.2f}%.", flush=True)
-        else:
-            print(f"Sequence {idx + 1}: Normal data with probability {probability:.2f}%.", flush=True)
+    # for idx, error in enumerate(reconstruction_errors):
+    #     probability = (error / threshold) * 100
+    #     if error > threshold:
+    #         print(f"Sequence {idx + 1}: Anomaly detected with probability {probability:.2f}%.", flush=True)
+    #     else:
+    #         print(f"Sequence {idx + 1}: Normal data with probability {probability:.2f}%.", flush=True)
 
     return -1
