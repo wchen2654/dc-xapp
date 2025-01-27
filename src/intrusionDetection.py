@@ -46,27 +46,27 @@ class RNN_Autoencoder(tf.keras.Model):
 
 # Data fetching and preprocessing
 def fetchData():
-    print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
+    # print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
 
-    global client, trained
+    # global client, trained
 
-    # Connect to InfluxDB
-    try:
-        if client is None:
-            client = InfluxDBClient(host='ricplt-influxdb.ricplt.svc.cluster.local', port=8086)
-            client.switch_database('Data_Collector')
-    except Exception as e:
-        print("Error connecting to InfluxDB", e, flush=True)
+    # # Connect to InfluxDB
+    # try:
+    #     if client is None:
+    #         client = InfluxDBClient(host='ricplt-influxdb.ricplt.svc.cluster.local', port=8086)
+    #         client.switch_database('Data_Collector')
+    # except Exception as e:
+    #     print("Error connecting to InfluxDB", e, flush=True)
 
-    try:
-        if not trained:
-            run_autoencoder_influxdb(client)
-            print("Training finished", flush=True)
+    # try:
+    #     if not trained:
+    #         run_autoencoder_influxdb(client)
+    #         print("Training finished", flush=True)
 
-        result = run_evaluation(client)
-        return result
-    except Exception as e:
-        print("Error occurred during training or evaluation", e, flush=True)
+    #     result = run_evaluation(client)
+    #     return result
+    # except Exception as e:
+    #     print("Error occurred during training or evaluation", e, flush=True)
 
     return -1
 
