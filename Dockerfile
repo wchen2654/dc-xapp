@@ -32,7 +32,8 @@ RUN add-apt-repository ppa:deadsnakes/ppa \
   && python3.8 get-pip.py \
   && apt-get update \
   && python3.8 -m pip install influxdb numpy tensorflow \
-  && update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1
+  && update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
+  && python --version
 
 RUN cd /tmp \
   && git clone https://gitlab.flux.utah.edu/powderrenewpublic/xapp-frame-cpp \
