@@ -30,6 +30,7 @@ RUN add-apt-repository ppa:deadsnakes/ppa \
   && apt-get install -y python3.8 python3.8-distutils \
   && wget https://bootstrap.pypa.io/get-pip.py \
   && python3.8 get-pip.py \
+  && apt-get update \
   && python3 -m pip install influxdb numpy tensorflow \
   && update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
