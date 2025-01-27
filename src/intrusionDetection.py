@@ -1,7 +1,7 @@
 # import tensorflow as tf
 import numpy as np
 from influxdb import InfluxDBClient
-import os
+# import os
 
 # # Setting up environment variables
 # os.environ["OMP_NUM_THREADS"] = "1"
