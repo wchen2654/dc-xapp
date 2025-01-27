@@ -11,7 +11,7 @@ ARG MDCLOG_VERSION=0.1.1-1
 ARG RMR_VERSION=4.4.6
 
 RUN apt-get update \
-  && apt-get install -y cmake g++ libssl-dev rapidjson-dev git libboost-all-dev software-properties-common \
+  && apt-get install -y cmake g++ libssl-dev rapidjson-dev git libboost-all-dev software-properties-common wget \
     ca-certificates curl gnupg apt-transport-https apt-utils libjpeg-dev zlib1g-dev libfreetype6-dev liblcms2-dev \
     pkg-config autoconf libtool libcurl4-openssl-dev \
   && curl -s https://packagecloud.io/install/repositories/o-ran-sc/${ORAN_REPO}/script.deb.sh | os=debian dist=stretch bash  \
@@ -27,7 +27,9 @@ RUN apt-get update \
 
 RUN add-apt-repository ppa:deadsnakes/ppa \ 
   && apt-get update \
-  && apt-get install -y python3.8 python3.8-pip \
+  && apt-get install -y python3.8 python3.8-distutils \
+  && wget https://bootstrap.pypa.io/get-pip.py \
+  && python3.8 get-pip.py \
   && python3 -m pip install influxdb numpy tensorflow \
   && update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
