@@ -1,48 +1,48 @@
-import tensorflow as tf
-import numpy as np
-from influxdb import InfluxDBClient
-import os
+# import tensorflow as tf
+# import numpy as np
+# from influxdb import InfluxDBClient
+# import os
 
-# Setting up environment variables
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
+# # Setting up environment variables
+# os.environ["OMP_NUM_THREADS"] = "1"
+# os.environ["MKL_NUM_THREADS"] = "1"
 
-# Define parameters
-seq_length = 10
-hidden_dim = 64
-latent_dim = 32
-batch_size = 32
-num_epochs = 50
-learning_rate = 0.001
-n_features = 3  # Number of features (e.g., tx_pkts, tx_error, cqi)
+# # Define parameters
+# seq_length = 10
+# hidden_dim = 64
+# latent_dim = 32
+# batch_size = 32
+# num_epochs = 50
+# learning_rate = 0.001
+# n_features = 3  # Number of features (e.g., tx_pkts, tx_error, cqi)
 
-client = None
-trained = False
+# client = None
+# trained = False
 
-# Define the RNN Autoencoder using TensorFlow
-class RNN_Autoencoder(tf.keras.Model):
-    def __init__(self, input_dim, hidden_dim, latent_dim):
-        super(RNN_Autoencoder, self).__init__()
-        # Encoder
-        self.encoder_rnn = tf.keras.layers.LSTM(hidden_dim, return_sequences=False, return_state=True)
-        self.hidden_to_latent = tf.keras.layers.Dense(latent_dim)
+# # Define the RNN Autoencoder using TensorFlow
+# class RNN_Autoencoder(tf.keras.Model):
+#     def __init__(self, input_dim, hidden_dim, latent_dim):
+#         super(RNN_Autoencoder, self).__init__()
+#         # Encoder
+#         self.encoder_rnn = tf.keras.layers.LSTM(hidden_dim, return_sequences=False, return_state=True)
+#         self.hidden_to_latent = tf.keras.layers.Dense(latent_dim)
 
-        # Decoder
-        self.latent_to_hidden = tf.keras.layers.Dense(hidden_dim)
-        self.decoder_rnn = tf.keras.layers.LSTM(hidden_dim, return_sequences=True)
-        self.output_layer = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(input_dim))
+#         # Decoder
+#         self.latent_to_hidden = tf.keras.layers.Dense(hidden_dim)
+#         self.decoder_rnn = tf.keras.layers.LSTM(hidden_dim, return_sequences=True)
+#         self.output_layer = tf.keras.layers.TimeDistributed(tf.keras.layers.Dense(input_dim))
 
-    def call(self, inputs):
-        # Encoder
-        _, h, c = self.encoder_rnn(inputs)
-        latent = self.hidden_to_latent(h)
+#     def call(self, inputs):
+#         # Encoder
+#         _, h, c = self.encoder_rnn(inputs)
+#         latent = self.hidden_to_latent(h)
 
-        # Decoder
-        hidden_state = self.latent_to_hidden(latent)
-        repeated_hidden = tf.repeat(tf.expand_dims(hidden_state, 1), seq_length, axis=1)
-        decoded = self.decoder_rnn(repeated_hidden)
-        output = self.output_layer(decoded)
-        return output
+#         # Decoder
+#         hidden_state = self.latent_to_hidden(latent)
+#         repeated_hidden = tf.repeat(tf.expand_dims(hidden_state, 1), seq_length, axis=1)
+#         decoded = self.decoder_rnn(repeated_hidden)
+#         output = self.output_layer(decoded)
+#         return output
 
 # Data fetching and preprocessing
 def fetchData():
