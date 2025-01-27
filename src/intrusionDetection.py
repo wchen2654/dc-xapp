@@ -71,33 +71,34 @@ def fetchData():
     return -1
 
 def gatherData(client):
-    query = '''
-        SELECT tx_pkts, tx_errors, dl_cqi
-        FROM ue
-        WHERE report_num >= 1 and report_num <= 10
-    '''
-    result = client.query(query)
-    data_list = list(result.get_points())
+    # query = '''
+    #     SELECT tx_pkts, tx_errors, dl_cqi
+    #     FROM ue
+    #     WHERE report_num >= 1 and report_num <= 10
+    # '''
+    # result = client.query(query)
+    # data_list = list(result.get_points())
 
-    if not data_list:
-        print("No data available for the current report.", flush=True)
-        return None
+    # if not data_list:
+    #     print("No data available for the current report.", flush=True)
+    #     return None
 
-    data_values = [[point.get('tx_pkts', 0), point.get('tx_errors', 0), point.get('dl_cqi', 0)] for point in data_list]
-    data_array = np.array(data_values, dtype=np.float32)
+    # data_values = [[point.get('tx_pkts', 0), point.get('tx_errors', 0), point.get('dl_cqi', 0)] for point in data_list]
+    # data_array = np.array(data_values, dtype=np.float32)
 
-    # Normalize data
-    data_min = np.min(data_array, axis=0)
-    data_max = np.max(data_array, axis=0)
-    data_array = (data_array - data_min) / (data_max - data_min + 1e-8)
+    # # Normalize data
+    # data_min = np.min(data_array, axis=0)
+    # data_max = np.max(data_array, axis=0)
+    # data_array = (data_array - data_min) / (data_max - data_min + 1e-8)
 
-    if len(data_array) < seq_length:
-        print("Not enough data for a full sequence.", flush=True)
-        return None
+    # if len(data_array) < seq_length:
+    #     print("Not enough data for a full sequence.", flush=True)
+    #     return None
 
-    num_sequences = len(data_array) // seq_length
-    data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
-    return data_array
+    # num_sequences = len(data_array) // seq_length
+    # data_array = data_array[:num_sequences * seq_length].reshape(num_sequences, seq_length, n_features)
+    # return data_array
+    pass
 
 def run_autoencoder_influxdb(client):
     # global trained
