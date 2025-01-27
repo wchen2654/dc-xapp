@@ -25,8 +25,9 @@ RUN apt-get update \
      ) \
   && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update \
-  && apt-get install -y python3-dev python3-pip \
+RUN add-apt-repository ppa:deadsnakes/ppa \ 
+  && apt-get update \
+  && apt-get install -y python3.8 \
   && python3 -m pip install influxdb numpy tensorflow \
   && update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 
