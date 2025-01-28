@@ -25,11 +25,14 @@ RUN apt-get update \
      ) \
   && rm -rf /var/lib/apt/lists/*
 
-RUN add-apt-repository ppa:deadsnakes/ppa \ 
-  && apt-get update \
-  && apt-get install -y python3.8-distutils python3.8-dev \
-  && wget https://bootstrap.pypa.io/get-pip.py \
-  && python3.8 get-pip.py \
+RUN apt-get update \
+  && apt-get install build-essential zlib1g-dev libffi-dev libssl-dev libbz2-dev libsqlite3-dev libreadline-dev libncurses5-dev libgdbm-dev \
+  && wget https://www.python.org/ftp/python/3.8.18/Python-3.8.18.tgz \
+  && tar xvf Python-3.8.18.tgz \
+  && cd Python-3.8.18 \
+  && ./configure --enable-optimizations \
+  && make \
+  && make altinstall \
   && update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
   && apt-get update \
   && python3.8 -m pip install influxdb numpy tensorflow
