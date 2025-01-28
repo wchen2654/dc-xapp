@@ -26,7 +26,7 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update \
-  && apt-get install build-essential zlib1g-dev libffi-dev libssl-dev libbz2-dev libsqlite3-dev libreadline-dev libncurses5-dev libgdbm-dev \
+  && apt-get install -y build-essential zlib1g-dev libffi-dev libssl-dev libbz2-dev libsqlite3-dev libreadline-dev libncurses5-dev libgdbm-dev \
   && wget https://www.python.org/ftp/python/3.8.18/Python-3.8.18.tgz \
   && tar xvf Python-3.8.18.tgz \
   && cd Python-3.8.18 \
