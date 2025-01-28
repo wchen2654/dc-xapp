@@ -33,9 +33,10 @@ RUN apt-get update \
   && ./configure --enable-optimizations \
   && make \
   && make altinstall \
-  && update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
+  && which python3.8 \
+  && update-alternatives --install /usr/bin/python python /usr/bin/python3.8.18 1 \
   && apt-get update \
-  && python3.8 -m pip install influxdb numpy tensorflow
+  && python3.8.18 -m pip install influxdb numpy tensorflow
 
 RUN cd /tmp \
   && git clone https://gitlab.flux.utah.edu/powderrenewpublic/xapp-frame-cpp \
