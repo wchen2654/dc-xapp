@@ -797,6 +797,9 @@ void App::start()
 		// Acquire GIL
 		gstate = PyGILState_Ensure();
 
+		setenv("PYTHONHOME", "/usr", 1);
+    	setenv("PYTHONPATH", "/usr/lib/python3.8", 1);
+
 		PyRun_SimpleString("import sys; sys.argv = ['']");
 		PyRun_SimpleString("print(f'Python version: {sys.version}',flush=True)");
 		PyRun_SimpleString("sys.path.append('/nexran/src/')");
