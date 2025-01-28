@@ -35,7 +35,7 @@ RUN apt-get update \
   && make altinstall \
   && which python \
   && which python3.8 \
-  && update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
+  && update-alternatives --install /usr/bin/python python /usr/local/bin/python3.8 1 \
   && apt-get update \
   && python3.8.18 -m pip install influxdb numpy tensorflow
 
