@@ -18,7 +18,7 @@
 #include "restserver.h"
 //#include "restserver.cc"
 
-#include <Python.h>
+#include <python3.8/Python.h>
 #include <unistd.h>
 #include <dirent.h>
 #include <cstring>
@@ -796,9 +796,6 @@ void App::start()
 
 		// Acquire GIL
 		gstate = PyGILState_Ensure();
-
-		setenv("PYTHONHOME", "/usr", 1);
-    	setenv("PYTHONPATH", "/usr/lib/python3.8", 1);
 
 		PyRun_SimpleString("import sys; sys.argv = ['']");
 		PyRun_SimpleString("print(f'Python version: {sys.version}',flush=True)");
