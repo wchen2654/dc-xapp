@@ -27,7 +27,7 @@ RUN apt-get update \
 
 RUN add-apt-repository ppa:deadsnakes/ppa \ 
   && apt-get update \
-  && apt-get install -y python3.8 python3.8-distutils \
+  && apt-get install -y python3.8 python3.8-distutils python3.8-dev \
   && wget https://bootstrap.pypa.io/get-pip.py \
   && python3.8 get-pip.py \
   && update-alternatives --install /usr/bin/python python /usr/bin/python3.8 1 \
