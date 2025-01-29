@@ -30,11 +30,9 @@ RUN apt-get update \
   && wget https://www.python.org/ftp/python/3.8.18/Python-3.8.18.tgz \
   && tar xvf Python-3.8.18.tgz \
   && cd Python-3.8.18 \
-  && ./configure --enable-optimizations \
+  && ./configure --enable-optimizations --enable-shared --with-system-ffi LDFLAGS="-Wl,-rpath=/usr/local/lib" \
   && make \
   && make altinstall \
-  && which python \
-  && which python3.8 \
   && update-alternatives --install /usr/bin/python python /usr/local/bin/python3.8 1 \
   && apt-get update \
   && python3.8 -m pip install influxdb numpy tensorflow
