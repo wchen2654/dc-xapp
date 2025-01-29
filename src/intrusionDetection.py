@@ -122,7 +122,9 @@ def run_autoencoder_influxdb(client):
         epoch_loss = 0
         for batch_data, _ in dataset:
             with tf.GradientTape() as tape:
+                print("Before model", flush=True)
                 reconstructed = model(batch_data)
+                print("After model", flush=True)
                 loss = loss_fn(batch_data, reconstructed)
 
             gradients = tape.gradient(loss, model.trainable_variables)
