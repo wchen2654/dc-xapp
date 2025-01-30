@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+from tensorflow import keras
 from influxdb import InfluxDBClient
 import os
 
@@ -52,22 +53,34 @@ def fetchData():
     global client, trained
 
     # Connect to InfluxDB
-    try:
-        if client is None:
-            client = InfluxDBClient(host='ricplt-influxdb.ricplt.svc.cluster.local', port=8086)
-            client.switch_database('Data_Collector')
-    except Exception as e:
-        print("Error connecting to InfluxDB", e, flush=True)
+    # try:
+    #     if client is None:
+    #         client = InfluxDBClient(host='ricplt-influxdb.ricplt.svc.cluster.local', port=8086)
+    #         client.switch_database('Data_Collector')
+    # except Exception as e:
+    #     print("Error connecting to InfluxDB", e, flush=True)
 
-    try:
-        if not trained:
-            run_autoencoder_influxdb(client)
-            print("Training finished", flush=True)
+    # try:
+    #     if not trained:
+    #         run_autoencoder_influxdb(client)
+    #         print("Training finished", flush=True)
 
-        result = run_evaluation(client)
-        return result
-    except Exception as e:
-        print("Error occurred during training or evaluation", e, flush=True)
+    #     result = run_evaluation(client)
+    #     return result
+    # except Exception as e:
+    #     print("Error occurred during training or evaluation", e, flush=True)
+
+    model = keras.Sequential([
+        keras.layers.Dense(64, activation='relu', input_shape=(10,)),
+        keras.layers.Dense(32, activation='relu'),
+        keras.layers.Dense(1)
+    ])
+
+    print("Model summary before compile:")
+    model.summary()
+
+    model.compile(optimizer='adam', loss='mse')
+    print("Model compiled successfully!")
 
     return -1
 
