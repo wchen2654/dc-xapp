@@ -9,6 +9,9 @@ import os
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
+
 # Define parameters
 seq_length = 10
 hidden_dim = 64
@@ -49,6 +52,7 @@ class RNN_Autoencoder(tf.keras.Model):
 # Data fetching and preprocessing
 def fetchData():
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
+    print("TensorFlow running on:", tf.config.list_physical_devices(), flush=True)
 
     global client, trained
 
@@ -76,11 +80,11 @@ def fetchData():
         keras.layers.Dense(1)
     ])
 
-    print("Model summary before compile:")
+    print("Model summary before compile:", flush=True)
     model.summary()
 
     model.compile(optimizer='adam', loss='mse')
-    print("Model compiled successfully!")
+    print("Model compiled successfully!", flush=True)
 
     return -1
 
