@@ -76,18 +76,18 @@ def fetchData():
     # except Exception as e:
     #     print("Error occurred during training or evaluation", e, flush=True)
 
-    # model = keras.Sequential([
-    #     keras.layers.Dense(64, activation='relu', input_shape=(10,)),
-    #     keras.layers.Dense(32, activation='relu'),
-    #     keras.layers.Dense(1)
-    # ])
+    model = keras.Sequential([
+        keras.layers.Dense(64, activation='relu', input_shape=(10,)),
+        keras.layers.Dense(32, activation='relu'),
+        keras.layers.Dense(1)
+    ])
 
-    # print("Model summary before compile:", flush=True)
-    # model.summary()
+    print("Model summary before compile:", flush=True)
+    model.summary()
 
-    # model.compile(optimizer='adam', loss='mse')
-    a = tf.constant([[1.0, 2.0], [3.0, 4.0]])
-    b = tf.constant([[1.0, 1.0], [0.0, 1.0]])
+    model.compile(optimizer='adam', loss='mse')
+    # a = tf.constant([[1.0, 2.0], [3.0, 4.0]])
+    # b = tf.constant([[1.0, 1.0], [0.0, 1.0]])
     print("Model compiled successfully!", flush=True)
 
     return -1
