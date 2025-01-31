@@ -4,14 +4,6 @@ from tensorflow import keras
 from influxdb import InfluxDBClient
 import os
 
-
-# Setting up environment variables
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
-
 # Define parameters
 seq_length = 10
 hidden_dim = 64
@@ -51,6 +43,16 @@ class RNN_Autoencoder(tf.keras.Model):
 
 # Data fetching and preprocessing
 def fetchData():
+
+    # Setting up environment variables
+    os.environ["OMP_NUM_THREADS"] = "1"
+    os.environ["MKL_NUM_THREADS"] = "1"
+
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
+    tf.config.threading.set_intra_op_parallelism_threads(1)
+    tf.config.threading.set_inter_op_parallelism_threads(1)
+
     print("-- FETCHING DATA FROM INFLUXDB --", flush=True)
     print("TensorFlow running on:", tf.config.list_physical_devices(), flush=True)
 
